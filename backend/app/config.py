@@ -18,9 +18,11 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     platform_fee_bps: int = 0  # platform take-rate in basis points; 0 = free at launch
 
-    # AI
-    vision_api_key: str = ""
-    ad_copy_api_key: str = ""
+    # AI — product API keys (Anthropic sk-ant-api03-…), NOT the Max-plan OAuth token.
+    vision_api_key: str = ""       # Job 1: pedigree extraction from screenshots
+    ad_copy_api_key: str = ""      # Job 2: ad copy + translation
+    vision_model: str = "claude-sonnet-5"
+    ad_copy_model: str = "claude-haiku-4-5-20251001"
 
 
 settings = Settings()

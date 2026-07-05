@@ -58,8 +58,31 @@ def _template_copy(product_type: str, a: AnimalUpsert) -> str:
 
 
 def _call_llm(product_type: str, animal: AnimalUpsert, language: str) -> str:
-    """Real LLM call for ad copy / translation. Stubbed until a provider is wired."""
-    raise NotImplementedError("Ad-copy LLM provider not configured")
+    """Ad copy / translation via the Anthropic Messages API (Job 2)."""
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=settings.ad_copy_api_key)
+    facts = {
+        "product": _PRODUCT_NOUN.get(product_type, "genetics"),
+        "animal": animal.name,
+        "registration": animal.registration_no,
+        "bloodline": animal.bloodline,
+        "bloodline_detail": animal.bloodline_detail,
+        "breed": animal.breed,
+        "sire": animal.sire_name,
+    }
+    lang_note = "" if language in ("en", "", None) else f" Write the listing in {language}."
+    msg = client.messages.create(
+        model=settings.ad_copy_model,
+        max_tokens=400,
+        system=(
+            "You write concise, accurate, persuasive marketplace listings for frozen Wagyu "
+            "genetics (semen, embryos, cloning rights). 2-4 sentences. Never invent facts, "
+            "pedigree, or EPDs not given. No emojis, no hype clichés." + lang_note
+        ),
+        messages=[{"role": "user", "content": f"Write the listing copy from these facts: {facts}"}],
+    )
+    return "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
 
 
 # --------------------------------------------------------------------------- #
@@ -84,6 +107,64 @@ def extract_pedigree_from_image(image_bytes: bytes, filename: str = "") -> dict:
     }
 
 
+_PEDIGREE_TOOL = {
+    "name": "record_pedigree",
+    "description": "Record the Wagyu animal's registry details read from the screenshot.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "registration_no": {"type": "string"},
+            "animal_type": {"type": "string", "enum": ["bull", "cow", "steer"]},
+            "breed": {"type": "string"},
+            "bloodline": {"type": "string"},
+            "bloodline_detail": {"type": "string"},
+            "birth_year": {"type": "integer"},
+            "sire_reg": {"type": "string"},
+            "dam_reg": {"type": "string"},
+            "sire_name": {"type": "string"},
+            "dam_name": {"type": "string"},
+            "registry": {"type": "string"},
+        },
+        "required": ["name"],
+    },
+}
+
+
 def _call_vision(image_bytes: bytes, filename: str) -> dict:
-    """Real vision-model call with JSON-schema output. Stubbed until wired."""
-    raise NotImplementedError("Vision provider not configured")
+    """Pedigree extraction from a registry screenshot via Claude vision + forced tool use (Job 1)."""
+    import base64
+
+    import anthropic
+
+    media_type = "image/png"
+    low = filename.lower()
+    if low.endswith((".jpg", ".jpeg")):
+        media_type = "image/jpeg"
+    elif low.endswith(".webp"):
+        media_type = "image/webp"
+
+    client = anthropic.Anthropic(api_key=settings.vision_api_key)
+    msg = client.messages.create(
+        model=settings.vision_model,
+        max_tokens=700,
+        tools=[_PEDIGREE_TOOL],
+        tool_choice={"type": "tool", "name": "record_pedigree"},
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "image", "source": {
+                    "type": "base64", "media_type": media_type,
+                    "data": base64.b64encode(image_bytes).decode(),
+                }},
+                {"type": "text", "text": (
+                    "This is a screenshot of a Wagyu animal's registry page. Extract the animal's "
+                    "details. Only include fields you can actually read; omit anything uncertain."
+                )},
+            ],
+        }],
+    )
+    for block in msg.content:
+        if getattr(block, "type", "") == "tool_use":
+            return dict(block.input)
+    return {"name": "", "_needs_manual_entry": True}

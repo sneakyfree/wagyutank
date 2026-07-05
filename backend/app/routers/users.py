@@ -35,10 +35,18 @@ def update_me(payload: StorefrontUpdate, user: User = Depends(get_current_user),
 
 @router.post("/me/become-seller", response_model=UserPublic)
 def become_seller(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Placeholder for Stripe Connect Express onboarding (KYC + payout).
-    In production this returns a Stripe onboarding URL; here it marks the account seller-ready."""
+    """Mark the account seller-ready. Creates a real Stripe Connect Express account when
+    Stripe is configured (payout URL is fetched separately via /api/payments/connect/onboard);
+    falls back to a dev stub otherwise so listing works without Stripe."""
+    from ..services import payments as pay
     if not user.stripe_account_id:
-        user.stripe_account_id = f"acct_dev_{user.id}"
+        if pay.stripe_enabled():
+            try:
+                user.stripe_account_id = pay.create_express_account(user.email, user.country or "US")
+            except Exception:
+                user.stripe_account_id = f"acct_dev_{user.id}"
+        else:
+            user.stripe_account_id = f"acct_dev_{user.id}"
         db.commit()
         db.refresh(user)
     return user

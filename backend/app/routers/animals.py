@@ -1,13 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import Animal, AnimalSource, AnimalType, Listing, ListingStatus
 from ..schemas import AnimalOut, AnimalUpsert, ListingOut
+from ..services.ai import extract_pedigree_from_image
 from .listings import to_listing_out
 
 router = APIRouter(prefix="/api/animals", tags=["animals"])
+
+
+@router.post("/extract")
+async def extract_from_screenshot(file: UploadFile = File(...)):
+    """Screenshot -> structured pedigree (§9 Job 1). Returns fields shaped like AnimalUpsert.
+    Falls back to a manual-entry scaffold if no vision key is configured."""
+    data = await file.read()
+    if len(data) > 12 * 1024 * 1024:
+        raise HTTPException(413, "Image too large (max 12 MB).")
+    return extract_pedigree_from_image(data, file.filename or "")
 
 
 def find_animal(db: Session, reg_or_name: str) -> Animal | None:
