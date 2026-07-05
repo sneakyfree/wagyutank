@@ -6,15 +6,19 @@ Free to list. One account buys and sells. Type a registration number, drag a scr
 
 See [`MASTER_PLAN.md`](./MASTER_PLAN.md) for the full product genome and [`SPEC.md`](./SPEC.md) for detailed research.
 
-## Monorepo layout
+## Repo layout (this is the **backend** repo — private)
 
 ```
-wagyutank/
-├── backend/    FastAPI + SQLAlchemy — the canonical Animal spine, listings, auctions, accounts
-├── frontend/   Next.js (React) — mobile-first marketplace UI
-├── MASTER_PLAN.md
-└── SPEC.md
+wagyutank/                (private) — this repo: the API + planning docs
+├── backend/              FastAPI + SQLAlchemy — canonical Animal spine, listings, auctions, accounts, payments, AI
+├── MASTER_PLAN.md        product genome
+├── SPEC.md               research
+└── outreach-emails.md    Helical / AWA outreach drafts (keep private)
 ```
+
+The **frontend** lives in a separate public repo: [`sneakyfree/wagyutank-site`](https://github.com/sneakyfree/wagyutank-site) → deploys to Cloudflare Pages at `www.wagyutank.com`.
+
+**Deploy topology:** GitHub `main` is canonical. The VPS clones this repo and runs `backend/` as a systemd service on port 8120, reverse-proxied by nginx at `https://api.wagyutank.com` (Cloudflare-fronted). The site repo deploys to Cloudflare Pages.
 
 ## Backend — quick start
 
