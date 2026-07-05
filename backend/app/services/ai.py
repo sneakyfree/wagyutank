@@ -75,9 +75,9 @@ def _provider() -> dict | None:
         return {"kind": "openai", "key": settings.openai_api_key, "base_url": settings.openai_base_url,
                 "vision_model": settings.openai_vision_model, "adcopy_model": settings.openai_adcopy_model}
     if p == "windymind" and settings.windymind_api_key and settings.windymind_base_url:
-        return {"kind": "openai", "key": settings.windymind_api_key, "base_url": settings.windymind_base_url,
-                "vision_model": settings.windymind_vision_model or "default",
-                "adcopy_model": settings.windymind_adcopy_model or "default"}
+        return {"kind": "windymind", "key": settings.windymind_api_key, "base_url": settings.windymind_base_url,
+                "vision_model": settings.windymind_vision_model or "",
+                "adcopy_model": settings.windymind_adcopy_model or "auto"}
     return None
 
 
@@ -122,6 +122,19 @@ def _complete(prov: dict, product_type: str, animal: AnimalUpsert, language: str
             messages=[{"role": "user", "content": user}],
         )
         return "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
+    if prov["kind"] == "windymind":
+        # Windy Mind broker — OpenAI-shaped body at /v1/chat, text-only, free provider routing.
+        r = httpx.post(
+            f"{prov['base_url'].rstrip('/')}/v1/chat",
+            headers={"Authorization": f"Bearer {prov['key']}"},
+            json={"model": prov["adcopy_model"], "max_tokens": 400,
+                  "messages": [{"role": "system", "content": _AD_SYSTEM + lang},
+                               {"role": "user", "content": user}]},
+            timeout=45,
+        )
+        r.raise_for_status()
+        choice = r.json()["choices"][0]
+        return (choice.get("message", {}).get("content") or choice.get("content") or "").strip()
     # openai-compatible
     r = httpx.post(
         f"{prov['base_url'].rstrip('/')}/chat/completions",
@@ -179,6 +192,9 @@ def _media_type(filename: str) -> str:
 
 
 def _vision(prov: dict, image_bytes: bytes, filename: str) -> dict:
+    if prov["kind"] == "windymind":
+        # Windy Mind's /v1/chat is text-only (no image input) — fall back to manual confirm.
+        raise NotImplementedError("windymind has no vision surface")
     media = _media_type(filename)
     b64 = base64.b64encode(image_bytes).decode()
     prompt = ("This is a screenshot of a Wagyu animal's registry page. Extract the animal's "
