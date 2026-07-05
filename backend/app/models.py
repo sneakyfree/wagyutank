@@ -1,0 +1,362 @@
+"""
+The WagyuTank data spine.
+
+Principle #8 — the Animal is the atom: every registration number is ONE canonical
+`Animal` row. Listings, the pedigree cache, the pre-loaded foundation registry, photos,
+and the public animal pages are all views of this one table.
+"""
+from __future__ import annotations
+
+import enum
+from datetime import datetime, timezone
+
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from .db import Base
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+# ---------------------------------------------------------------------------
+# Enums (stored as strings so SQLite and Postgres behave identically)
+# ---------------------------------------------------------------------------
+def _enum(e):
+    return Enum(e, native_enum=False, length=32, validate_strings=True)
+
+
+class ProductType(str, enum.Enum):
+    SEMEN = "semen"
+    EMBRYO = "embryo"
+    CLONE_RIGHTS = "clone_rights"
+
+
+class SaleType(str, enum.Enum):
+    FIXED = "fixed"
+    AUCTION = "auction"
+
+
+class ListingStatus(str, enum.Enum):
+    DRAFT = "draft"          # lite/progressive publish before pedigree enrichment
+    ACTIVE = "active"
+    SOLD = "sold"
+    ENDED = "ended"
+    CANCELLED = "cancelled"
+
+
+class QuantityVisibility(str, enum.Enum):
+    EXACT = "exact"
+    RANGE = "range"
+    IN_STOCK_ONLY = "in_stock_only"   # default
+    HIDDEN = "hidden"
+
+
+class SemenType(str, enum.Enum):
+    CONVENTIONAL = "conventional"
+    SEXED_FEMALE = "sexed_female"
+    SEXED_MALE = "sexed_male"
+
+
+class AnimalType(str, enum.Enum):
+    BULL = "bull"
+    COW = "cow"
+    STEER = "steer"
+
+
+class AnimalSource(str, enum.Enum):
+    FOUNDATION = "foundation"   # pre-loaded by us
+    CACHE = "cache"             # captured from a seller's first listing
+    SELLER = "seller"           # seller-entered, unenriched
+
+
+class WhoPaysShipping(str, enum.Enum):
+    BUYER = "buyer"
+    SELLER = "seller"
+    SPLIT = "split"
+
+
+# ---------------------------------------------------------------------------
+# User / storefront
+# ---------------------------------------------------------------------------
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))
+    display_name: Mapped[str] = mapped_column(String(120))
+
+    # Storefront / brand persona
+    handle: Mapped[str | None] = mapped_column(String(64), unique=True, index=True)
+    bio: Mapped[str | None] = mapped_column(Text)
+    location: Mapped[str | None] = mapped_column(String(160))
+    country: Mapped[str | None] = mapped_column(String(2))
+    avatar_url: Mapped[str | None] = mapped_column(String(500))
+    banner_url: Mapped[str | None] = mapped_column(String(500))
+
+    is_email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # Stripe Connect (payout + KYC) / customer (buying)
+    stripe_account_id: Mapped[str | None] = mapped_column(String(64))
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(64))
+
+    # Dual reputation (eBay-style)
+    seller_rating: Mapped[float] = mapped_column(Float, default=0.0)
+    seller_rating_count: Mapped[int] = mapped_column(Integer, default=0)
+    buyer_rating: Mapped[float] = mapped_column(Float, default=0.0)
+    buyer_rating_count: Mapped[int] = mapped_column(Integer, default=0)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    listings: Mapped[list[Listing]] = relationship(
+        back_populates="seller", foreign_keys="Listing.seller_id"
+    )
+
+    @property
+    def is_seller(self) -> bool:
+        return self.stripe_account_id is not None
+
+    def badges(self) -> list[str]:
+        b = []
+        if self.is_email_verified:
+            b.append("email_verified")
+        if self.stripe_account_id:
+            b.append("stripe_verified_seller")
+        return b
+
+
+# ---------------------------------------------------------------------------
+# Facility directory (storage centers + cloning companies)
+# ---------------------------------------------------------------------------
+class Facility(Base):
+    __tablename__ = "facilities"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(160), index=True)
+    city: Mapped[str] = mapped_column(String(120))
+    state: Mapped[str] = mapped_column(String(80), default="")
+    country: Mapped[str] = mapped_column(String(2), default="US")
+    lat: Mapped[float | None] = mapped_column(Float)
+    lng: Mapped[float | None] = mapped_column(Float)
+    services: Mapped[list] = mapped_column(JSON, default=list)   # storage/semen/embryo/export/cloning/tissue_banking
+    export_qualified: Mapped[bool] = mapped_column(Boolean, default=False)
+    website: Mapped[str] = mapped_column(String(300), default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    seller_added: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+# ---------------------------------------------------------------------------
+# Animal — the canonical spine
+# ---------------------------------------------------------------------------
+class Animal(Base):
+    __tablename__ = "animals"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    registration_no: Mapped[str | None] = mapped_column(String(40), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(160), index=True)
+    aliases: Mapped[list] = mapped_column(JSON, default=list)
+
+    animal_type: Mapped[AnimalType] = mapped_column(_enum(AnimalType), default=AnimalType.BULL)
+    breed: Mapped[str | None] = mapped_column(String(60))          # Fullblood Black / Red (Akaushi) / Mishima / F1..F4
+    bloodline: Mapped[str | None] = mapped_column(String(60), index=True)  # Tajima / Fujiyoshi / Kedaka / Itozakura / ...
+    bloodline_detail: Mapped[str | None] = mapped_column(String(255))
+    blood_percentage: Mapped[str | None] = mapped_column(String(20))
+    birth_year: Mapped[int | None] = mapped_column(Integer)
+
+    # Pedigree by registration string (self-referential graph, resolved via reg lookups)
+    sire_reg: Mapped[str | None] = mapped_column(String(40), index=True)
+    dam_reg: Mapped[str | None] = mapped_column(String(40), index=True)
+    sire_name: Mapped[str | None] = mapped_column(String(160))
+    dam_name: Mapped[str | None] = mapped_column(String(160))
+
+    registry: Mapped[str | None] = mapped_column(String(24))       # AWA / AWA-AU / DigitalBeef / JP
+    importer: Mapped[str | None] = mapped_column(String(160))
+    import_year: Mapped[int | None] = mapped_column(Integer)
+    is_foundation: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    notable: Mapped[str | None] = mapped_column(Text)
+    au_progeny: Mapped[int | None] = mapped_column(Integer)
+
+    epd_data: Mapped[dict | None] = mapped_column(JSON)            # US EPDs
+    ebv_data: Mapped[dict | None] = mapped_column(JSON)            # AU EBVs
+
+    photo_url: Mapped[str | None] = mapped_column(String(500))
+    source: Mapped[AnimalSource] = mapped_column(_enum(AnimalSource), default=AnimalSource.SELLER)
+    confidence: Mapped[str | None] = mapped_column(String(12))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    listings: Mapped[list[Listing]] = relationship(
+        back_populates="animal",
+        primaryjoin="Animal.registration_no == foreign(Listing.animal_reg)",
+        viewonly=True,
+    )
+    photos: Mapped[list[AnimalPhoto]] = relationship(back_populates="animal")
+
+
+class AnimalPhoto(Base):
+    """Photo candidate index (Content Engine §10) — harvested photos are NEVER
+    auto-published; they sit here as candidates until the animal's owner confirms/licenses."""
+    __tablename__ = "animal_photos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    animal_id: Mapped[int] = mapped_column(ForeignKey("animals.id"), index=True)
+    url: Mapped[str] = mapped_column(String(500))
+    source_url: Mapped[str | None] = mapped_column(String(500))
+    attribution: Mapped[str | None] = mapped_column(String(255))
+    status: Mapped[str] = mapped_column(String(16), default="candidate")  # candidate / approved / seller_upload
+    uploaded_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    animal: Mapped[Animal] = relationship(back_populates="photos")
+
+
+# ---------------------------------------------------------------------------
+# Listing — a straw, an embryo, or a clone-right (three co-equal lines)
+# ---------------------------------------------------------------------------
+class Listing(Base):
+    __tablename__ = "listings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    product_type: Mapped[ProductType] = mapped_column(_enum(ProductType), index=True)
+    title: Mapped[str] = mapped_column(String(240))
+    description: Mapped[str | None] = mapped_column(Text)
+
+    # Genetics (references the canonical Animal by registration string)
+    animal_reg: Mapped[str | None] = mapped_column(String(40), index=True)  # semen animal / clone source
+    sire_reg: Mapped[str | None] = mapped_column(String(40))                # embryo sire
+    dam_reg: Mapped[str | None] = mapped_column(String(40))                 # embryo dam
+
+    # Product spec
+    semen_type: Mapped[SemenType | None] = mapped_column(_enum(SemenType))
+    embryo_grade: Mapped[str | None] = mapped_column(String(40))
+    embryo_sex: Mapped[str | None] = mapped_column(String(20))
+    straws_per_unit: Mapped[int | None] = mapped_column(Integer)
+
+    # Clone-rights specifics (§7B)
+    rights_count: Mapped[int | None] = mapped_column(Integer)        # how many clone-rights offered
+    exclusive: Mapped[bool] = mapped_column(Boolean, default=False)  # "the only clone ever"
+    lab_production_cost: Mapped[float | None] = mapped_column(Float) # est. cost payable to cloning lab
+    cloning_facility_id: Mapped[int | None] = mapped_column(ForeignKey("facilities.id"))
+
+    # Quantity + visibility
+    quantity_available: Mapped[int] = mapped_column(Integer, default=1)
+    quantity_visibility: Mapped[QuantityVisibility] = mapped_column(
+        _enum(QuantityVisibility), default=QuantityVisibility.IN_STOCK_ONLY
+    )
+    per_buyer_cap: Mapped[int | None] = mapped_column(Integer)
+
+    # Pricing / sale
+    sale_type: Mapped[SaleType] = mapped_column(_enum(SaleType), default=SaleType.FIXED)
+    unit_price: Mapped[float | None] = mapped_column(Float)
+    currency: Mapped[str] = mapped_column(String(3), default="USD")
+    # Auction fields
+    start_price: Mapped[float | None] = mapped_column(Float)
+    reserve_price: Mapped[float | None] = mapped_column(Float)
+    no_reserve: Mapped[bool] = mapped_column(Boolean, default=False)
+    ends_at: Mapped[datetime | None] = mapped_column(DateTime)
+    current_bid: Mapped[float | None] = mapped_column(Float)
+    current_bidder_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+
+    # Storage & shipping (§6)
+    storage_facility_id: Mapped[int | None] = mapped_column(ForeignKey("facilities.id"))
+    on_farm_storage: Mapped[bool] = mapped_column(Boolean, default=False)
+    facility_handles_shipping: Mapped[bool] = mapped_column(Boolean, default=True)
+    who_pays_shipping: Mapped[WhoPaysShipping] = mapped_column(
+        _enum(WhoPaysShipping), default=WhoPaysShipping.BUYER
+    )
+    tank_to_tank_available: Mapped[bool] = mapped_column(Boolean, default=False)
+    local_pickup: Mapped[bool] = mapped_column(Boolean, default=False)
+    export_eligibility: Mapped[list] = mapped_column(JSON, default=list)  # ["AUS","EU","CAN","US"]
+
+    # Media / state
+    photo_url: Mapped[str | None] = mapped_column(String(500))
+    video_embed_url: Mapped[str | None] = mapped_column(String(500))
+    status: Mapped[ListingStatus] = mapped_column(_enum(ListingStatus), default=ListingStatus.ACTIVE, index=True)
+    featured_until: Mapped[datetime | None] = mapped_column(DateTime)
+    views: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+    seller: Mapped[User] = relationship(back_populates="listings", foreign_keys=[seller_id])
+    animal: Mapped[Animal | None] = relationship(
+        back_populates="listings",
+        primaryjoin="foreign(Listing.animal_reg) == Animal.registration_no",
+        viewonly=True,
+    )
+    bids: Mapped[list[Bid]] = relationship(back_populates="listing", cascade="all, delete-orphan")
+
+
+class Bid(Base):
+    __tablename__ = "bids"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int] = mapped_column(ForeignKey("listings.id"), index=True)
+    bidder_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    amount: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    listing: Mapped[Listing] = relationship(back_populates="bids")
+
+
+# ---------------------------------------------------------------------------
+# Trust, retention, demand-side
+# ---------------------------------------------------------------------------
+class Feedback(Base):
+    __tablename__ = "feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int | None] = mapped_column(ForeignKey("listings.id"))
+    rater_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    ratee_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    ratee_role: Mapped[str] = mapped_column(String(8))   # "seller" | "buyer"
+    score: Mapped[int] = mapped_column(Integer)          # 1..5
+    comment: Mapped[str | None] = mapped_column(Text)
+    sub_scores: Mapped[dict | None] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class Follow(Base):
+    __tablename__ = "follows"
+    __table_args__ = (UniqueConstraint("follower_id", "target_type", "target_key"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    follower_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    target_type: Mapped[str] = mapped_column(String(12))   # "seller" | "bloodline" | "animal"
+    target_key: Mapped[str] = mapped_column(String(80))    # user handle / bloodline name / reg no
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class SavedSearch(Base):
+    __tablename__ = "saved_searches"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    label: Mapped[str | None] = mapped_column(String(120))
+    query: Mapped[dict] = mapped_column(JSON, default=dict)
+    notify: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class WantAd(Base):
+    __tablename__ = "want_ads"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    buyer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    product_type: Mapped[ProductType] = mapped_column(_enum(ProductType))
+    criteria: Mapped[dict] = mapped_column(JSON, default=dict)
+    note: Mapped[str | None] = mapped_column(Text)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
