@@ -31,6 +31,20 @@ uvicorn app.main:app --reload --port 8100
 
 Dev uses SQLite by default (`DATABASE_URL` in `.env`). Point `DATABASE_URL` at Postgres for production.
 
+## Frontend — quick start
+
+```bash
+cd frontend
+npm install
+cp .env.local.example .env.local   # NEXT_PUBLIC_API_BASE -> backend URL
+npm run dev                         # http://localhost:3000
+```
+
+Next.js (App Router, React 19), mobile-first, client-rendered against the API. Pages:
+`/` home · `/browse` faceted search · `/sell` the 60-second listing flow ·
+`/listing/[id]` · `/animal/[reg]` (canonical page + multi-seller offers) ·
+`/u/[handle]` storefront · `/history` breed history · `/login` · `/register` · `/dashboard`.
+
 ## Architecture principle: the Animal is the atom
 
 Every registration number is **one canonical `Animal` record** (pedigree, photos, history). Listings, offers, the pedigree cache, the pre-loaded foundation registry, and the public SEO/animal pages are all *views* of that one table. Build the spine once; the features fall out of it.
