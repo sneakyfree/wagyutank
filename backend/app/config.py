@@ -18,11 +18,26 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     platform_fee_bps: int = 0  # platform take-rate in basis points; 0 = free at launch
 
-    # AI — product API keys (Anthropic sk-ant-api03-…), NOT the Max-plan OAuth token.
-    vision_api_key: str = ""       # Job 1: pedigree extraction from screenshots
-    ad_copy_api_key: str = ""      # Job 2: ad copy + translation
-    vision_model: str = "claude-sonnet-5"
-    ad_copy_model: str = "claude-haiku-4-5-20251001"
+    # ---- AI providers (swappable via AI_PROVIDER; template fallback if unconfigured) ----
+    ai_provider: str = "anthropic"   # anthropic | openai | windymind
+
+    # Anthropic — pay-as-you-go PRODUCT key (sk-ant-api03-…), NOT the Max-plan OAuth token.
+    # Haiku for BOTH jobs during testing so all Haiku spend is attributable to WagyuTank.
+    anthropic_api_key: str = ""
+    anthropic_vision_model: str = "claude-haiku-4-5"
+    anthropic_adcopy_model: str = "claude-haiku-4-5"
+
+    # OpenAI-compatible (also drives Windy Mind — just point base_url at its gateway)
+    openai_api_key: str = ""
+    openai_base_url: str = "https://api.openai.com/v1"
+    openai_vision_model: str = "gpt-4o-mini"
+    openai_adcopy_model: str = "gpt-4o-mini"
+
+    # Windy Mind (Grant's free-compute gateway; OpenAI-compatible assumed). Spring-loaded.
+    windymind_api_key: str = ""
+    windymind_base_url: str = ""
+    windymind_vision_model: str = ""
+    windymind_adcopy_model: str = ""
 
 
 settings = Settings()
