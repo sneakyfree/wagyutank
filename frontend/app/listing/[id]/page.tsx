@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api, PRODUCT_GLYPH, PRODUCT_LABEL, money } from "../../../lib/api";
 import { useAuth } from "../../../lib/auth";
+import Checkout from "../../../components/Checkout";
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +13,7 @@ export default function ListingDetail() {
   const [bid, setBid] = useState("");
   const [toast, setToast] = useState("");
   const [err, setErr] = useState("");
+  const [checkout, setCheckout] = useState<{ secret: string | null; label: string } | null>(null);
 
   function load() { api.listing(id).then(setL).catch(() => setL(false as any)); }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [id]);
@@ -28,6 +30,15 @@ export default function ListingDetail() {
       const updated = await api.bid(l.id, parseFloat(bid));
       setL(updated); setBid(""); setToast("Bid placed!");
       setTimeout(() => setToast(""), 2500);
+    } catch (e: any) { setErr(e.message); }
+  }
+
+  async function buyNow() {
+    setErr("");
+    try {
+      const res = await api.buyIntent(l.id);
+      if (res.dev_mode) { setToast("Test order created (Stripe not fully live)."); setTimeout(() => setToast(""), 2500); return; }
+      setCheckout({ secret: res.client_secret, label: money(res.buyer_total_cents / 100, l.currency) });
     } catch (e: any) { setErr(e.message); }
   }
 
@@ -96,10 +107,11 @@ export default function ListingDetail() {
                       {!user && <p className="help">Sign in and add a payment method to bid.</p>}
                     </div>
                   ) : (
-                    <button className="btn btn-gold btn-block btn-lg" disabled={!user}>
+                    <button className="btn btn-gold btn-block btn-lg" disabled={!user} onClick={buyNow}>
                       {user ? "Buy now" : "Sign in to buy"}
                     </button>
                   )}
+                  {!isAuction && <p className="help">Buyer covers card processing (shown at checkout). You pay the facility for shipping at cost.</p>}
                   <button className="btn btn-block" style={{ marginTop: 10 }} onClick={share}>↗ Share</button>
                   {err && <p className="help" style={{ color: "var(--red)" }}>{err}</p>}
                 </div>
@@ -133,6 +145,14 @@ export default function ListingDetail() {
         </div>
       </div>
       {toast && <div className="toast">{toast}</div>}
+      {checkout && (
+        <Checkout
+          clientSecret={checkout.secret}
+          amountLabel={checkout.label}
+          onClose={() => setCheckout(null)}
+          onSuccess={() => { setCheckout(null); setToast("Purchase complete! 🎉"); load(); setTimeout(() => setToast(""), 3000); }}
+        />
+      )}
     </div>
   );
 }

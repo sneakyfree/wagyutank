@@ -68,6 +68,26 @@ export const api = {
     req(`/api/search?${new URLSearchParams(clean(params))}`),
   facets: () => req("/api/search/facets"),
 
+  // payments
+  paymentsConfig: () => req("/api/payments/config"),
+  quote: (listingId: number | string) => req(`/api/payments/quote/${listingId}`),
+  onboard: () => req("/api/payments/connect/onboard", { method: "POST" }),
+  buyIntent: (listingId: number) => req(`/api/payments/buy/${listingId}`, { method: "POST" }),
+  featureIntent: (listingId: number, days = 7) =>
+    req(`/api/payments/feature/${listingId}?days=${days}`, { method: "POST" }),
+
+  // screenshot -> pedigree extraction
+  extractPedigree: async (fileFieldForm: FormData) => {
+    const t = typeof window !== "undefined" ? localStorage.getItem("wt_token") : null;
+    const res = await fetch(`${API_BASE}/api/animals/extract`, {
+      method: "POST",
+      headers: t ? { Authorization: `Bearer ${t}` } : {},
+      body: fileFieldForm,
+    });
+    if (!res.ok) throw new Error("Extraction failed");
+    return res.json();
+  },
+
   // storefront + content
   storefront: (handle: string) => req(`/api/users/${encodeURIComponent(handle)}`),
   breedHistory: () => req("/api/content/breed-history"),

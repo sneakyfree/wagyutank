@@ -36,6 +36,25 @@ export default function Sell() {
   const [facilities, setFacilities] = useState<any[]>([]);
   const [facility, setFacility] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [extractNote, setExtractNote] = useState("");
+
+  async function onScreenshot(file: File) {
+    setExtracting(true); setExtractNote("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const data = await api.extractPedigree(fd);
+      if (data._needs_manual_entry || !data.name) {
+        setExtractNote("Couldn't auto-read this image — type the registration number or confirm the details manually.");
+      } else {
+        setAnimal(data); setAnimalQuery(data.name);
+        setExtractNote(`Read ${data.name}${data.registration_no ? ` (${data.registration_no})` : ""} from your screenshot.`);
+      }
+    } catch {
+      setExtractNote("Extraction failed — you can still type the registration number.");
+    } finally { setExtracting(false); }
+  }
 
   useEffect(() => {
     if (animalQuery.length < 2) { setSuggestions([]); return; }
@@ -172,11 +191,23 @@ export default function Sell() {
             </div>
           )}
 
-          {!animal && animalQuery.length >= 2 && (
-            <p className="help">
-              Not one of ours yet? Open your animal's page on the registry, screenshot the pedigree, and we'll read it — or just continue and confirm the details. (Screenshot capture wires in with the vision key.)
-            </p>
-          )}
+          <div className="card card-pad" style={{ marginTop: 14, background: "var(--bg-elev)" }}>
+            <div className="row" style={{ gap: 10 }}>
+              <div style={{ fontSize: "1.6rem" }}>📸</div>
+              <div style={{ flex: 1 }}>
+                <strong>No notes handy?</strong>
+                <p className="muted" style={{ fontSize: "0.88rem", margin: "2px 0 0" }}>
+                  Open your animal on the registry, screenshot the pedigree, and we'll read it for you.
+                </p>
+              </div>
+              <label className="btn" style={{ cursor: "pointer" }}>
+                {extracting ? "Reading…" : "Upload screenshot"}
+                <input type="file" accept="image/*" style={{ display: "none" }}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) onScreenshot(f); }} />
+              </label>
+            </div>
+            {extractNote && <p className="help" style={{ marginTop: 8 }}>{extractNote}</p>}
+          </div>
 
           {isEmbryo && animal && (
             <div className="field" style={{ marginTop: 18 }}>
