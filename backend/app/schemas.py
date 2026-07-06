@@ -101,8 +101,12 @@ class AnimalOut(BaseModel):
     dam_name: str | None
     registry: str | None
     importer: str | None
+    prefecture: str | None = None
     is_foundation: bool
     notable: str | None
+    bio: str | None = None
+    marbling_note: str | None = None
+    photo_note: str | None = None
     au_progeny: int | None
     photo_url: str | None
     source: str

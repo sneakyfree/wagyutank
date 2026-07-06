@@ -185,8 +185,12 @@ class Animal(Base):
     registry: Mapped[str | None] = mapped_column(String(24))       # AWA / AWA-AU / DigitalBeef / JP
     importer: Mapped[str | None] = mapped_column(String(160))
     import_year: Mapped[int | None] = mapped_column(Integer)
+    prefecture: Mapped[str | None] = mapped_column(String(60))     # Japanese prefecture of origin
     is_foundation: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
-    notable: Mapped[str | None] = mapped_column(Text)
+    notable: Mapped[str | None] = mapped_column(Text)              # one-line significance
+    bio: Mapped[str | None] = mapped_column(Text)                  # long-form narrative (breed-history section)
+    marbling_note: Mapped[str | None] = mapped_column(Text)        # marbling / EBV / carcass reputation
+    photo_note: Mapped[str | None] = mapped_column(String(300))    # photo attribution
     au_progeny: Mapped[int | None] = mapped_column(Integer)
 
     epd_data: Mapped[dict | None] = mapped_column(JSON)            # US EPDs
