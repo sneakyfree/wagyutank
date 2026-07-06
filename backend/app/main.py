@@ -22,6 +22,8 @@ app.add_middleware(
         "https://www.wagyutank.com",
         "https://wagyutank.com",
     ],
+    # Cloudflare Pages production + preview deploys (wagyutank.pages.dev, <hash>.wagyutank.pages.dev)
+    allow_origin_regex=r"https://([a-z0-9-]+\.)?wagyutank\.pages\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
