@@ -29,6 +29,23 @@ def create_access_token(user_id: int) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
+def create_preauth_token(user_id: int) -> str:
+    """Short-lived token issued after password success when 2FA is pending."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=5)
+    payload = {"sub": str(user_id), "scope": "2fa", "exp": expire}
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def user_id_from_preauth(token: str) -> int | None:
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        if payload.get("scope") != "2fa":
+            return None
+        return int(payload.get("sub"))
+    except (JWTError, TypeError, ValueError):
+        return None
+
+
 def _user_from_token(token: str | None, db: Session) -> User | None:
     if not token:
         return None

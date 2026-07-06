@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from ..config import settings as cfg
 from ..db import get_db
-from ..models import Ad, AggregatedListing, Listing, Order, User
+from ..models import Ad, AggregatedListing, Event, Listing, Order, User
 from ..security import require_admin
 from ..services import ai, settings_store
 
@@ -86,6 +86,48 @@ def overview(db: Session = Depends(get_db)):
             "orders": _timeseries(db, Order.created_at, where=(Order.status == "paid")),
         },
         "ai_provider": ai.active_provider_label(),
+    }
+
+
+# ---------------------------------------------------------------- Analytics
+@router.get("/analytics")
+def analytics(days: int = 30, db: Session = Depends(get_db)):
+    now = _now()
+    start = (now - timedelta(days=days - 1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    pv = Event.type == "page_view"
+
+    # daily unique visitors (distinct session)
+    uniq_rows = {str(r[0]): r[1] for r in db.query(
+        func.date(Event.created_at), func.count(func.distinct(Event.session_id))
+    ).filter(pv, Event.created_at >= start).group_by(func.date(Event.created_at)).all()}
+    visitors_series, pv_series = [], []
+    pv_rows = {r["date"]: r["count"] for r in _timeseries(db, Event.created_at, days, where=pv)}
+    for i in range(days):
+        d = (start + timedelta(days=i)).strftime("%Y-%m-%d")
+        visitors_series.append({"date": d, "count": uniq_rows.get(d, 0)})
+        pv_series.append({"date": d, "count": pv_rows.get(d, 0)})
+
+    top_pages = [{"path": p or "(none)", "views": n} for p, n in db.query(Event.path, func.count())
+                 .filter(pv, Event.created_at >= start).group_by(Event.path)
+                 .order_by(func.count().desc()).limit(10).all()]
+    top_searches = [{"q": q, "n": n} for q, n in db.query(
+        func.json_extract(Event.meta, "$.q"), func.count())
+        .filter(Event.type == "search", Event.created_at >= start)
+        .group_by(func.json_extract(Event.meta, "$.q")).order_by(func.count().desc()).limit(10).all() if q]
+    referrers = [{"ref": r, "n": n} for r, n in db.query(Event.referrer, func.count())
+                 .filter(pv, Event.referrer != None, Event.created_at >= start)  # noqa: E711
+                 .group_by(Event.referrer).order_by(func.count().desc()).limit(8).all() if r]
+
+    visitors = db.query(func.count(func.distinct(Event.session_id))).filter(pv, Event.created_at >= start).scalar() or 0
+    signups = db.query(User).filter(User.created_at >= start).count()
+    sellers = db.query(User).filter(User.created_at >= start, User.stripe_account_id != None).count()  # noqa: E711
+    purchases = db.query(Order).filter(Order.created_at >= start, Order.status == "paid").count()
+    return {
+        "days": days, "has_data": (db.query(Event).count() > 0),
+        "charts": {"visitors": visitors_series, "page_views": pv_series},
+        "top_pages": top_pages, "top_searches": top_searches, "referrers": referrers,
+        "funnel": [{"step": "Visitors", "n": visitors}, {"step": "Signups", "n": signups},
+                   {"step": "Sellers", "n": sellers}, {"step": "Purchases", "n": purchases}],
     }
 
 

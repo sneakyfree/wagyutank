@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     # Super-admin bootstrap — accounts with these emails are promoted to admin on migrate.
     admin_emails: str = "grant@wagyutank.com,johnsmithkit05@gmail.com"
 
+    # Email (Resend) — wagyutank.com is a verified sending domain.
+    resend_api_key: str = ""
+    mail_from: str = "WagyuTank <noreply@wagyutank.com>"
+    app_base_url: str = "https://www.wagyutank.com"
+
     # ---- AI providers (swappable via AI_PROVIDER; template fallback if unconfigured) ----
     ai_provider: str = "anthropic"   # anthropic | openai | windymind
 

@@ -17,6 +17,8 @@ _MIGRATIONS = {
         "phone": "VARCHAR(32)",
         "recovery_email": "VARCHAR(255)",
         "marketing_opt_in": "BOOLEAN DEFAULT 1",
+        "totp_secret": "VARCHAR(64)",
+        "totp_enabled": "BOOLEAN DEFAULT 0",
     },
     "listings": {
         "css_status": "VARCHAR(12) DEFAULT 'unknown'",

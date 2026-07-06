@@ -119,6 +119,10 @@ class User(Base):
     recovery_email: Mapped[str | None] = mapped_column(String(255))
     marketing_opt_in: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    # Two-factor (TOTP)
+    totp_secret: Mapped[str | None] = mapped_column(String(64))
+    totp_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+
     # Stripe Connect (payout + KYC) / customer (buying)
     stripe_account_id: Mapped[str | None] = mapped_column(String(64))
     stripe_customer_id: Mapped[str | None] = mapped_column(String(64))
@@ -376,6 +380,32 @@ class WantAd(Base):
     note: Mapped[str | None] = mapped_column(Text)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class PasswordReset(Base):
+    """Single-use password-reset token (only the sha256 hash is stored)."""
+    __tablename__ = "password_resets"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime)
+    used: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class Event(Base):
+    """First-party analytics event — page views + key funnel steps."""
+    __tablename__ = "events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    type: Mapped[str] = mapped_column(String(32), index=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    session_id: Mapped[str | None] = mapped_column(String(40), index=True)
+    path: Mapped[str | None] = mapped_column(String(300))
+    referrer: Mapped[str | None] = mapped_column(String(300))
+    meta: Mapped[dict | None] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
 class Setting(Base):

@@ -1,13 +1,18 @@
+import hashlib
 import re
+import secrets
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+from ..config import settings as cfg
 from ..db import get_db
-from ..models import User
+from ..models import PasswordReset, User
 from ..schemas import Token, UserCreate, UserPrivate
 from ..security import create_access_token, get_current_user, hash_password, verify_password
+from ..services import email as mail
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -47,10 +52,25 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
+    try:
+        mail.send_welcome(user.email, user.display_name)
+    except Exception:
+        pass
     return Token(access_token=create_access_token(user.id), user=_private(user))
 
 
-@router.post("/login", response_model=Token)
+def _now():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def _finish_login(user: User, db: Session) -> dict:
+    user.last_login_at = _now()
+    db.commit()
+    return {"access_token": create_access_token(user.id), "token_type": "bearer",
+            "user": _private(user).model_dump()}
+
+
+@router.post("/login")
 def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # OAuth2 form uses "username"; we accept the email there.
     user = db.query(User).filter(User.email == form.username).first()
@@ -60,12 +80,110 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
         raise HTTPException(403, "This account is suspended. Contact support@wagyutank.com.")
     if user.account_status == "deleted":
         raise HTTPException(401, "Incorrect email or password.")
-    from datetime import datetime, timezone
-    user.last_login_at = datetime.now(timezone.utc).replace(tzinfo=None)
-    db.commit()
-    return Token(access_token=create_access_token(user.id), user=_private(user))
+    if user.totp_enabled:
+        from ..security import create_preauth_token
+        return {"twofa_required": True, "challenge": create_preauth_token(user.id)}
+    return _finish_login(user, db)
+
+
+@router.post("/2fa/verify")
+def twofa_verify(challenge: str = Body(...), code: str = Body(...), db: Session = Depends(get_db)):
+    import pyotp
+    from ..security import user_id_from_preauth
+    uid = user_id_from_preauth(challenge)
+    user = db.get(User, uid) if uid else None
+    if not user or not user.totp_secret:
+        raise HTTPException(401, "Challenge expired — please sign in again.")
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        raise HTTPException(401, "Invalid authentication code.")
+    return _finish_login(user, db)
 
 
 @router.get("/me", response_model=UserPrivate)
 def me(user: User = Depends(get_current_user)):
     return _private(user)
+
+
+# ------------------------------------------------------------------ 2FA setup
+@router.post("/2fa/setup")
+def twofa_setup(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Generate (or reuse) a TOTP secret and return a QR to scan. Not active until enabled."""
+    import pyotp
+    import segno
+    if not user.totp_secret or user.totp_enabled:
+        if not user.totp_enabled:
+            user.totp_secret = pyotp.random_base32()
+            db.commit()
+    uri = pyotp.totp.TOTP(user.totp_secret).provisioning_uri(name=user.email, issuer_name="WagyuTank")
+    import io
+    buf = io.BytesIO()
+    segno.make(uri, error="m").save(buf, kind="svg", scale=4, dark="#1a1a1a", light="#ffffff")
+    svg = buf.getvalue().decode()
+    import base64
+    data_uri = "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+    return {"secret": user.totp_secret, "otpauth_uri": uri, "qr_svg": data_uri,
+            "enabled": user.totp_enabled}
+
+
+@router.post("/2fa/enable")
+def twofa_enable(code: str = Body(..., embed=True), user: User = Depends(get_current_user),
+                 db: Session = Depends(get_db)):
+    import pyotp
+    if not user.totp_secret:
+        raise HTTPException(400, "Start 2FA setup first.")
+    if not pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1):
+        raise HTTPException(400, "That code didn't match — try again.")
+    user.totp_enabled = True
+    db.commit()
+    return {"enabled": True}
+
+
+@router.post("/2fa/disable")
+def twofa_disable(code: str = Body(..., embed=True), user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
+    import pyotp
+    if user.totp_enabled and not (user.totp_secret and pyotp.TOTP(user.totp_secret).verify(code.strip(), valid_window=1)):
+        raise HTTPException(400, "Enter a current code to disable 2FA.")
+    user.totp_enabled = False
+    user.totp_secret = None
+    db.commit()
+    return {"enabled": False}
+
+
+# ------------------------------------------------------------ Password reset
+def _hash_token(raw: str) -> str:
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
+@router.post("/forgot-password")
+def forgot_password(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
+    """Always 200 — never reveal whether an account exists."""
+    generic = {"message": "If an account exists for that email, we've sent a reset link."}
+    user = db.query(User).filter(User.email == email.strip().lower()).first()
+    if not user or user.account_status == "deleted":
+        return generic
+    raw = secrets.token_urlsafe(32)
+    db.add(PasswordReset(user_id=user.id, token_hash=_hash_token(raw),
+                         expires_at=_now() + timedelta(minutes=45)))
+    db.commit()
+    reset_url = f"{cfg.app_base_url}/reset-password?token={raw}"
+    if mail.enabled():
+        mail.send_password_reset(user.email, reset_url)
+        return generic
+    # Dev fallback (no mail configured): surface the URL so resets are testable.
+    return {**generic, "dev_reset_url": reset_url}
+
+
+@router.post("/reset-password")
+def reset_password(token: str = Body(...), new_password: str = Body(..., min_length=8),
+                   db: Session = Depends(get_db)):
+    row = db.query(PasswordReset).filter(PasswordReset.token_hash == _hash_token(token)).first()
+    if not row or row.used or row.expires_at < _now():
+        raise HTTPException(400, "This reset link is invalid or has expired.")
+    user = db.get(User, row.user_id)
+    if not user:
+        raise HTTPException(400, "Account not found.")
+    user.hashed_password = hash_password(new_password)
+    row.used = True
+    db.commit()
+    return {"ok": True, "message": "Password updated — you can sign in now."}
