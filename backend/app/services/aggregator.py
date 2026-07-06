@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import time
 from datetime import datetime, timezone
@@ -82,6 +83,19 @@ DISCOVERY_QUERIES = [
 
 _PRODUCT_LABEL = {"semen": "Semen", "embryo": "Embryos", "clone_rights": "Cloning Rights"}
 
+# Extra seed URLs discovered offline (residential IP) and committed to the repo,
+# because search engines block the VPS's datacenter IP. Refreshed periodically.
+_SEED_FILE = os.path.join(os.path.dirname(__file__), "seed_sources.json")
+
+
+def _load_seed_file() -> list[str]:
+    try:
+        with open(_SEED_FILE) as f:
+            data = json.load(f)
+        return [u for u in data if isinstance(u, str) and u.startswith("http")]
+    except Exception:
+        return []
+
 # country (ISO-2) -> broad region code for the "international feel" facet.
 _REGION_BY_COUNTRY = {
     "US": "NA", "CA": "NA", "MX": "NA",
@@ -128,6 +142,86 @@ def _fetch(url: str) -> str | None:
     return None
 
 
+def _classify_product(text: str) -> str | None:
+    t = (text or "").lower()
+    if any(w in t for w in ("embryo", "ivf", "ivp")):
+        return "embryo"
+    if any(w in t for w in ("clone", "cloning", "cell line", "cell-line")):
+        return "clone_rights"
+    if any(w in t for w in ("semen", "straw", "sire", " ai ", "insemination")):
+        return "semen"
+    return None
+
+
+def _clean_animal_name(title: str) -> str | None:
+    name = re.sub(r"(?i)\b(frozen|wagyu|akaushi|red|fullblood|full[- ]?blood|semen|straws?|"
+                  r"embryos?|ivf|for sale|genetics?|sexed|conventional|per|each|unit)\b", " ", title)
+    name = re.sub(r"[\-–|•,/]+", " ", name)
+    name = re.sub(r"\s+", " ", name).strip(" -–|")
+    return name or None
+
+
+def _shopify_products(base_url: str) -> list[dict] | None:
+    """Fast-path for Shopify stores: /products.json is structured — no LLM needed.
+    Returns listing dicts (each with a `_url`), or None if the site isn't Shopify."""
+    p = urlparse(base_url)
+    root = f"{p.scheme}://{p.netloc}"
+    tld = p.netloc.rsplit(".", 1)[-1].lower()
+    country = _TLD_COUNTRY.get(tld)
+    listings: list[dict] = []
+    for page in range(1, 6):
+        try:
+            r = httpx.get(f"{root}/products.json", params={"limit": 250, "page": page},
+                          headers={"User-Agent": USER_AGENT}, timeout=20, follow_redirects=True)
+            if r.status_code != 200 or "json" not in r.headers.get("content-type", ""):
+                return None if page == 1 else listings
+            prods = r.json().get("products", [])
+        except Exception:
+            return None if page == 1 else listings
+        if not prods:
+            break
+        for pr in prods:
+            title = (pr.get("title") or "").strip()
+            title_l = title.lower()
+            tags = " ".join(pr.get("tags", []) if isinstance(pr.get("tags"), list) else [str(pr.get("tags", ""))])
+            body = re.sub(r"<[^>]+>", " ", pr.get("body_html") or "")
+            # relevance can look at the body; classification must not (avoids false positives)
+            if not any(w in f"{title_l} {tags} {body}".lower() for w in ("wagyu", "akaushi")):
+                continue
+            # hard-exclude live-animal listings even if the title also mentions embryo/semen
+            if any(p in title_l for p in ("cows & heifers", "cows and heifers", "heifers for sale",
+                                          "cows for sale", "bulls for sale", "cattle for sale",
+                                          "live cattle", "bred heifer", "bred cow")):
+                continue
+            # exclude live animals + beef/meat unless the title itself names a genetics product
+            has_genetics_word = any(g in title_l for g in ("semen", "embryo", "straw", "ivf", "clone"))
+            if not has_genetics_word and any(w in title_l for w in (
+                    "heifer", "cow", "calf", "steer", "bull for sale", "bred female", "live ",
+                    "beef", "meat", "brisket", "ribeye", "steak", "ground", "roast", "freezer")):
+                continue
+            # classify from title + tags + shopify's product_type only (never the body)
+            ptype = _classify_product(f"{title_l} {tags} {pr.get('product_type', '')}")
+            if not ptype:
+                continue
+            price = None
+            for v in (pr.get("variants") or []):
+                try:
+                    price = float(v.get("price"))
+                    break
+                except (TypeError, ValueError):
+                    continue
+            listings.append({
+                "product_type": ptype, "title": title, "animal_name": _clean_animal_name(title),
+                "registration_no": None, "bloodline": None, "price": price,
+                "price_unit": "straw" if ptype == "semen" else ("embryo" if ptype == "embryo" else None),
+                "currency": "USD", "quantity": None, "seller_name": pr.get("vendor") or None,
+                "location": None, "country": country, "css_status": "unknown", "export_regions": [],
+                "_url": f"{root}/products/{pr.get('handle')}",
+            })
+        time.sleep(1)
+    return listings
+
+
 def _pagination_links(html: str, base_url: str) -> list[str]:
     """Find same-domain pagination links (page 2, 3, ...) on a catalog page."""
     site = urlparse(base_url).netloc
@@ -150,7 +244,7 @@ def _html_to_text(html: str) -> str:
     text = re.sub(r"(?s)<[^>]+>", " ", html)
     text = re.sub(r"&nbsp;|&amp;|&#39;|&quot;", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
-    return text[:14000]
+    return text[:9000]
 
 
 _EXTRACT_SYSTEM = (
@@ -168,10 +262,28 @@ _EXTRACT_SYSTEM = (
 )
 
 
+_LAST_LLM = [0.0]      # global throttle — free-tier LLMs cap tokens/minute
+MIN_LLM_GAP = 5.0      # min seconds between extraction calls
+
+
 def _extract(text: str, source_url: str) -> list[dict]:
     if not text:
         return []
-    out = chat(_EXTRACT_SYSTEM, f"Page URL: {source_url}\n\nPage text:\n{text}", max_tokens=1800)
+    out = None
+    for attempt in range(2):  # free-tier LLMs rate-limit under load; back off once
+        gap = MIN_LLM_GAP - (time.monotonic() - _LAST_LLM[0])
+        if gap > 0:
+            time.sleep(gap)
+        try:
+            out = chat(_EXTRACT_SYSTEM, f"Page URL: {source_url}\n\nPage text:\n{text}", max_tokens=1800)
+            _LAST_LLM[0] = time.monotonic()
+            break
+        except Exception:
+            _LAST_LLM[0] = time.monotonic()
+            if attempt == 0:
+                time.sleep(15)
+            else:
+                return []
     if not out:
         return []
     # Pull the first JSON array out of the response.
@@ -271,7 +383,7 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         return False
     db.add(AggregatedListing(
         dedup_key=key, product_type=product,
-        title=_title(animal, product, li.get("seller_name")),
+        title=(li.get("title") or _title(animal, product, li.get("seller_name")))[:240],
         summary=_summary(li, animal, product),
         animal_name=animal, animal_reg=(li.get("registration_no") or None),
         bloodline=(li.get("bloodline") or None),
@@ -340,9 +452,28 @@ def _crawl_source(db, start_url: str, visited: set, budget: list) -> tuple[int, 
     (added, seen, pages_fetched, ok). `budget` is a 1-element list = remaining
     global page budget (mutated in place)."""
     site = urlparse(start_url).netloc
-    queue = [start_url]
     added = seen = pages = 0
     ok = False
+
+    # Fast-path: Shopify stores expose structured /products.json — no LLM, no rate limit.
+    try:
+        if _robots_ok(start_url):
+            shop = _shopify_products(start_url)
+            budget[0] -= 1
+            if shop is not None:  # confirmed Shopify
+                ok = True
+                for li in shop:
+                    seen += 1
+                    url = li.pop("_url", start_url)
+                    if _upsert(db, li, url, site):
+                        added += 1
+                db.commit()
+                time.sleep(1.5)
+                return added, seen, 1, ok
+    except Exception:
+        db.rollback()
+
+    queue = [start_url]
     while queue and pages < MAX_PAGES_PER_SITE and budget[0] > 0:
         url = queue.pop(0)
         if url in visited:
@@ -378,7 +509,10 @@ def run(db, sources: list[str] | None = None, delist: bool = True,
     """Discover + crawl seller catalogs (with pagination), extract listings, upsert.
     Delist listings from successfully-fetched sources not seen this run."""
     started = _now()
-    srcs = list(sources or SEED_SOURCES)
+    if sources is not None:
+        srcs = list(sources)
+    else:
+        srcs = list(dict.fromkeys(SEED_SOURCES + _load_seed_file()))  # dedupe, keep order
     discovered = 0
     if discover:
         extra = _discover()
