@@ -32,6 +32,8 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
             raise HTTPException(400, "That storefront handle is unavailable.")
         if db.query(User).filter(User.handle == handle).first():
             raise HTTPException(400, "That storefront handle is taken.")
+    from ..config import settings as _cfg
+    admin_emails = {e.strip().lower() for e in (_cfg.admin_emails or "").split(",") if e.strip()}
     user = User(
         email=payload.email,
         hashed_password=hash_password(payload.password),
@@ -40,6 +42,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         phone=(payload.phone or "").strip() or None,
         recovery_email=payload.recovery_email,
         marketing_opt_in=payload.marketing_opt_in,
+        role="admin" if payload.email.lower() in admin_emails else "user",
     )
     db.add(user)
     db.commit()
