@@ -29,18 +29,57 @@ from ..models import AggregatedListing, ProductType
 from .ai import chat
 
 USER_AGENT = "WagyuTankBot/1.0 (+https://www.wagyutank.com/roundup; aggregator)"
+# Search engines gate non-browser agents; use a browser UA only for the discovery query.
+SEARCH_UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+             "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
 
-# Curated seed of public Wagyu-genetics listing pages. The daily job also runs a
-# web-search discovery step to grow this over time; sellers/sites can opt out.
+# Curated international seed of public Wagyu/Akaushi genetics listing pages. The
+# daily job ALSO runs a web-search discovery step (below) to grow this globally.
 SEED_SOURCES = [
+    # North America
     "https://bovine-elite.com/beef-semen-sales-registered/wagyu/",
     "https://www.chisholmcattle.com/wagyu-semen",
     "https://www.z6cattle.com/wagyu-semen/",
     "https://nuwagyu.com/products/wagyu-semen-for-sale",
+    "https://lonemountainwagyu.com/wagyu-semen-for-sale/",
     "https://www.sirebuyer.com/wagyu-semen/",
+    "https://www.sirebuyer.com/wagyu-embryos/",
+    # Australia
+    "https://tlg.com.au/wagyu/",
+    "https://www.grsembryos.com.au/export",
+    "https://www.agrigene.com.au/beef/",
+    # Europe / UK
+    "https://www.wagyu-genetics.de/",
+]
+
+# Auto-discovery queries — cast a wide, international net.
+DISCOVERY_QUERIES = [
+    "wagyu semen for sale", "wagyu embryos for sale", "akaushi semen for sale",
+    "wagyu semen for sale australia", "wagyu embryos for sale australia",
+    "wagyu semen for sale europe", "wagyu genetics for sale uk",
+    "wagyu semen for sale brazil", "wagyu embryos for sale new zealand",
+    "buy wagyu semen straws", "wagyu semen catalog price",
 ]
 
 _PRODUCT_LABEL = {"semen": "Semen", "embryo": "Embryos", "clone_rights": "Cloning Rights"}
+
+# country (ISO-2) -> broad region code for the "international feel" facet.
+_REGION_BY_COUNTRY = {
+    "US": "NA", "CA": "NA", "MX": "NA",
+    "BR": "SA", "AR": "SA", "UY": "SA", "CL": "SA", "PY": "SA", "CO": "SA", "PE": "SA",
+    "GT": "CAM", "CR": "CAM", "PA": "CAM", "NI": "CAM", "HN": "CAM",
+    "GB": "EU", "IE": "EU", "DE": "EU", "FR": "EU", "ES": "EU", "IT": "EU", "NL": "EU",
+    "BE": "EU", "DK": "EU", "SE": "EU", "PL": "EU", "PT": "EU", "AT": "EU", "CH": "EU",
+    "AU": "AU", "NZ": "AU",
+    "JP": "AS", "CN": "AS", "KR": "AS", "TH": "AS", "SG": "AS", "PH": "AS", "VN": "AS",
+    "ZA": "AF",
+}
+# domain TLD -> country fallback when the page doesn't state one.
+_TLD_COUNTRY = {
+    "au": "AU", "nz": "NZ", "uk": "GB", "de": "DE", "fr": "FR", "es": "ES", "it": "IT",
+    "nl": "NL", "br": "BR", "ar": "AR", "uy": "UY", "ca": "CA", "mx": "MX", "za": "ZA",
+    "jp": "JP", "cn": "CN",
+}
 
 
 def _now():
@@ -79,13 +118,17 @@ def _html_to_text(html: str) -> str:
 
 
 _EXTRACT_SYSTEM = (
-    "You extract structured facts about FROZEN WAGYU GENETICS for sale (semen straws, "
+    "You extract structured facts about FROZEN WAGYU/AKAUSHI GENETICS for sale (semen straws, "
     "embryos, or cloning/cell-line rights) from a web page's text. Return ONLY a JSON array. "
     "Each element: {product_type: 'semen'|'embryo'|'clone_rights', animal_name, registration_no, "
     "bloodline, price (number or null), price_unit, currency, quantity, seller_name, location, "
-    "country (2-letter)}. Include ONLY genuine for-sale listings of Wagyu genetics — skip live "
-    "cattle, beef products, general info, and non-Wagyu. If the page has none, return []. "
-    "Never invent data; use null for unknown fields."
+    "country (ISO 2-letter), css_status ('css' if the page says CSS/Certified Semen Services or "
+    "export-eligible; 'domestic' if it says domestic-only/non-CSS; else 'unknown'), "
+    "export_regions (array from ['EU','AUS','CAN','MEX','BR','UK','CN','NZ','JP'] — only the "
+    "destinations the page explicitly says it's export-eligible to; [] if unstated)}. "
+    "Include ONLY genuine for-sale Wagyu/Akaushi genetics listings — skip live cattle, beef "
+    "products, general info, and non-Wagyu. If the page has none, return []. "
+    "Never invent data; use null/'unknown'/[] for anything not stated."
 )
 
 
@@ -142,6 +185,27 @@ def _summary(li: dict, animal: str | None, product: ProductType) -> str:
     return " ".join(bits)
 
 
+def _country_region(li: dict, source_site: str) -> tuple[str | None, str | None]:
+    country = (li.get("country") or "").strip().upper()[:2] or None
+    if not country:
+        tld = source_site.rsplit(".", 1)[-1].lower()
+        country = _TLD_COUNTRY.get(tld)
+        if not country and (source_site.endswith(".com") or source_site.endswith(".org")):
+            country = "US"  # default assumption for generic gTLDs
+    region = _REGION_BY_COUNTRY.get(country or "", None)
+    return country, region
+
+
+def _css(li: dict) -> str:
+    v = (li.get("css_status") or "unknown").strip().lower()
+    return v if v in ("css", "domestic", "unknown") else "unknown"
+
+
+def _export_regions(li: dict) -> list:
+    allowed = {"EU", "AUS", "CAN", "MEX", "BR", "UK", "CN", "NZ", "JP"}
+    return [r for r in (li.get("export_regions") or []) if isinstance(r, str) and r.upper() in allowed]
+
+
 def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
     product = _product(li.get("product_type"))
     if not product:
@@ -151,10 +215,20 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
     key = _dedup_key(source_url, product.value, animal or "", price)
     row = db.query(AggregatedListing).filter(AggregatedListing.dedup_key == key).first()
     now = _now()
+    css, regions = _css(li), _export_regions(li)
+    country, region = _country_region(li, source_site)
     if row:
         row.last_seen_at = now
         row.status = "active" if not row.flagged else row.status
         row.price = price if price is not None else row.price
+        if css != "unknown":
+            row.css_status = css
+        if regions:
+            row.export_regions = regions
+        if not row.region and region:      # backfill for rows created before region inference
+            row.region = region
+        if not row.country and country:
+            row.country = country
         return False
     db.add(AggregatedListing(
         dedup_key=key, product_type=product,
@@ -167,33 +241,96 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         quantity_text=(str(li["quantity"]) if li.get("quantity") else None),
         seller_name=(li.get("seller_name") or None),
         location=(li.get("location") or None),
-        country=((li.get("country") or "")[:2].upper() or None),
+        country=country, region=region,
+        css_status=css, export_regions=regions,
         source_site=source_site, source_url=source_url,
         first_seen_at=now, last_seen_at=now, status="active",
     ))
     return True
 
 
-def run(db, sources: list[str] | None = None, delist: bool = True) -> dict:
-    """Fetch each source, extract listings, upsert. Mark listings from
-    successfully-fetched sources that weren't seen this run as delisted."""
+_DISCOVERY_SKIP = (
+    "wikipedia.org", "facebook.com", "youtube.com", "instagram.com", "reddit.com",
+    "amazon.", "ebay.", "pinterest.", "linkedin.com", "twitter.com", "x.com",
+    "wagyu.org", "americanwagyu", "wagyu.org.au", "akaushi.com", "tiktok.com",
+    ".gov", "wagyutank.com", "duckduckgo.com", "google.", "bing.com", "yelp.com",
+    "wikipedia", "quora.com", "beefcentral.com", "news",
+)
+_DISCOVERY_KEEP = ("wagyu", "akaushi", "semen", "embryo", "genetic", "sire", "cattle", "beef", "stud")
+
+
+def _discover(queries: list[str] | None = None, per_query: int = 8) -> list[str]:
+    """Best-effort web-search discovery (DuckDuckGo HTML) for new seller pages."""
+    import re as _re
+    from urllib.parse import unquote
+    queries = queries or DISCOVERY_QUERIES
+    found: dict[str, None] = {}
+    for q in queries:
+        try:
+            r = httpx.get("https://html.duckduckgo.com/html/", params={"q": q},
+                          headers={"User-Agent": SEARCH_UA}, timeout=20, follow_redirects=True)
+            if r.status_code != 200:
+                continue
+            hrefs = _re.findall(r'href="([^"]+)"', r.text)
+            n = 0
+            for h in hrefs:
+                if "uddg=" in h:
+                    m = _re.search(r"uddg=([^&]+)", h)
+                    if m:
+                        h = unquote(m.group(1))
+                if not h.startswith("http"):
+                    continue
+                host = urlparse(h).netloc.lower()
+                if any(s in host or s in h for s in _DISCOVERY_SKIP):
+                    continue
+                if not any(k in h.lower() for k in _DISCOVERY_KEEP):
+                    continue
+                if h not in found:
+                    found[h] = None
+                    n += 1
+                if n >= per_query:
+                    break
+        except Exception:
+            continue
+        time.sleep(1.5)
+    return list(found)
+
+
+def run(db, sources: list[str] | None = None, delist: bool = True,
+        discover: bool = True, max_sources: int = 60) -> dict:
+    """Fetch each source, extract listings, upsert. Optionally auto-discover new
+    seller pages first. Delist listings from successfully-fetched sources that
+    weren't seen this run."""
     started = _now()
-    sources = sources or SEED_SOURCES
+    srcs = list(sources or SEED_SOURCES)
+    discovered = 0
+    if discover:
+        extra = _discover()
+        discovered = len(extra)
+        seen_urls = set(srcs)
+        for u in extra:
+            if u not in seen_urls:
+                srcs.append(u)
+                seen_urls.add(u)
+    srcs = srcs[:max_sources]
     added = seen = 0
     ok_sites: set[str] = set()
-    for url in sources:
+    for url in srcs:
         site = urlparse(url).netloc
-        if not _robots_ok(url):
-            continue
-        html = _fetch(url)
-        if not html:
-            continue
-        ok_sites.add(site)
-        for li in _extract(_html_to_text(html), url):
-            seen += 1
-            if _upsert(db, li, url, site):
-                added += 1
-        db.commit()
+        try:
+            if not _robots_ok(url):
+                continue
+            html = _fetch(url)
+            if not html:
+                continue
+            ok_sites.add(site)
+            for li in _extract(_html_to_text(html), url):
+                seen += 1
+                if _upsert(db, li, url, site):
+                    added += 1
+            db.commit()
+        except Exception:
+            db.rollback()
         time.sleep(2.5)  # be polite
     delisted = 0
     if delist and ok_sites:
@@ -206,5 +343,5 @@ def run(db, sources: list[str] | None = None, delist: bool = True) -> dict:
             row.status = "delisted"
             delisted += 1
         db.commit()
-    return {"sources": len(sources), "ok_sites": len(ok_sites),
+    return {"sources": len(srcs), "discovered": discovered, "ok_sites": len(ok_sites),
             "seen": seen, "added": added, "delisted": delisted}

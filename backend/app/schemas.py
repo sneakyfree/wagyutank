@@ -169,6 +169,7 @@ class ListingCreate(BaseModel):
     tank_to_tank_available: bool = False
     local_pickup: bool = False
     export_eligibility: list[str] = []
+    css_status: str = "unknown"
 
     photo_url: str | None = None
     video_embed_url: str | None = None
@@ -202,6 +203,7 @@ class ListingOut(BaseModel):
     storage_facility_id: int | None
     who_pays_shipping: str
     export_eligibility: list
+    css_status: str = "unknown"
     photo_url: str | None
     video_embed_url: str | None
     status: str
@@ -246,6 +248,9 @@ class AggregatedOut(BaseModel):
     seller_name: str | None
     location: str | None
     country: str | None
+    region: str | None = None
+    css_status: str = "unknown"
+    export_regions: list = []
     source_site: str
     outbound_clicks: int
     last_seen_at: datetime

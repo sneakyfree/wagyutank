@@ -131,6 +131,7 @@ def create_listing(payload: ListingCreate, user: User = Depends(get_current_user
         tank_to_tank_available=payload.tank_to_tank_available,
         local_pickup=payload.local_pickup,
         export_eligibility=payload.export_eligibility,
+        css_status=payload.css_status,
         photo_url=payload.photo_url,
         video_embed_url=payload.video_embed_url,
         status=ListingStatus.ACTIVE,

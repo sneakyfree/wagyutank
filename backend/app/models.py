@@ -284,7 +284,9 @@ class Listing(Base):
     )
     tank_to_tank_available: Mapped[bool] = mapped_column(Boolean, default=False)
     local_pickup: Mapped[bool] = mapped_column(Boolean, default=False)
-    export_eligibility: Mapped[list] = mapped_column(JSON, default=list)  # ["AUS","EU","CAN","US"]
+    export_eligibility: Mapped[list] = mapped_column(JSON, default=list)  # regions: EU/AUS/CAN/MEX/BR/UK/CN/NZ
+    # CSS (Certified Semen Services / NAAB) — the baseline gate for export. Non-CSS = domestic only.
+    css_status: Mapped[str] = mapped_column(String(12), default="unknown")  # css | domestic | unknown
 
     # Media / state
     photo_url: Mapped[str | None] = mapped_column(String(500))
@@ -407,7 +409,12 @@ class AggregatedListing(Base):
 
     seller_name: Mapped[str | None] = mapped_column(String(160))
     location: Mapped[str | None] = mapped_column(String(160))
-    country: Mapped[str | None] = mapped_column(String(2))
+    country: Mapped[str | None] = mapped_column(String(2), index=True)
+    region: Mapped[str | None] = mapped_column(String(24), index=True)  # NA/SA/CA/EU/AU/AS — for the international feel
+
+    # Export eligibility (extracted from the source when stated)
+    css_status: Mapped[str] = mapped_column(String(12), default="unknown")  # css | domestic | unknown
+    export_regions: Mapped[list] = mapped_column(JSON, default=list)  # EU/AUS/CAN/MEX/BR/UK/CN/NZ
 
     source_site: Mapped[str] = mapped_column(String(120), index=True)  # domain / name
     source_url: Mapped[str] = mapped_column(String(600))               # link back to original
