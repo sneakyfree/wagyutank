@@ -382,6 +382,35 @@ class WantAd(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
+class AuditLog(Base):
+    """Every admin mutation, for accountability. Append-only."""
+    __tablename__ = "audit_log"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    admin_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    admin_email: Mapped[str] = mapped_column(String(255))
+    action: Mapped[str] = mapped_column(String(48), index=True)   # e.g. user.suspend, settings.update
+    target_type: Mapped[str | None] = mapped_column(String(24))
+    target_id: Mapped[str | None] = mapped_column(String(48))
+    detail: Mapped[dict | None] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+
+class Campaign(Base):
+    """A marketing email blast to the opted-in list."""
+    __tablename__ = "campaigns"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    subject: Mapped[str] = mapped_column(String(200))
+    body_html: Mapped[str] = mapped_column(Text)
+    segment: Mapped[str] = mapped_column(String(16), default="all")  # all | sellers | buyers
+    recipients: Mapped[int] = mapped_column(Integer, default=0)
+    sent: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(12), default="draft")  # draft | sending | sent
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class PasswordReset(Base):
     """Single-use password-reset token (only the sha256 hash is stored)."""
     __tablename__ = "password_resets"

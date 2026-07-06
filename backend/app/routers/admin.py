@@ -13,9 +13,18 @@ from sqlalchemy.orm import Session
 
 from ..config import settings as cfg
 from ..db import get_db
-from ..models import Ad, AggregatedListing, Event, Listing, Order, User
-from ..security import require_admin
+from ..models import Ad, AggregatedListing, AuditLog, Campaign, Event, Listing, Order, User
+from ..security import create_unsubscribe_token, require_admin
 from ..services import ai, settings_store
+from ..services import email as mail
+
+
+def _audit(db: Session, admin: User, action: str, target_type: str | None = None,
+           target_id=None, detail: dict | None = None):
+    db.add(AuditLog(admin_id=admin.id, admin_email=admin.email, action=action,
+                    target_type=target_type, target_id=(str(target_id) if target_id is not None else None),
+                    detail=detail))
+    db.commit()
 
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
@@ -189,6 +198,7 @@ def user_action(user_id: int, action: str = Body(..., embed=True),
     else:
         raise HTTPException(400, "Unknown action")
     db.commit()
+    _audit(db, admin, f"user.{action}", "user", u.id, {"email": u.email})
     return {"ok": True, "status": u.account_status, "role": u.role}
 
 
@@ -214,6 +224,7 @@ _SETTING_DEFAULTS = {
     "ads_free_launch": cfg.ads_free_launch,
     "platform_fee_bps": cfg.platform_fee_bps,
     "aggregator_enabled": True,
+    "require_admin_2fa": False,
 }
 
 # Every place the platform calls an LLM — surfaced so the admin knows what a swap affects.
@@ -247,11 +258,17 @@ def get_settings():
 
 
 @router.put("/settings")
-def put_settings(updates: dict = Body(...)):
+def put_settings(updates: dict = Body(...), admin: User = Depends(require_admin),
+                 db: Session = Depends(get_db)):
     allowed = set(_SETTING_DEFAULTS.keys())
-    for k, v in updates.items():
-        if k in allowed:
-            settings_store.set(k, v)
+    # self-lockout guard: can't enforce admin-2FA unless you personally have it on
+    if updates.get("require_admin_2fa") and not admin.totp_enabled:
+        raise HTTPException(400, "Enable 2FA on your own account first (Dashboard → Security) "
+                                 "before requiring it for all admins.")
+    applied = {k: v for k, v in updates.items() if k in allowed}
+    for k, v in applied.items():
+        settings_store.set(k, v)
+    _audit(db, admin, "settings.update", detail=applied)
     return {"ok": True, "settings": {k: settings_store.get(k, _SETTING_DEFAULTS[k]) for k in allowed}}
 
 
@@ -278,7 +295,8 @@ def admin_roundup(flagged: bool = False, limit: int = 50, db: Session = Depends(
 
 
 @router.post("/roundup/{listing_id}/action")
-def roundup_action(listing_id: int, action: str = Body(..., embed=True), db: Session = Depends(get_db)):
+def roundup_action(listing_id: int, action: str = Body(..., embed=True),
+                   admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     r = db.get(AggregatedListing, listing_id)
     if not r:
         raise HTTPException(404, "Not found")
@@ -289,18 +307,21 @@ def roundup_action(listing_id: int, action: str = Body(..., embed=True), db: Ses
     elif action == "activate":
         r.status = "active"; r.flagged = False
     elif action == "delete":
-        db.delete(r); db.commit(); return {"ok": True, "deleted": True}
+        db.delete(r); db.commit(); _audit(db, admin, "roundup.delete", "roundup", listing_id)
+        return {"ok": True, "deleted": True}
     else:
         raise HTTPException(400, "Unknown action")
     db.commit()
+    _audit(db, admin, f"roundup.{action}", "roundup", listing_id)
     return {"ok": True, "status": r.status, "flagged": r.flagged}
 
 
 @router.post("/roundup/run")
-def roundup_run():
+def roundup_run(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     """Kick off the aggregator as a detached background process."""
     try:
         subprocess.Popen([sys.executable, "-m", "app.jobs.aggregate"], start_new_session=True)
+        _audit(db, admin, "roundup.crawl")
         return {"ok": True, "message": "Crawl started in the background (takes ~10-15 min)."}
     except Exception as e:
         raise HTTPException(500, f"Could not start crawl: {e}")
@@ -320,7 +341,8 @@ def admin_ads(status: str | None = None, db: Session = Depends(get_db)):
 
 
 @router.post("/ads/{ad_id}/action")
-def ad_action(ad_id: int, action: str = Body(..., embed=True), db: Session = Depends(get_db)):
+def ad_action(ad_id: int, action: str = Body(..., embed=True),
+              admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     a = db.get(Ad, ad_id)
     if not a:
         raise HTTPException(404, "Not found")
@@ -331,8 +353,72 @@ def ad_action(ad_id: int, action: str = Body(..., embed=True), db: Session = Dep
     elif action == "pause":
         a.status = "paused"
     elif action == "delete":
-        db.delete(a); db.commit(); return {"ok": True, "deleted": True}
+        db.delete(a); db.commit(); _audit(db, admin, "ad.delete", "ad", ad_id)
+        return {"ok": True, "deleted": True}
     else:
         raise HTTPException(400, "Unknown action")
     db.commit()
+    _audit(db, admin, f"ad.{action}", "ad", ad_id, {"advertiser": a.advertiser_name})
     return {"ok": True, "status": a.status}
+
+
+# ---------------------------------------------------------------- Audit log
+@router.get("/audit")
+def audit_log(limit: int = 100, db: Session = Depends(get_db)):
+    rows = db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(limit).all()
+    return [{"id": r.id, "admin_email": r.admin_email, "action": r.action,
+             "target_type": r.target_type, "target_id": r.target_id, "detail": r.detail,
+             "created_at": r.created_at} for r in rows]
+
+
+# ---------------------------------------------------------------- Campaigns
+@router.get("/campaigns")
+def list_campaigns(db: Session = Depends(get_db)):
+    rows = db.query(Campaign).order_by(Campaign.created_at.desc()).limit(30).all()
+    optin = db.query(User).filter(User.account_status == "active",
+                                  User.marketing_opt_in == True).count()  # noqa: E712
+    return {"opted_in": optin, "campaigns": [
+        {"id": c.id, "subject": c.subject, "segment": c.segment, "recipients": c.recipients,
+         "sent": c.sent, "status": c.status, "created_at": c.created_at} for c in rows]}
+
+
+def _recipients(db: Session, segment: str) -> list[User]:
+    q = db.query(User).filter(User.account_status == "active", User.marketing_opt_in == True)  # noqa: E712
+    if segment == "sellers":
+        q = q.filter(User.stripe_account_id != None)  # noqa: E711
+    elif segment == "buyers":
+        q = q.filter(User.stripe_account_id == None)  # noqa: E711
+    return q.all()
+
+
+@router.post("/campaign/test")
+def campaign_test(subject: str = Body(...), body_html: str = Body(...),
+                  admin: User = Depends(require_admin)):
+    """Send the draft only to the admin, to preview it."""
+    unsub = f"{cfg.app_base_url.replace('www.', 'api.')}/api/auth/unsubscribe?token={create_unsubscribe_token(admin.id)}"
+    ok = mail.send(admin.email, f"[TEST] {subject}", mail.campaign_html(body_html, unsub))
+    return {"ok": ok, "sent_to": admin.email}
+
+
+@router.post("/campaign/send")
+def campaign_send(subject: str = Body(...), body_html: str = Body(...),
+                  segment: str = Body("all"), admin: User = Depends(require_admin),
+                  db: Session = Depends(get_db)):
+    if segment not in ("all", "sellers", "buyers"):
+        raise HTTPException(400, "segment must be all|sellers|buyers")
+    users = _recipients(db, segment)
+    camp = Campaign(subject=subject[:200], body_html=body_html, segment=segment,
+                    recipients=len(users), status="sending", created_by=admin.id)
+    db.add(camp); db.commit()
+    api_base = cfg.app_base_url.replace("www.", "api.")
+    messages = [{
+        "to": u.email, "subject": subject,
+        "html": mail.campaign_html(body_html,
+                                   f"{api_base}/api/auth/unsubscribe?token={create_unsubscribe_token(u.id)}"),
+        "unsubscribe_url": f"{api_base}/api/auth/unsubscribe?token={create_unsubscribe_token(u.id)}",
+    } for u in users]
+    sent = mail.send_bulk(messages)
+    camp.sent = sent; camp.status = "sent"
+    db.commit()
+    _audit(db, admin, "campaign.send", "campaign", camp.id, {"segment": segment, "sent": sent})
+    return {"ok": True, "recipients": len(users), "sent": sent, "campaign_id": camp.id}

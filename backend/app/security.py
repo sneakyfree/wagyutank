@@ -46,6 +46,22 @@ def user_id_from_preauth(token: str) -> int | None:
         return None
 
 
+def create_unsubscribe_token(user_id: int) -> str:
+    """Non-expiring signed token for one-click email unsubscribe."""
+    return jwt.encode({"sub": str(user_id), "scope": "unsub"}, settings.jwt_secret,
+                      algorithm=settings.jwt_algorithm)
+
+
+def user_id_from_unsubscribe(token: str) -> int | None:
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        if payload.get("scope") != "unsub":
+            return None
+        return int(payload.get("sub"))
+    except (JWTError, TypeError, ValueError):
+        return None
+
+
 def _user_from_token(token: str | None, db: Session) -> User | None:
     if not token:
         return None
@@ -77,7 +93,17 @@ def get_optional_user(
 
 
 def require_admin(user: User = Depends(get_current_user)) -> User:
-    """Gate for /api/admin/* — requires an active account with the admin role."""
+    """Gate for /api/admin/* — requires an active account with the admin role,
+    and 2FA when the admin has enforced it platform-wide."""
     if user.role != "admin" or user.account_status != "active":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
+    try:
+        from .services import settings_store
+        if settings_store.get("require_admin_2fa", False) and not user.totp_enabled:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Admin 2FA is required. Enable it under Dashboard → Security.")
+    except HTTPException:
+        raise
+    except Exception:
+        pass
     return user

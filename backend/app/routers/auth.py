@@ -3,7 +3,8 @@ import re
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -11,8 +12,17 @@ from ..config import settings as cfg
 from ..db import get_db
 from ..models import PasswordReset, User
 from ..schemas import Token, UserCreate, UserPrivate
-from ..security import create_access_token, get_current_user, hash_password, verify_password
+from ..security import (
+    create_access_token, get_current_user, hash_password,
+    user_id_from_unsubscribe, verify_password,
+)
 from ..services import email as mail
+from ..services import ratelimit
+
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for")
+    return (fwd.split(",")[0].strip() if fwd else (request.client.host if request.client else "unknown"))
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -71,8 +81,10 @@ def _finish_login(user: User, db: Session) -> dict:
 
 
 @router.post("/login")
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(request: Request, form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # OAuth2 form uses "username"; we accept the email there.
+    if not ratelimit.allow(f"login:ip:{_client_ip(request)}", 20, 300):
+        raise HTTPException(429, "Too many attempts. Please wait a minute and try again.")
     user = db.query(User).filter(User.email == form.username).first()
     if not user or not verify_password(form.password, user.hashed_password):
         raise HTTPException(401, "Incorrect email or password.")
@@ -156,10 +168,14 @@ def _hash_token(raw: str) -> str:
 
 
 @router.post("/forgot-password")
-def forgot_password(email: str = Body(..., embed=True), db: Session = Depends(get_db)):
-    """Always 200 — never reveal whether an account exists."""
+def forgot_password(request: Request, email: str = Body(..., embed=True), db: Session = Depends(get_db)):
+    """Always 200 — never reveal whether an account exists. Rate-limited."""
     generic = {"message": "If an account exists for that email, we've sent a reset link."}
-    user = db.query(User).filter(User.email == email.strip().lower()).first()
+    ip = _client_ip(request)
+    em = email.strip().lower()
+    if not ratelimit.allow(f"forgot:ip:{ip}", 5, 3600) or not ratelimit.allow(f"forgot:em:{em}", 3, 3600):
+        raise HTTPException(429, "Too many reset requests. Please wait a bit and try again.")
+    user = db.query(User).filter(User.email == em).first()
     if not user or user.account_status == "deleted":
         return generic
     raw = secrets.token_urlsafe(32)
@@ -187,3 +203,20 @@ def reset_password(token: str = Body(...), new_password: str = Body(..., min_len
     row.used = True
     db.commit()
     return {"ok": True, "message": "Password updated — you can sign in now."}
+
+
+@router.get("/unsubscribe", response_class=HTMLResponse)
+def unsubscribe(token: str, db: Session = Depends(get_db)):
+    """One-click marketing unsubscribe (from the List-Unsubscribe link in emails)."""
+    uid = user_id_from_unsubscribe(token)
+    user = db.get(User, uid) if uid else None
+    if user:
+        user.marketing_opt_in = False
+        db.commit()
+    msg = ("You've been unsubscribed from WagyuTank marketing emails."
+           if user else "This unsubscribe link is invalid.")
+    return HTMLResponse(
+        f"<div style='font-family:sans-serif;max-width:480px;margin:60px auto;text-align:center'>"
+        f"<h2 style='color:#8a6d2b'>WagyuTank</h2><p>{msg}</p>"
+        f"<p style='color:#888;font-size:13px'>You'll still receive essential account emails "
+        f"(like password resets).</p></div>")
