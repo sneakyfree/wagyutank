@@ -437,6 +437,24 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class Comment(Base):
+    """Discussion thread attached to a foundation animal's media-center page.
+    Seed comments (is_seed) prime the conversation; real users post the rest."""
+    __tablename__ = "comments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    animal_reg: Mapped[str] = mapped_column(String(40), index=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    author_handle: Mapped[str] = mapped_column(String(64))
+    author_name: Mapped[str | None] = mapped_column(String(120))
+    body: Mapped[str] = mapped_column(Text)
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey("comments.id"), index=True)
+    is_seed: Mapped[bool] = mapped_column(Boolean, default=False)
+    likes: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(12), default="visible")  # visible | hidden
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+
 class PriceSnapshot(Base):
     """Daily snapshot of the Wagyu Genetics Price Index (from Roundup data), so the
     ticker can show a real trend over time."""
