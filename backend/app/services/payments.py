@@ -100,3 +100,14 @@ def create_feature_intent(*, amount_cents: int, listing_id: int, days: int) -> d
         metadata={"listing_id": str(listing_id), "days": str(days), "kind": "feature"},
     )
     return {"client_secret": intent.client_secret, "payment_intent": intent.id, "amount_cents": amount_cents}
+
+
+def create_ad_intent(*, amount_cents: int, ad_id: int, tier: str) -> dict:
+    """Platform revenue: a self-serve advertising purchase (first month)."""
+    intent = stripe.PaymentIntent.create(
+        amount=amount_cents,
+        currency="usd",
+        automatic_payment_methods={"enabled": True},
+        metadata={"ad_id": str(ad_id), "tier": tier, "kind": "ad"},
+    )
+    return {"client_secret": intent.client_secret, "payment_intent": intent.id, "amount_cents": amount_cents}

@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     platform_fee_bps: int = 0  # platform take-rate in basis points; 0 = free at launch
 
+    # Advertising — free during launch to build the audience; flip to False to charge.
+    ads_free_launch: bool = True
+
     # ---- AI providers (swappable via AI_PROVIDER; template fallback if unconfigured) ----
     ai_provider: str = "anthropic"   # anthropic | openai | windymind
 
