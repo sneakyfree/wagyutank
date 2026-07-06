@@ -437,6 +437,28 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class NewsArticle(Base):
+    """Aggregated Wagyu news — a headline + our (translated) gloss + a link back to
+    the source. The translated Japanese feed is the differentiator. Never republishes
+    full articles."""
+    __tablename__ = "news_articles"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dedup_key: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    title: Mapped[str] = mapped_column(String(400))              # English (translated if needed)
+    original_title: Mapped[str | None] = mapped_column(String(400))
+    summary: Mapped[str | None] = mapped_column(Text)
+    source_name: Mapped[str] = mapped_column(String(120))
+    source_url: Mapped[str] = mapped_column(String(700))
+    region: Mapped[str] = mapped_column(String(8), index=True)   # US|AU|JP|EU|SA|OTHER
+    language: Mapped[str] = mapped_column(String(4), default="en")
+    is_translated: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    status: Mapped[str] = mapped_column(String(12), default="active", index=True)
+    clicks: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class Comment(Base):
     """Discussion thread attached to a foundation animal's media-center page.
     Seed comments (is_seed) prime the conversation; real users post the rest."""

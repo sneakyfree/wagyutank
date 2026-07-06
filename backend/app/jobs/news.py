@@ -1,0 +1,24 @@
+"""Fetch + translate Wagyu news. Run by a timer several times a day.
+
+  python -m app.jobs.news
+"""
+from .. import models  # noqa: F401
+from ..db import Base, SessionLocal, engine
+from ..services import news, settings_store
+
+
+def main():
+    Base.metadata.create_all(bind=engine)
+    if not settings_store.get("news_enabled", True):
+        print("News: disabled by admin — skipping.")
+        return
+    db = SessionLocal()
+    try:
+        stats = news.run(db)
+        print(f"News: feeds={stats['feeds']} seen={stats['seen']} added={stats['added']}")
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()

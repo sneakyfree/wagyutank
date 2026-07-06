@@ -224,6 +224,7 @@ _SETTING_DEFAULTS = {
     "ads_free_launch": cfg.ads_free_launch,
     "platform_fee_bps": cfg.platform_fee_bps,
     "aggregator_enabled": True,
+    "news_enabled": True,
     "require_admin_2fa": False,
 }
 
