@@ -402,20 +402,20 @@
     "animal_type": "cow",
     "breed": "Akaushi (Japanese Red)",
     "bloodline": "Kumamoto (Akaushi)",
-    "bloodline_detail": "Japanese Red / Akaushi from Kumamoto. Listed among the seven HeartBrand foundation Akaushi females; status (imported vs. first-generation quarantine-born) is ambiguous across sources.",
-    "birth_year": null,
+    "bloodline_detail": "Japanese Red / Akaushi from Kumamoto. Born in Japan in 1994 as the natural calf of foundation dam Dai 8 Marunami, and imported with her in the Wood shipment.",
+    "birth_year": 1994,
     "importer": "Dr. Al & Marie Wood → HeartBrand Ranch",
     "import_year": 1994,
     "prefecture": "Kumamoto",
     "sire": "",
-    "dam": "",
+    "dam": "Dai 8 Marunami",
     "notable_offspring": "",
     "marbling_note": "Recognized HeartBrand Akaushi foundation dam.",
-    "bio": "Ringo 117 is named among the seven Akaushi females that founded HeartBrand Ranch in Harwood, Texas, from the 1994 Wood importation out of Kumamoto Prefecture. There is some ambiguity in the record: 'Ringo' also appears in lists of the first Akaushi calves born outside Japan in USDA quarantine, so it is unclear whether Ringo 117 was herself a Japan-exported import or a first-generation daughter of one. Either way she functions as a foundational HeartBrand Akaushi dam. Her pedigree is not documented in the sources reviewed. Included here for completeness with the ambiguity flagged rather than resolved by guessing.",
+    "bio": "Ringo 117 was born in Japan in 1994, the natural calf of the foundation Akaushi dam Dai 8 Marunami, and came to America with her in Dr. Al and Marie Wood's Kumamoto importation — one of the nine females and three bulls that founded HeartBrand and the entire fullblood Akaushi population outside Japan. As a young imported female she is counted among the HeartBrand foundation dams. (An earlier ambiguity in some accounts — whether she was imported or first-generation US-born — is resolved by her documented 1994 Japanese birth to Dai 8 Marunami.) Further individual pedigree detail is not published in the sources reviewed, but her place among the small closed group of genuine Akaushi founders is secure.",
     "photo_urls": [],
     "photo_note": "No verified image located.",
-    "confidence": "low",
-    "notes": "Sources conflict on whether Ringo 117 was imported or born in quarantine; flagged rather than assumed."
+    "confidence": "medium",
+    "notes": "Resolved: Ringo 117 born Japan 1994, natural calf of Dai 8 Marunami, imported with her dam (per Beyond Beef / Akaushi Genetics)."
   },
   {
     "registration_no": null,
@@ -570,5 +570,115 @@
     "photo_note": "No verified image located.",
     "confidence": "low",
     "notes": "Named in 1997 Mannett import list; no individual pedigree found."
+  },
+  {
+    "registration_no": null, "name": "Chisahime 662", "aliases": ["Chisahime"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "One of the black foundation females imported by Japanese Venture Partners (JVP) in 1994. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Chisahime 662 was one of the group of black foundation females imported from Japan by Japanese Venture Partners (JVP) in 1994 — the same consignment that brought the influential Tajima bulls Fukutsuru 068, Kikuyasu-400 and Yasutanisakura. JVP's import added an important block of maternal genetics to the young North American fullblood herd alongside the Mannett and Takeda groups. Individual pedigree, registration and birth-year records for Chisahime 662 are not published in the accessible sources, so those fields are left blank. She is documented as one of the verifiable Japan-exported JVP foundation dams.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Chiyofuku 992", "aliases": ["Chiyofuku"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Chiyofuku 992 was among the black foundation females imported by Japanese Venture Partners in 1994, the shipment led by the Tajima bulls Fukutsuru 068 and Kikuyasu-400. As one of the JVP dams she contributed to the maternal foundation of the fullblood herd outside Japan. Her individual pedigree and registration are not documented in the accessible sources and are left blank. She is included as a verifiable named JVP foundation female.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Fukutomi 990", "aliases": ["Fukutomi"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Fukutomi 990 was one of the black foundation females in the 1994 Japanese Venture Partners importation, the consignment that also brought the celebrated Tajima marbling sire Fukutsuru 068. She adds to the small, documented set of JVP foundation dams behind the fullblood herd outside Japan. Her individual pedigree and registration are not published in the accessible sources. She is listed as a verifiable JVP foundation female.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Kikuhana 298", "aliases": ["Kikuhana (cow)"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Distinct from the Takeda BULL named Kikuhana (TF37).",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Kikuhana 298 was a black foundation female imported by Japanese Venture Partners in 1994, alongside the Tajima bulls Fukutsuru 068, Kikuyasu-400 and Yasutanisakura. She should not be confused with the Takeda-imported bull also named Kikuhana (tag TF37) — a different animal of a different sex. Her individual pedigree and registration are not documented in the accessible sources. She is a verifiable named JVP foundation dam.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; disambiguated from bull Kikuhana TF37."
+  },
+  {
+    "registration_no": null, "name": "Shigehime 208", "aliases": ["Shigehime"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Shigehime 208 was among the black foundation females of the 1994 Japanese Venture Partners importation. As one of the JVP dams she helped broaden the maternal base of the North American fullblood herd during the pivotal 1990s import window. Her individual pedigree and registration are not published in the accessible sources and are left blank. She is included as a verifiable named JVP foundation female.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Tokuhime 486", "aliases": ["Tokuhime"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Tokuhime 486 was one of the black foundation females imported by Japanese Venture Partners in 1994. She belongs to the documented JVP group of dams that, with the Mannett and Takeda females, made up the maternal foundation of fullblood Wagyu outside Japan. Her individual pedigree and registration are not documented in the accessible sources. She is a verifiable named JVP foundation dam.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Yasufuji 1/4", "aliases": ["Yasufuji"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Yasufuji 1/4 was a black foundation female in the 1994 Japanese Venture Partners importation, the shipment led by the Tajima bulls Fukutsuru 068 and Kikuyasu-400. As a JVP dam she contributed to the maternal genetics of the early fullblood herd outside Japan. Her individual pedigree and registration are not published in the accessible sources. She is included as a verifiable named JVP foundation female.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Yoshifuku 2", "aliases": ["Yoshifuku"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Yoshifuku 2 was among the black foundation females of the 1994 Japanese Venture Partners importation. One of the JVP dams, she is part of the documented maternal foundation of fullblood Wagyu outside Japan. Her individual pedigree and registration are not published in the accessible sources and are left blank. She is a verifiable named JVP foundation dam.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Yuriko 1", "aliases": ["Yuriko"], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Black foundation female of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Yuriko 1 was one of the black foundation females imported by Japanese Venture Partners in 1994. She rounds out the JVP block of dams that, alongside the Mannett and Takeda groups, formed the maternal base of fullblood Wagyu outside Japan. Her individual pedigree and registration are not documented in the accessible sources. She is a verifiable named JVP foundation dam.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "medium",
+    "notes": "JVP 1994 foundation female per Wagyu International; individual pedigree not found."
+  },
+  {
+    "registration_no": null, "name": "Kunisakae", "aliases": [], "animal_type": "cow",
+    "breed": "Fullblood Black", "bloodline": "Mixed",
+    "bloodline_detail": "Foundation heifer of the 1994 Japanese Venture Partners (JVP) import. Individual strain composition not documented.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "Kunisakae was one of the foundation heifers in the 1994 Japanese Venture Partners importation, a young female shipped alongside the JVP bulls and cows. As part of that documented group she contributed to the fullblood maternal foundation outside Japan. Her individual pedigree, registration and birth year are not published in the accessible sources. She is included as a verifiable named JVP foundation heifer.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "low",
+    "notes": "JVP 1994 foundation heifer per Wagyu International; individual detail not found."
+  },
+  {
+    "registration_no": null, "name": "27 Homare", "aliases": ["Homare"], "animal_type": "cow",
+    "breed": "Akaushi (Japanese Red)", "bloodline": "Kumamoto (Akaushi)",
+    "bloodline_detail": "Red (Akaushi) foundation heifer of the 1994 Japanese Venture Partners (JVP) import — one of the few red females JVP brought in.",
+    "birth_year": null, "importer": "Japanese Venture Partners (JVP)", "import_year": 1994,
+    "prefecture": "Kumamoto", "sire": "", "dam": "", "notable_offspring": "", "marbling_note": "",
+    "bio": "27 Homare was a red Akaushi foundation heifer in the 1994 Japanese Venture Partners importation — notable because JVP's shipment was predominantly black, so its handful of red females added to the small pool of Akaushi genetics that came out of Japan beyond the Wood/HeartBrand group. Her individual pedigree, registration and birth year are not documented in the accessible sources. She is included as a verifiable named JVP foundation Akaushi heifer.",
+    "photo_urls": [], "photo_note": "No verified image located.", "confidence": "low",
+    "notes": "JVP 1994 red foundation heifer per Wagyu International; individual detail not found."
   }
 ]
