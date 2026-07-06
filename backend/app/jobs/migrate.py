@@ -16,6 +16,8 @@ _MIGRATIONS = {
         "css_status": "VARCHAR(12) DEFAULT 'unknown'",
         "export_regions": "TEXT DEFAULT '[]'",
         "region": "VARCHAR(24)",
+        "source_updated_at": "DATETIME",
+        "source_date_type": "VARCHAR(16)",
     },
     "animals": {  # ensure the breed-history columns too (safe if already present)
         "prefecture": "VARCHAR(60)",

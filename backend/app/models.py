@@ -368,6 +368,35 @@ class WantAd(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
+class Ad(Base):
+    """Paid (or house) advertising — ranch banners and vendor promos placed around
+    the site. House ads (is_house=True) are WagyuTank's own promos shown for free
+    until inventory fills. Advertiser submissions start `pending` and go live on
+    approval. Placements: feed (in listing grids), sidebar, banner (wide strip)."""
+    __tablename__ = "ads"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    advertiser_name: Mapped[str] = mapped_column(String(160))
+    contact_email: Mapped[str | None] = mapped_column(String(160))
+    headline: Mapped[str] = mapped_column(String(120))
+    body: Mapped[str | None] = mapped_column(String(300))
+    image_url: Mapped[str | None] = mapped_column(String(600))
+    link_url: Mapped[str] = mapped_column(String(600))
+    cta: Mapped[str] = mapped_column(String(40), default="Learn more")
+
+    placement: Mapped[str] = mapped_column(String(12), default="feed", index=True)  # feed|sidebar|banner
+    tier: Mapped[str | None] = mapped_column(String(16))  # bronze|silver|gold (pricing tier)
+    is_house: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    status: Mapped[str] = mapped_column(String(12), default="pending", index=True)  # pending|active|paused|expired
+    weight: Mapped[int] = mapped_column(Integer, default=1)  # rotation weight (higher tier = more)
+
+    impressions: Mapped[int] = mapped_column(Integer, default=0)
+    clicks: Mapped[int] = mapped_column(Integer, default=0)
+    starts_at: Mapped[datetime | None] = mapped_column(DateTime)
+    ends_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class Order(Base):
     __tablename__ = "orders"
 
@@ -421,6 +450,9 @@ class AggregatedListing(Base):
 
     first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+    # Best-available "when was the source listing last updated" signal.
+    source_updated_at: Mapped[datetime | None] = mapped_column(DateTime)
+    source_date_type: Mapped[str | None] = mapped_column(String(16))  # shopify | stated | page-header
     status: Mapped[str] = mapped_column(String(12), default="active", index=True)  # active | delisted | hidden
     outbound_clicks: Mapped[int] = mapped_column(Integer, default=0)
     flagged: Mapped[bool] = mapped_column(Boolean, default=False)  # opt-out / removal requested

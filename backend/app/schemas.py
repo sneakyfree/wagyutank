@@ -232,6 +232,29 @@ class AdCopyRequest(BaseModel):
     tone: str = "professional"
 
 
+class AdOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    advertiser_name: str
+    headline: str
+    body: str | None
+    image_url: str | None
+    cta: str
+    placement: str
+    is_house: bool
+
+
+class AdSubmit(BaseModel):
+    advertiser_name: str
+    contact_email: str
+    headline: str
+    body: str | None = None
+    image_url: str | None = None
+    link_url: str
+    placement: str = "feed"
+    tier: str | None = None
+
+
 class AggregatedOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -253,4 +276,7 @@ class AggregatedOut(BaseModel):
     export_regions: list = []
     source_site: str
     outbound_clicks: int
+    first_seen_at: datetime
     last_seen_at: datetime
+    source_updated_at: datetime | None = None
+    source_date_type: str | None = None

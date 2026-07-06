@@ -119,6 +119,33 @@ def _now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
+def _parse_date(s) -> datetime | None:
+    """Parse an ISO / HTTP-date / YYYY-MM string into a naive UTC datetime."""
+    if not s or not isinstance(s, str):
+        return None
+    s = s.strip()
+    # ISO 8601 (Shopify updated_at, schema.org dateModified)
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+        return dt.astimezone(timezone.utc).replace(tzinfo=None) if dt.tzinfo else dt
+    except ValueError:
+        pass
+    # HTTP Last-Modified (RFC 2822)
+    try:
+        from email.utils import parsedate_to_datetime
+        dt = parsedate_to_datetime(s)
+        if dt:
+            return dt.astimezone(timezone.utc).replace(tzinfo=None) if dt.tzinfo else dt
+    except Exception:
+        pass
+    for fmt in ("%Y-%m-%d", "%Y-%m", "%Y/%m/%d", "%m/%d/%Y", "%B %Y", "%b %Y", "%d %B %Y", "%Y"):
+        try:
+            return datetime.strptime(s, fmt)
+        except ValueError:
+            continue
+    return None
+
+
 def _robots_ok(url: str) -> bool:
     try:
         p = urlparse(url)
@@ -131,15 +158,16 @@ def _robots_ok(url: str) -> bool:
         return True
 
 
-def _fetch(url: str) -> str | None:
+def _fetch(url: str) -> tuple[str | None, datetime | None]:
+    """Return (html, last_modified) — last_modified from the HTTP header if present."""
     try:
         r = httpx.get(url, headers={"User-Agent": USER_AGENT},
                       timeout=25, follow_redirects=True)
         if r.status_code == 200 and "text/html" in r.headers.get("content-type", ""):
-            return r.text
+            return r.text, _parse_date(r.headers.get("last-modified"))
     except Exception:
         pass
-    return None
+    return None, None
 
 
 def _classify_product(text: str) -> str | None:
@@ -217,6 +245,7 @@ def _shopify_products(base_url: str) -> list[dict] | None:
                 "currency": "USD", "quantity": None, "seller_name": pr.get("vendor") or None,
                 "location": None, "country": country, "css_status": "unknown", "export_regions": [],
                 "_url": f"{root}/products/{pr.get('handle')}",
+                "_updated_at": _parse_date(pr.get("updated_at")), "_date_type": "shopify",
             })
         time.sleep(1)
     return listings
@@ -255,7 +284,9 @@ _EXTRACT_SYSTEM = (
     "country (ISO 2-letter), css_status ('css' if the page says CSS/Certified Semen Services or "
     "export-eligible; 'domestic' if it says domestic-only/non-CSS; else 'unknown'), "
     "export_regions (array from ['EU','AUS','CAN','MEX','BR','UK','CN','NZ','JP'] — only the "
-    "destinations the page explicitly says it's export-eligible to; [] if unstated)}. "
+    "destinations the page explicitly says it's export-eligible to; [] if unstated), "
+    "listing_date (if the ad states when it was posted/updated, as ISO 'YYYY-MM-DD' or "
+    "'YYYY-MM'; else null — do NOT guess)}. "
     "Include ONLY genuine for-sale Wagyu/Akaushi genetics listings — skip live cattle, beef "
     "products, general info, and non-Wagyu. If the page has none, return []. "
     "Never invent data; use null/'unknown'/[] for anything not stated."
@@ -292,9 +323,17 @@ def _extract(text: str, source_url: str) -> list[dict]:
         return []
     try:
         data = json.loads(m.group(0))
-        return data if isinstance(data, list) else []
     except Exception:
         return []
+    if not isinstance(data, list):
+        return []
+    for item in data:
+        if isinstance(item, dict) and item.get("listing_date"):
+            dt = _parse_date(item["listing_date"])
+            if dt:
+                item["_updated_at"] = dt
+                item["_date_type"] = "stated"
+    return data
 
 
 def _product(pt: str | None) -> ProductType | None:
@@ -372,6 +411,8 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
     now = _now()
     css, regions = _css(li), _export_regions(li)
     country, region = _country_region(li, source_site)
+    updated_at = li.get("_updated_at") if isinstance(li.get("_updated_at"), datetime) else None
+    date_type = li.get("_date_type")
     if row:
         row.last_seen_at = now
         row.status = "active" if not row.flagged else row.status
@@ -384,6 +425,9 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
             row.region = region
         if not row.country and country:
             row.country = country
+        if updated_at and (not row.source_updated_at or updated_at > row.source_updated_at):
+            row.source_updated_at = updated_at
+            row.source_date_type = date_type
         return False
     db.add(AggregatedListing(
         dedup_key=key, product_type=product,
@@ -398,6 +442,7 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         location=(li.get("location") or None),
         country=country, region=region,
         css_status=css, export_regions=regions,
+        source_updated_at=updated_at, source_date_type=date_type,
         source_site=source_site, source_url=source_url,
         first_seen_at=now, last_seen_at=now, status="active",
     ))
@@ -486,7 +531,7 @@ def _crawl_source(db, start_url: str, visited: set, budget: list) -> tuple[int, 
         try:
             if not _robots_ok(url):
                 continue
-            html = _fetch(url)
+            html, last_mod = _fetch(url)
             budget[0] -= 1
             pages += 1
             if not html:
@@ -494,6 +539,10 @@ def _crawl_source(db, start_url: str, visited: set, budget: list) -> tuple[int, 
             ok = True
             for li in _extract(_html_to_text(html), url):
                 seen += 1
+                # freshness: prefer a date stated in the ad, else the page's Last-Modified
+                if not li.get("_updated_at") and last_mod:
+                    li["_updated_at"] = last_mod
+                    li["_date_type"] = "page-header"
                 if _upsert(db, li, url, site):
                     added += 1
             db.commit()
