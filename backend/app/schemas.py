@@ -19,6 +19,9 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8)
     display_name: str = Field(min_length=1, max_length=120)
     handle: str | None = Field(default=None, max_length=64)
+    phone: str | None = Field(default=None, max_length=32)
+    recovery_email: EmailStr | None = None
+    marketing_opt_in: bool = True
 
 
 class UserPublic(BaseModel):
@@ -41,6 +44,7 @@ class UserPrivate(UserPublic):
     email: EmailStr
     is_email_verified: bool
     is_seller: bool
+    role: str = "user"
 
 
 class Token(BaseModel):

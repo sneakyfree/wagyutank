@@ -37,6 +37,9 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         hashed_password=hash_password(payload.password),
         display_name=payload.display_name,
         handle=handle,
+        phone=(payload.phone or "").strip() or None,
+        recovery_email=payload.recovery_email,
+        marketing_opt_in=payload.marketing_opt_in,
     )
     db.add(user)
     db.commit()
@@ -50,6 +53,13 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
     user = db.query(User).filter(User.email == form.username).first()
     if not user or not verify_password(form.password, user.hashed_password):
         raise HTTPException(401, "Incorrect email or password.")
+    if user.account_status == "suspended":
+        raise HTTPException(403, "This account is suspended. Contact support@wagyutank.com.")
+    if user.account_status == "deleted":
+        raise HTTPException(401, "Incorrect email or password.")
+    from datetime import datetime, timezone
+    user.last_login_at = datetime.now(timezone.utc).replace(tzinfo=None)
+    db.commit()
     return Token(access_token=create_access_token(user.id), user=_private(user))
 
 

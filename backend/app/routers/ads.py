@@ -15,12 +15,17 @@ from ..db import get_db
 from ..models import Ad
 from ..schemas import AdOut, AdSubmit
 from ..services import payments as pay
+from ..services import settings_store
 
 router = APIRouter(prefix="/api/ads", tags=["ads"])
 
 PLACEMENTS = {"feed", "sidebar", "banner"}
 TIER_PRICES = {"bronze": 4900, "silver": 9900, "gold": 19900}  # cents / month (regular)
 TIER_NAMES = {"bronze": "Bronze", "silver": "Silver", "gold": "Gold"}
+
+
+def _free_launch() -> bool:
+    return bool(settings_store.get("ads_free_launch", settings.ads_free_launch))
 
 
 def _now():
@@ -63,9 +68,9 @@ def go(ad_id: int, db: Session = Depends(get_db)):
 def pricing():
     """Current advertising pricing + whether we're in the free launch window."""
     return {
-        "free_launch": settings.ads_free_launch,
+        "free_launch": _free_launch(),
         "tiers": [{"key": k, "name": TIER_NAMES[k], "price_cents": v,
-                   "price_now_cents": 0 if settings.ads_free_launch else v}
+                   "price_now_cents": 0 if _free_launch() else v}
                   for k, v in TIER_PRICES.items()],
     }
 
@@ -90,7 +95,7 @@ def submit(payload: AdSubmit, db: Session = Depends(get_db)):
     )
     db.add(ad)
     db.commit()
-    if settings.ads_free_launch:
+    if _free_launch():
         return {"ad_id": ad.id, "free": True, "status": "pending",
                 "message": "Thanks! Advertising is free during our launch — your ad is in review "
                            "and we'll email you when it goes live. You're locking in a spot early."}
@@ -105,7 +110,7 @@ def checkout(ad_id: int, db: Session = Depends(get_db)):
     ad = db.get(Ad, ad_id)
     if not ad:
         raise HTTPException(404, "Ad not found")
-    if settings.ads_free_launch:
+    if _free_launch():
         return {"free": True, "message": "Advertising is free during launch — no payment needed."}
     amount = TIER_PRICES.get(ad.tier or "", TIER_PRICES["bronze"])
     if not pay.stripe_enabled():

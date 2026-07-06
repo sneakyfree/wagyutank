@@ -64,20 +64,40 @@ _PEDIGREE_TOOL = {
 # --------------------------------------------------------------------------- #
 # Provider resolution
 # --------------------------------------------------------------------------- #
+def _active_provider_name() -> str:
+    """Runtime provider — admin can swap it live (settings store) without a redeploy."""
+    try:
+        from . import settings_store
+        return (settings_store.get("ai_provider", settings.ai_provider) or "anthropic").lower()
+    except Exception:
+        return (settings.ai_provider or "anthropic").lower()
+
+
+def _model_override(key: str, fallback: str) -> str:
+    try:
+        from . import settings_store
+        return settings_store.get(key, None) or fallback
+    except Exception:
+        return fallback
+
+
 def _provider() -> dict | None:
     """Return the active provider's config, or None to use the template fallback."""
-    p = (settings.ai_provider or "anthropic").lower()
+    p = _active_provider_name()
+    if p == "template":
+        return None
     if p == "anthropic" and settings.anthropic_api_key:
         return {"kind": "anthropic", "key": settings.anthropic_api_key,
-                "vision_model": settings.anthropic_vision_model,
-                "adcopy_model": settings.anthropic_adcopy_model}
+                "vision_model": _model_override("anthropic_vision_model", settings.anthropic_vision_model),
+                "adcopy_model": _model_override("anthropic_adcopy_model", settings.anthropic_adcopy_model)}
     if p == "openai" and settings.openai_api_key:
         return {"kind": "openai", "key": settings.openai_api_key, "base_url": settings.openai_base_url,
-                "vision_model": settings.openai_vision_model, "adcopy_model": settings.openai_adcopy_model}
+                "vision_model": _model_override("openai_vision_model", settings.openai_vision_model),
+                "adcopy_model": _model_override("openai_adcopy_model", settings.openai_adcopy_model)}
     if p == "windymind" and settings.windymind_api_key and settings.windymind_base_url:
         return {"kind": "windymind", "key": settings.windymind_api_key, "base_url": settings.windymind_base_url,
                 "vision_model": settings.windymind_vision_model or "",
-                "adcopy_model": settings.windymind_adcopy_model or "auto"}
+                "adcopy_model": _model_override("windymind_adcopy_model", settings.windymind_adcopy_model or "auto")}
     return None
 
 

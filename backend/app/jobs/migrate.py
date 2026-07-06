@@ -5,10 +5,19 @@
 Adds columns introduced after a table's initial creation. Idempotent — only adds
 what's missing. Run before restarting the API when new columns are added.
 """
+from .. import models  # noqa: F401 — register all tables on Base.metadata
 from ..db import Base, engine
 
 # table -> {column: "TYPE [DEFAULT ...]"}
 _MIGRATIONS = {
+    "users": {
+        "role": "VARCHAR(12) DEFAULT 'user'",
+        "account_status": "VARCHAR(12) DEFAULT 'active'",
+        "last_login_at": "DATETIME",
+        "phone": "VARCHAR(32)",
+        "recovery_email": "VARCHAR(255)",
+        "marketing_opt_in": "BOOLEAN DEFAULT 1",
+    },
     "listings": {
         "css_status": "VARCHAR(12) DEFAULT 'unknown'",
     },
@@ -44,6 +53,34 @@ def main():
                     print(f"  + {table}.{col}")
                     added += 1
     print(f"Migration complete ({added} column(s) added).")
+    _promote_admins()
+
+
+def _promote_admins():
+    """Promote configured admin emails (accounts must already exist)."""
+    from ..config import settings
+    from ..db import SessionLocal
+    from ..models import User
+    emails = [e.strip().lower() for e in (settings.admin_emails or "").split(",") if e.strip()]
+    if not emails:
+        return
+    db = SessionLocal()
+    try:
+        promoted = 0
+        for u in db.query(User).filter(func_lower_in(User.email, emails)).all():
+            if u.role != "admin":
+                u.role = "admin"
+                promoted += 1
+        db.commit()
+        if promoted:
+            print(f"Promoted {promoted} account(s) to admin.")
+    finally:
+        db.close()
+
+
+def func_lower_in(col, values):
+    from sqlalchemy import func
+    return func.lower(col).in_(values)
 
 
 if __name__ == "__main__":

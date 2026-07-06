@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     # Advertising — free during launch to build the audience; flip to False to charge.
     ads_free_launch: bool = True
 
+    # Super-admin bootstrap — accounts with these emails are promoted to admin on migrate.
+    admin_emails: str = "grant@wagyutank.com,johnsmithkit05@gmail.com"
+
     # ---- AI providers (swappable via AI_PROVIDER; template fallback if unconfigured) ----
     ai_provider: str = "anthropic"   # anthropic | openai | windymind
 

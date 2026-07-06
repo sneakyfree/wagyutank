@@ -11,6 +11,10 @@ from ..services import aggregator
 
 def main():
     Base.metadata.create_all(bind=engine)  # ensure aggregated_listings exists
+    from ..services import settings_store
+    if not settings_store.get("aggregator_enabled", True):
+        print("Roundup: aggregator disabled by admin — skipping.")
+        return
     db = SessionLocal()
     try:
         stats = aggregator.run(db)

@@ -5,7 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .db import Base, engine
-from .routers import ads, aggregated, animals, auth, facilities, listings, payments, search, users
+from .routers import (
+    admin, ads, aggregated, animals, auth, facilities, listings, payments, search, users,
+)
 
 app = FastAPI(
     title="WagyuTank API",
@@ -44,6 +46,7 @@ app.include_router(search.router)
 app.include_router(payments.router)
 app.include_router(aggregated.router)
 app.include_router(ads.router)
+app.include_router(admin.router)
 
 
 @app.get("/api/health", tags=["meta"])

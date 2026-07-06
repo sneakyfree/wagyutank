@@ -109,6 +109,16 @@ class User(Base):
 
     is_email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    # Admin / moderation
+    role: Mapped[str] = mapped_column(String(12), default="user", index=True)     # user | admin
+    account_status: Mapped[str] = mapped_column(String(12), default="active", index=True)  # active | suspended | deleted
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+    # Contact / recovery / marketing
+    phone: Mapped[str | None] = mapped_column(String(32))
+    recovery_email: Mapped[str | None] = mapped_column(String(255))
+    marketing_opt_in: Mapped[bool] = mapped_column(Boolean, default=True)
+
     # Stripe Connect (payout + KYC) / customer (buying)
     stripe_account_id: Mapped[str | None] = mapped_column(String(64))
     stripe_customer_id: Mapped[str | None] = mapped_column(String(64))
@@ -366,6 +376,16 @@ class WantAd(Base):
     note: Mapped[str | None] = mapped_column(Text)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class Setting(Base):
+    """Runtime key/value config editable from the admin panel — so the AI provider,
+    launch flags, fees, and aggregator knobs can change without a redeploy."""
+    __tablename__ = "settings_kv"
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    value: Mapped[dict] = mapped_column(JSON)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
 class Ad(Base):

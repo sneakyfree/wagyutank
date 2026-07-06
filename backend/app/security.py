@@ -57,3 +57,10 @@ def get_optional_user(
     token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User | None:
     return _user_from_token(token, db)
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    """Gate for /api/admin/* — requires an active account with the admin role."""
+    if user.role != "admin" or user.account_status != "active":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
+    return user
