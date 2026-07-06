@@ -228,3 +228,24 @@ class AdCopyRequest(BaseModel):
     animal: AnimalUpsert
     language: str = "en"
     tone: str = "professional"
+
+
+class AggregatedOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    product_type: str
+    title: str
+    summary: str | None
+    animal_name: str | None
+    animal_reg: str | None
+    bloodline: str | None
+    price: float | None
+    price_unit: str | None
+    currency: str
+    quantity_text: str | None
+    seller_name: str | None
+    location: str | None
+    country: str | None
+    source_site: str
+    outbound_clicks: int
+    last_seen_at: datetime

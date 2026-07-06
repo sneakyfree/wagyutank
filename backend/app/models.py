@@ -380,3 +380,41 @@ class Order(Base):
     stripe_payment_intent: Mapped[str | None] = mapped_column(String(64), index=True)
     status: Mapped[str] = mapped_column(String(12), default="pending")  # pending | paid | failed
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class AggregatedListing(Base):
+    """"The Roundup" — a listing found elsewhere on the web and surfaced here as a
+    free, attributed pointer back to the source. NOT a WagyuTank vendor listing: it
+    stores extracted *facts* + our own neutral summary + a link to the original.
+    Never rehosts the seller's ad copy or images. Sellers can opt out (flag)."""
+    __tablename__ = "aggregated_listings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dedup_key: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+
+    product_type: Mapped[ProductType] = mapped_column(_enum(ProductType), index=True)
+    title: Mapped[str] = mapped_column(String(240))
+    summary: Mapped[str | None] = mapped_column(Text)          # our neutral blurb, not their copy
+
+    animal_name: Mapped[str | None] = mapped_column(String(160), index=True)  # sire / animal
+    animal_reg: Mapped[str | None] = mapped_column(String(40), index=True)
+    bloodline: Mapped[str | None] = mapped_column(String(60), index=True)
+
+    price: Mapped[float | None] = mapped_column(Float)
+    price_unit: Mapped[str | None] = mapped_column(String(40))  # "per straw" / "per embryo"
+    currency: Mapped[str] = mapped_column(String(3), default="USD")
+    quantity_text: Mapped[str | None] = mapped_column(String(80))
+
+    seller_name: Mapped[str | None] = mapped_column(String(160))
+    location: Mapped[str | None] = mapped_column(String(160))
+    country: Mapped[str | None] = mapped_column(String(2))
+
+    source_site: Mapped[str] = mapped_column(String(120), index=True)  # domain / name
+    source_url: Mapped[str] = mapped_column(String(600))               # link back to original
+
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+    status: Mapped[str] = mapped_column(String(12), default="active", index=True)  # active | delisted | hidden
+    outbound_clicks: Mapped[int] = mapped_column(Integer, default=0)
+    flagged: Mapped[bool] = mapped_column(Boolean, default=False)  # opt-out / removal requested
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

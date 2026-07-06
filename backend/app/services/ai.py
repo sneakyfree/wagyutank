@@ -88,6 +88,34 @@ def active_provider_label() -> str:
     return f"{settings.ai_provider}:{prov['adcopy_model']}"
 
 
+def chat(system: str, user: str, max_tokens: int = 1500) -> str | None:
+    """Generic single-shot chat via the active provider (used by the aggregator's
+    extraction step). Returns None if no provider is configured."""
+    prov = _provider()
+    if not prov:
+        return None
+    model = prov["adcopy_model"]
+    if prov["kind"] == "anthropic":
+        import anthropic
+        client = anthropic.Anthropic(api_key=prov["key"])
+        msg = client.messages.create(
+            model=model, max_tokens=max_tokens,
+            system=system, messages=[{"role": "user", "content": user}],
+        )
+        return "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
+    path = "/v1/chat" if prov["kind"] == "windymind" else "/chat/completions"
+    r = httpx.post(
+        f"{prov['base_url'].rstrip('/')}{path}",
+        headers={"Authorization": f"Bearer {prov['key']}"},
+        json={"model": model, "max_tokens": max_tokens,
+              "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]},
+        timeout=60,
+    )
+    r.raise_for_status()
+    choice = r.json()["choices"][0]
+    return (choice.get("message", {}).get("content") or choice.get("content") or "").strip()
+
+
 # --------------------------------------------------------------------------- #
 # Job 2 — ad copy
 # --------------------------------------------------------------------------- #
