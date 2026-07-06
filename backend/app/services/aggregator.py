@@ -333,8 +333,12 @@ def _summary(li: dict, animal: str | None, product: ProductType) -> str:
     return " ".join(bits)
 
 
+_COUNTRY_ALIAS = {"UK": "GB", "EN": "GB", "UAE": "AE"}
+
+
 def _country_region(li: dict, source_site: str) -> tuple[str | None, str | None]:
     country = (li.get("country") or "").strip().upper()[:2] or None
+    country = _COUNTRY_ALIAS.get(country, country)
     if not country:
         tld = source_site.rsplit(".", 1)[-1].lower()
         country = _TLD_COUNTRY.get(tld)
