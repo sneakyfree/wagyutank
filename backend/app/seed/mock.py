@@ -48,7 +48,7 @@ LISTINGS = [
          unit_price=110, qty=75, vis="range", export=["AUS", "EU", "US"], facility=16),
     # Kumamoto Red — Akaushi
     dict(seller=2, product_type="semen", animal_reg=None, semen_type="conventional",
-         title_override="Akaushi (Red Wagyu) Semen — HeartBrand foundation line",
+         title_override="Akaushi Semen — HeartBrand foundation line",
          unit_price=65, qty=120, vis="in_stock_only", export=["US"], facility=3),
     dict(seller=2, product_type="embryo", sire_reg=None, dam_reg=None,
          title_override="Akaushi Embryos — Full-blood Red, IVF Grade 1",
