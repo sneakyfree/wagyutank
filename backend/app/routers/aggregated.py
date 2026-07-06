@@ -66,6 +66,13 @@ def browse(
     return rows
 
 
+@router.get("/index")
+def price_index(db: Session = Depends(get_db)):
+    """The Wagyu Genetics Price Index — live market + marquee-sire semen pricing."""
+    from ..services import price_index as pidx
+    return pidx.compute(db)
+
+
 @router.get("/stats")
 def stats(db: Session = Depends(get_db)):
     from sqlalchemy import func

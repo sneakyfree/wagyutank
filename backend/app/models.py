@@ -437,6 +437,18 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class PriceSnapshot(Base):
+    """Daily snapshot of the Wagyu Genetics Price Index (from Roundup data), so the
+    ticker can show a real trend over time."""
+    __tablename__ = "price_snapshots"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(60), index=True)  # market:semen | sire:michifuku | ...
+    avg_price: Mapped[float | None] = mapped_column(Float)
+    count: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+
 class Setting(Base):
     """Runtime key/value config editable from the admin panel — so the AI provider,
     launch flags, fees, and aggregator knobs can change without a redeploy."""

@@ -21,6 +21,12 @@ def main():
         print(f"Roundup: sources={stats['sources']} discovered={stats['discovered']} "
               f"ok={stats['ok_sites']} pages={stats['pages']} seen={stats['seen']} "
               f"added={stats['added']} delisted={stats['delisted']}")
+        try:
+            from ..services import price_index
+            n = price_index.snapshot(db)
+            print(f"Price index: {n} snapshot(s) recorded.")
+        except Exception as e:
+            print(f"Price index snapshot skipped: {e}")
     finally:
         db.close()
 
