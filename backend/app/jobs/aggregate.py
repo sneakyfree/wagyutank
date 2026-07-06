@@ -14,8 +14,9 @@ def main():
     db = SessionLocal()
     try:
         stats = aggregator.run(db)
-        print(f"Roundup: sources={stats['sources']} ok={stats['ok_sites']} "
-              f"seen={stats['seen']} added={stats['added']} delisted={stats['delisted']}")
+        print(f"Roundup: sources={stats['sources']} discovered={stats['discovered']} "
+              f"ok={stats['ok_sites']} pages={stats['pages']} seen={stats['seen']} "
+              f"added={stats['added']} delisted={stats['delisted']}")
     finally:
         db.close()
 

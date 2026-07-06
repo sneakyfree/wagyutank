@@ -20,8 +20,13 @@ import json
 import re
 import time
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
+
+MAX_PAGES_PER_SITE = 6   # follow pagination up to this many pages per catalog
+DEFAULT_PAGE_BUDGET = 220  # global cap on total page fetches per run (politeness + runtime)
+DELIST_AFTER_DAYS = 5    # grace period — LLM extraction varies run-to-run, so only
+                         # age out listings genuinely unseen for this many days
 
 import httpx
 
@@ -52,13 +57,27 @@ SEED_SOURCES = [
     "https://www.wagyu-genetics.de/",
 ]
 
-# Auto-discovery queries — cast a wide, international net.
+# Auto-discovery queries — cast a wide, international net across products + regions.
 DISCOVERY_QUERIES = [
-    "wagyu semen for sale", "wagyu embryos for sale", "akaushi semen for sale",
+    # products
+    "wagyu semen for sale", "wagyu embryos for sale", "fullblood wagyu semen for sale",
+    "akaushi semen for sale", "akaushi embryos for sale", "wagyu sire semen for sale",
+    "buy wagyu semen straws online", "wagyu semen catalog price list",
+    "wagyu embryos IVF for sale", "sexed wagyu semen for sale",
+    # North America
+    "wagyu semen for sale usa", "wagyu embryos for sale canada", "wagyu semen for sale mexico",
+    # Australia / NZ
     "wagyu semen for sale australia", "wagyu embryos for sale australia",
+    "wagyu genetics for sale new zealand", "fullblood wagyu semen australia",
+    # Europe / UK
     "wagyu semen for sale europe", "wagyu genetics for sale uk",
-    "wagyu semen for sale brazil", "wagyu embryos for sale new zealand",
-    "buy wagyu semen straws", "wagyu semen catalog price",
+    "wagyu semen for sale germany", "wagyu embryos for sale netherlands",
+    "wagyu semen for sale france", "wagyu semen for sale spain", "wagyu genetics ireland",
+    # South / Central America
+    "wagyu semen for sale brazil", "wagyu embryos for sale argentina",
+    "wagyu semen for sale uruguay", "wagyu genetics colombia",
+    # Asia / Africa
+    "wagyu semen for sale south africa", "wagyu genetics for sale asia",
 ]
 
 _PRODUCT_LABEL = {"semen": "Semen", "embryo": "Embryos", "clone_rights": "Cloning Rights"}
@@ -107,6 +126,23 @@ def _fetch(url: str) -> str | None:
     except Exception:
         pass
     return None
+
+
+def _pagination_links(html: str, base_url: str) -> list[str]:
+    """Find same-domain pagination links (page 2, 3, ...) on a catalog page."""
+    site = urlparse(base_url).netloc
+    out: set[str] = set()
+    for m in re.finditer(r'href=["\']([^"\']+)["\']', html):
+        href = m.group(1)
+        low = href.lower()
+        if not any(p in low for p in ("page=", "/page/", "?p=", "paged=", "offset=", "&p=")):
+            continue
+        absu = urljoin(base_url, href).split("#")[0]
+        if urlparse(absu).netloc != site:
+            continue
+        if re.search(r"(page[=/]|[?&]p=|paged=|offset=)\d+", absu.lower()):
+            out.add(absu)
+    return list(out)[:MAX_PAGES_PER_SITE]
 
 
 def _html_to_text(html: str) -> str:
@@ -212,6 +248,9 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         return False
     animal = (li.get("animal_name") or "").strip() or None
     price = li.get("price") if isinstance(li.get("price"), (int, float)) else None
+    # Quality gate: a listing with neither an animal name nor a price is junk.
+    if not animal and price is None and not (li.get("seller_name") or "").strip():
+        return False
     key = _dedup_key(source_url, product.value, animal or "", price)
     row = db.query(AggregatedListing).filter(AggregatedListing.dedup_key == key).first()
     now = _now()
@@ -259,7 +298,7 @@ _DISCOVERY_SKIP = (
 _DISCOVERY_KEEP = ("wagyu", "akaushi", "semen", "embryo", "genetic", "sire", "cattle", "beef", "stud")
 
 
-def _discover(queries: list[str] | None = None, per_query: int = 8) -> list[str]:
+def _discover(queries: list[str] | None = None, per_query: int = 10) -> list[str]:
     """Best-effort web-search discovery (DuckDuckGo HTML) for new seller pages."""
     import re as _re
     from urllib.parse import unquote
@@ -296,11 +335,48 @@ def _discover(queries: list[str] | None = None, per_query: int = 8) -> list[str]
     return list(found)
 
 
+def _crawl_source(db, start_url: str, visited: set, budget: list) -> tuple[int, int, int, bool]:
+    """Crawl one catalog page and follow its pagination (bounded). Returns
+    (added, seen, pages_fetched, ok). `budget` is a 1-element list = remaining
+    global page budget (mutated in place)."""
+    site = urlparse(start_url).netloc
+    queue = [start_url]
+    added = seen = pages = 0
+    ok = False
+    while queue and pages < MAX_PAGES_PER_SITE and budget[0] > 0:
+        url = queue.pop(0)
+        if url in visited:
+            continue
+        visited.add(url)
+        try:
+            if not _robots_ok(url):
+                continue
+            html = _fetch(url)
+            budget[0] -= 1
+            pages += 1
+            if not html:
+                continue
+            ok = True
+            for li in _extract(_html_to_text(html), url):
+                seen += 1
+                if _upsert(db, li, url, site):
+                    added += 1
+            db.commit()
+            if pages == 1:  # only fan out pagination from the first page
+                for p in _pagination_links(html, url):
+                    if p not in visited:
+                        queue.append(p)
+        except Exception:
+            db.rollback()
+        time.sleep(2)  # be polite
+    return added, seen, pages, ok
+
+
 def run(db, sources: list[str] | None = None, delist: bool = True,
-        discover: bool = True, max_sources: int = 60) -> dict:
-    """Fetch each source, extract listings, upsert. Optionally auto-discover new
-    seller pages first. Delist listings from successfully-fetched sources that
-    weren't seen this run."""
+        discover: bool = True, max_sources: int = 70,
+        page_budget: int = DEFAULT_PAGE_BUDGET) -> dict:
+    """Discover + crawl seller catalogs (with pagination), extract listings, upsert.
+    Delist listings from successfully-fetched sources not seen this run."""
     started = _now()
     srcs = list(sources or SEED_SOURCES)
     discovered = 0
@@ -313,30 +389,23 @@ def run(db, sources: list[str] | None = None, delist: bool = True,
                 srcs.append(u)
                 seen_urls.add(u)
     srcs = srcs[:max_sources]
-    added = seen = 0
+    added = seen = pages = 0
+    visited: set = set()
+    budget = [page_budget]
     ok_sites: set[str] = set()
     for url in srcs:
-        site = urlparse(url).netloc
-        try:
-            if not _robots_ok(url):
-                continue
-            html = _fetch(url)
-            if not html:
-                continue
-            ok_sites.add(site)
-            for li in _extract(_html_to_text(html), url):
-                seen += 1
-                if _upsert(db, li, url, site):
-                    added += 1
-            db.commit()
-        except Exception:
-            db.rollback()
-        time.sleep(2.5)  # be polite
+        if budget[0] <= 0:
+            break
+        a, s, p, ok = _crawl_source(db, url, visited, budget)
+        added += a; seen += s; pages += p
+        if ok:
+            ok_sites.add(urlparse(url).netloc)
     delisted = 0
-    if delist and ok_sites:
+    if delist:
+        from datetime import timedelta
+        cutoff = started - timedelta(days=DELIST_AFTER_DAYS)
         stale = db.query(AggregatedListing).filter(
-            AggregatedListing.source_site.in_(ok_sites),
-            AggregatedListing.last_seen_at < started,
+            AggregatedListing.last_seen_at < cutoff,
             AggregatedListing.status == "active",
         ).all()
         for row in stale:
@@ -344,4 +413,4 @@ def run(db, sources: list[str] | None = None, delist: bool = True,
             delisted += 1
         db.commit()
     return {"sources": len(srcs), "discovered": discovered, "ok_sites": len(ok_sites),
-            "seen": seen, "added": added, "delisted": delisted}
+            "pages": pages, "seen": seen, "added": added, "delisted": delisted}
