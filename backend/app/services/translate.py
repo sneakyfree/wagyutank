@@ -1,6 +1,7 @@
 """Machine translation with a permanent DB cache — translate content once per
 language, then serve from cache forever."""
 import hashlib
+import time
 
 from ..models import Translation
 from .ai import chat
@@ -12,8 +13,33 @@ def _key(text: str, lang: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:32] + ":" + lang
 
 
+_CHUNK = 1400  # chars per translation chunk — keeps output well under token limits
+
+
+def _system(target: str, is_markdown: bool) -> str:
+    fmt = "Preserve all Markdown formatting (headings, bold, lists, links) exactly. " if is_markdown else ""
+    return (f"You are a professional translator specializing in cattle genetics and the Wagyu "
+            f"breed. Translate the user's text into natural, fluent {target}. {fmt}"
+            f"Keep proper nouns, cattle names, registration numbers, and breed terms "
+            f"(Wagyu, Akaushi, Tajima, etc.) unchanged. Return ONLY the translation, nothing else.")
+
+
+def _chunks(text: str) -> list[str]:
+    """Split on blank lines into chunks under _CHUNK chars, so nothing gets truncated."""
+    out, buf = [], ""
+    for para in text.split("\n\n"):
+        if len(buf) + len(para) + 2 > _CHUNK and buf:
+            out.append(buf)
+            buf = ""
+        buf = f"{buf}\n\n{para}" if buf else para
+    if buf:
+        out.append(buf)
+    return out
+
+
 def translate(db, text: str, lang: str, *, is_markdown: bool = False) -> str:
-    """Return `text` translated to `lang` (cached). English or unknown → unchanged."""
+    """Return `text` translated to `lang` (cached). English or unknown → unchanged.
+    Long text is translated in chunks so the output never gets truncated."""
     lang = (lang or "en").lower()
     if lang == "en" or lang not in LANGS or not text.strip():
         return text
@@ -21,19 +47,23 @@ def translate(db, text: str, lang: str, *, is_markdown: bool = False) -> str:
     row = db.query(Translation).filter(Translation.cache_key == key).first()
     if row:
         return row.text
-    target = LANGS[lang]
-    fmt = ("Preserve all Markdown formatting (headings, bold, lists, links) exactly. "
-           if is_markdown else "")
-    system = (f"You are a professional translator specializing in cattle genetics and the Wagyu "
-              f"breed. Translate the user's text into natural, fluent {target}. {fmt}"
-              f"Keep proper nouns, cattle names, registration numbers, and breed terms "
-              f"(Wagyu, Akaushi, Tajima, etc.) unchanged. Return ONLY the translation.")
-    try:
-        out = chat(system, text, max_tokens=min(4000, len(text) + 800))
-    except Exception:
+    system = _system(LANGS[lang], is_markdown)
+    parts = []
+    for chunk in _chunks(text):
         out = None
-    if not out:
-        return text  # graceful fallback to English; don't cache failures
-    db.add(Translation(cache_key=key, lang=lang, text=out))
+        for attempt in range(2):  # free-tier LLMs rate-limit under burst; back off once
+            try:
+                out = chat(system, chunk, max_tokens=2200)
+            except Exception:
+                out = None
+            if out:
+                break
+            time.sleep(7)
+        if not out:
+            return text  # any chunk fails → fall back to English, don't cache a partial
+        parts.append(out.strip())
+        time.sleep(0.7)
+    result = "\n\n".join(parts)
+    db.add(Translation(cache_key=key, lang=lang, text=result))
     db.commit()
-    return out
+    return result
