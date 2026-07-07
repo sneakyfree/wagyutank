@@ -121,14 +121,31 @@ def following(user: User = Depends(get_current_user), db: Session = Depends(get_
 
 @router.get("/me/feed")
 def feed(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """New listings from the sellers you follow."""
-    handles = [f.target_key for f in db.query(Follow).filter(
-        Follow.follower_id == user.id, Follow.target_type == "seller").all()]
+    """New listings from the sellers, bloodlines, and animals you follow."""
+    from sqlalchemy import or_ as _or
+    from ..models import Animal
+    follows = db.query(Follow).filter(Follow.follower_id == user.id).all()
+    handles = [f.target_key for f in follows if f.target_type == "seller"]
+    bloodlines = [f.target_key for f in follows if f.target_type == "bloodline"]
+    regs = set(f.target_key for f in follows if f.target_type == "animal")
     seller_ids = [u.id for u in db.query(User).filter(User.handle.in_(handles)).all()] if handles else []
-    if not seller_ids:
-        return {"following_sellers": len(handles), "listings": []}
+
+    # bloodline is on the Animal, not the Listing — resolve to reg numbers.
+    if bloodlines:
+        regs |= {a.registration_no for a in db.query(Animal).filter(
+            Animal.bloodline.in_(bloodlines), Animal.registration_no != None).all()}  # noqa: E711
+    regs = [r for r in regs if r]
+
+    clauses = []
+    if seller_ids:
+        clauses.append(Listing.seller_id.in_(seller_ids))
+    if regs:
+        clauses.append(_or(Listing.animal_reg.in_(regs), Listing.sire_reg.in_(regs)))
+    counts = {"sellers": len(handles), "bloodlines": len(bloodlines),
+              "animals": len([f for f in follows if f.target_type == "animal"])}
+    if not clauses:
+        return {"following": counts, "listings": []}
     rows = (db.query(Listing)
-            .filter(Listing.status == ListingStatus.ACTIVE, Listing.seller_id.in_(seller_ids))
+            .filter(Listing.status == ListingStatus.ACTIVE, _or(*clauses))
             .order_by(Listing.created_at.desc()).limit(40).all())
-    return {"following_sellers": len(handles),
-            "listings": [to_listing_out(x).model_dump() for x in rows]}
+    return {"following": counts, "listings": [to_listing_out(x).model_dump() for x in rows]}
