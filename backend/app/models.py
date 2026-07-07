@@ -437,6 +437,26 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class MarketQuote(Base):
+    """A single figure in the Beef Market Data Center — commodity cattle/beef prices
+    (from USDA AMS public-domain reports) and Wagyu premium benchmarks."""
+    __tablename__ = "market_quotes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    category: Mapped[str] = mapped_column(String(16), index=True)  # feeder|fed|cutout|wagyu|context
+    label: Mapped[str] = mapped_column(String(160))
+    value: Mapped[float | None] = mapped_column(Float)
+    value_text: Mapped[str | None] = mapped_column(String(60))     # for ranges like "$50–80"
+    unit: Mapped[str | None] = mapped_column(String(24))
+    change: Mapped[float | None] = mapped_column(Float)            # period change
+    as_of: Mapped[str | None] = mapped_column(String(24))
+    source: Mapped[str | None] = mapped_column(String(120))
+    source_url: Mapped[str | None] = mapped_column(String(400))
+    note: Mapped[str | None] = mapped_column(String(300))
+    sort_order: Mapped[int] = mapped_column(Integer, default=0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class Translation(Base):
     """Cache of machine-translated content (keyed by source-hash + language), so we
     only pay the LLM once per unique string per language."""
