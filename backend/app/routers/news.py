@@ -10,13 +10,19 @@ router = APIRouter(prefix="/api/news", tags=["news"])
 
 
 @router.get("")
-def list_news(region: str | None = None, translated: bool | None = None,
+def list_news(region: str | None = None, translated: bool | None = None, q: str | None = None,
               limit: int = Query(40, le=100), offset: int = 0, db: Session = Depends(get_db)):
-    q = db.query(NewsArticle).filter(NewsArticle.status == "active")
+    from sqlalchemy import func, or_
+    query = db.query(NewsArticle).filter(NewsArticle.status == "active")
     if region:
-        q = q.filter(NewsArticle.region == region.upper())
+        query = query.filter(NewsArticle.region == region.upper())
     if translated is not None:
-        q = q.filter(NewsArticle.is_translated == translated)
+        query = query.filter(NewsArticle.is_translated == translated)
+    if q:
+        like = f"%{q.lower()}%"
+        query = query.filter(or_(func.lower(NewsArticle.title).like(like),
+                                 func.lower(NewsArticle.original_title).like(like)))
+    q = query  # keep the rest of the handler unchanged
     q = q.order_by(NewsArticle.published_at.desc().nullslast(), NewsArticle.first_seen_at.desc())
     rows = q.offset(offset).limit(limit).all()
     return [{"id": r.id, "title": r.title, "original_title": r.original_title,
