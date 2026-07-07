@@ -117,3 +117,18 @@ def unfollow(payload: FollowIn, user: User = Depends(get_current_user), db: Sess
 def following(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     rows = db.query(Follow).filter(Follow.follower_id == user.id).all()
     return [{"target_type": r.target_type, "target_key": r.target_key} for r in rows]
+
+
+@router.get("/me/feed")
+def feed(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """New listings from the sellers you follow."""
+    handles = [f.target_key for f in db.query(Follow).filter(
+        Follow.follower_id == user.id, Follow.target_type == "seller").all()]
+    seller_ids = [u.id for u in db.query(User).filter(User.handle.in_(handles)).all()] if handles else []
+    if not seller_ids:
+        return {"following_sellers": len(handles), "listings": []}
+    rows = (db.query(Listing)
+            .filter(Listing.status == ListingStatus.ACTIVE, Listing.seller_id.in_(seller_ids))
+            .order_by(Listing.created_at.desc()).limit(40).all())
+    return {"following_sellers": len(handles),
+            "listings": [to_listing_out(x).model_dump() for x in rows]}

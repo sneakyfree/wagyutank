@@ -67,9 +67,11 @@ def buy(listing_id: int, user: User = Depends(get_current_user), db: Session = D
     price_cents = round(li.unit_price * 100)
     if not pay.stripe_enabled():
         amounts = pay.compute_amounts(price_cents)
+        # Test mode has no real payment confirmation — mark the order complete so the
+        # post-purchase rating flow works end to end.
         order = Order(listing_id=li.id, buyer_id=user.id, seller_id=li.seller_id,
                       amount_cents=amounts["buyer_total_cents"], application_fee_cents=amounts["application_fee_cents"],
-                      currency=li.currency, status="pending")
+                      currency=li.currency, status="paid")
         db.add(order); db.commit()
         return {"dev_mode": True, "order_id": order.id, **amounts}
 
