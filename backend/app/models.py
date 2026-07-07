@@ -437,6 +437,31 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class NotableSale(Base):
+    """Record-setting and headline Wagyu genetics/cattle sales — the "wow" content."""
+    __tablename__ = "notable_sales"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    category: Mapped[str] = mapped_column(String(12), index=True)  # semen|embryo|bull|female|carcass
+    animal_name: Mapped[str | None] = mapped_column(String(160))
+    headline: Mapped[str] = mapped_column(String(240))
+    price: Mapped[float] = mapped_column(Float)
+    currency: Mapped[str] = mapped_column(String(4), default="AUD")
+    usd_approx: Mapped[float | None] = mapped_column(Float)   # for sorting / comparison
+    unit: Mapped[str | None] = mapped_column(String(24))       # per straw | per embryo | head | total
+    country: Mapped[str | None] = mapped_column(String(2))
+    sale_venue: Mapped[str | None] = mapped_column(String(120))
+    date_label: Mapped[str | None] = mapped_column(String(24))
+    year: Mapped[int | None] = mapped_column(Integer, index=True)
+    buyer: Mapped[str | None] = mapped_column(String(160))
+    seller: Mapped[str | None] = mapped_column(String(160))
+    note: Mapped[str | None] = mapped_column(Text)
+    source: Mapped[str | None] = mapped_column(String(120))
+    source_url: Mapped[str | None] = mapped_column(String(400))
+    is_record: Mapped[bool] = mapped_column(Boolean, default=False)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class MarketQuote(Base):
     """A single figure in the Beef Market Data Center — commodity cattle/beef prices
     (from USDA AMS public-domain reports) and Wagyu premium benchmarks."""
