@@ -447,6 +447,43 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class SaleEvent(Base):
+    """A Wagyu auction/sale EVENT with per-category results — the forensic sales
+    record that powers the sale-reports charts and the sale-data ticker."""
+    __tablename__ = "sale_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dedup_key: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    sale_name: Mapped[str] = mapped_column(String(200))
+    date: Mapped[str | None] = mapped_column(String(12))      # YYYY-MM-DD if known
+    year: Mapped[int | None] = mapped_column(Integer, index=True)
+    country: Mapped[str | None] = mapped_column(String(2), index=True)
+    continent: Mapped[str | None] = mapped_column(String(8), index=True)  # NA/SA/EU/AS/OC
+    venue: Mapped[str | None] = mapped_column(String(240))
+    currency: Mapped[str] = mapped_column(String(4), default="AUD")
+
+    gross_total: Mapped[float | None] = mapped_column(Float)
+    lots_sold: Mapped[int | None] = mapped_column(Integer)
+    top_price: Mapped[float | None] = mapped_column(Float)
+    top_price_item: Mapped[str | None] = mapped_column(String(300))
+
+    bull_avg: Mapped[float | None] = mapped_column(Float)
+    bull_top: Mapped[float | None] = mapped_column(Float)
+    female_avg: Mapped[float | None] = mapped_column(Float)
+    female_top: Mapped[float | None] = mapped_column(Float)
+    heifer_avg: Mapped[float | None] = mapped_column(Float)
+    heifer_top: Mapped[float | None] = mapped_column(Float)
+    semen_avg: Mapped[float | None] = mapped_column(Float)
+    semen_top: Mapped[float | None] = mapped_column(Float)
+    embryo_avg: Mapped[float | None] = mapped_column(Float)
+    embryo_top: Mapped[float | None] = mapped_column(Float)
+
+    source_url: Mapped[str | None] = mapped_column(String(600))
+    source_name: Mapped[str | None] = mapped_column(String(120))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class NotableSale(Base):
     """Record-setting and headline Wagyu genetics/cattle sales — the "wow" content."""
     __tablename__ = "notable_sales"

@@ -23,6 +23,21 @@ def _q(m: MarketQuote) -> dict:
             "note": m.note}
 
 
+@router.get("/ticker")
+def ticker(db: Session = Depends(get_db)):
+    """Beef-market ticker: commodity cattle/beef vs Wagyu, one line."""
+    rows = db.query(MarketQuote).filter(MarketQuote.category.in_(["feeder", "fed", "cutout", "wagyu"])) \
+        .order_by(MarketQuote.sort_order.asc()).all()
+    items = []
+    for m in rows:
+        val = m.value_text or (f"${m.value:,.0f}" if m.value is not None else None)
+        if not val:
+            continue
+        items.append({"label": m.label, "value": val + (f" {m.unit}" if m.unit and not m.unit.startswith("$") else ""),
+                      "change": m.change, "wagyu": m.category == "wagyu"})
+    return {"items": items}
+
+
 @router.get("")
 def market(db: Session = Depends(get_db)):
     rows = db.query(MarketQuote).order_by(MarketQuote.sort_order.asc()).all()
