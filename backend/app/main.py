@@ -1,10 +1,11 @@
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import Body, Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
 from .config import settings
-from .db import Base, engine
+from .db import Base, engine, get_db
 from .routers import (
     admin, ads, aggregated, animals, auth, discussions, events, facilities, listings,
     news, payments, search, users,
@@ -59,6 +60,20 @@ def health():
 
 
 @app.get("/api/content/breed-history", tags=["content"])
-def breed_history():
+def breed_history(lang: str = "en", db: Session = Depends(get_db)):
     path = Path(__file__).parent / "seed" / "data" / "breed_history.md"
-    return {"markdown": path.read_text() if path.exists() else ""}
+    md = path.read_text() if path.exists() else ""
+    if lang and lang != "en" and md:
+        from .services import translate
+        md = translate.translate(db, md, lang, is_markdown=True)
+    return {"markdown": md, "lang": lang}
+
+
+@app.post("/api/translate", tags=["content"])
+def translate_content(text: str = Body(..., embed=True), lang: str = Body("es"),
+                      db: Session = Depends(get_db)):
+    """Translate a block of our own content (cached). Length-capped."""
+    from .services import translate
+    if len(text) > 12000:
+        text = text[:12000]
+    return {"text": translate.translate(db, text, lang), "lang": lang}

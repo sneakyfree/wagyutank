@@ -437,6 +437,18 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class Translation(Base):
+    """Cache of machine-translated content (keyed by source-hash + language), so we
+    only pay the LLM once per unique string per language."""
+    __tablename__ = "translations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cache_key: Mapped[str] = mapped_column(String(72), unique=True, index=True)  # sha256(text)[:32]+lang
+    lang: Mapped[str] = mapped_column(String(4), index=True)
+    text: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class NewsArticle(Base):
     """Aggregated Wagyu news — a headline + our (translated) gloss + a link back to
     the source. The translated Japanese feed is the differentiator. Never republishes
