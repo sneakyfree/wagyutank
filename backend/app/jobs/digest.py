@@ -44,8 +44,13 @@ def main():
         messages = [{"to": u.email, "subject": SUBJECT,
                      "html": mail.campaign_html(body, _unsub(u.id)),
                      "unsubscribe_url": _unsub(u.id)} for u in users]
+        from datetime import datetime, timezone
+        from ..services import health
+        t0 = datetime.now(timezone.utc).replace(tzinfo=None)
         sent = mail.send_bulk(messages)
         camp.sent = sent; camp.status = "sent"; db.commit()
+        health.record_job(db, "digest", started=t0, ok=True, added=sent,
+                          detail={"recipients": len(users)})
         print(f"Wagyu Wire: sent to {sent}/{len(users)} recipients (campaign {camp.id}).")
     finally:
         db.close()

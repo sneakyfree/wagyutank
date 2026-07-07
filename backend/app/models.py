@@ -611,6 +611,36 @@ class PriceSnapshot(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class JobRun(Base):
+    """One execution of a scheduled spider/job — powers the System Health dashboard."""
+    __tablename__ = "job_runs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job: Mapped[str] = mapped_column(String(48), index=True)   # news | roundup | digest | radar | ...
+    started_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime)
+    ok: Mapped[bool] = mapped_column(Boolean, default=True)
+    seen: Mapped[int] = mapped_column(Integer, default=0)
+    added: Mapped[int] = mapped_column(Integer, default=0)
+    detail: Mapped[dict | None] = mapped_column(JSON)
+    error: Mapped[str | None] = mapped_column(String(500))
+
+
+class SourceHealth(Base):
+    """Per-source contribution tracking — which of the individual spiders (news
+    feeds, roundup sources, engines) are live and still contributing."""
+    __tablename__ = "source_health"
+
+    key: Mapped[str] = mapped_column(String(120), primary_key=True)
+    type: Mapped[str] = mapped_column(String(24), index=True)   # news_feed | engine | roundup_source
+    label: Mapped[str] = mapped_column(String(160))
+    last_run_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)
+    last_ok_at: Mapped[datetime | None] = mapped_column(DateTime)   # last time it contributed >0
+    last_count: Mapped[int] = mapped_column(Integer, default=0)
+    runs: Mapped[int] = mapped_column(Integer, default=0)
+    ok_runs: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class Setting(Base):
     """Runtime key/value config editable from the admin panel — so the AI provider,
     launch flags, fees, and aggregator knobs can change without a redeploy."""

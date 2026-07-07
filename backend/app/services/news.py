@@ -251,27 +251,35 @@ def _fetch_gdelt(query: str, limit: int = 60) -> list[dict]:
 
 def run(db) -> dict:
     import time as _t
+    from . import health
     _TR_BUDGET[0] = 60  # reset per-run translation spike budget
     added = seen = 0
     for f in FEEDS:
+        fa = 0
         for item in _fetch_feed(f):
             seen += 1
             if _upsert(db, item):
-                added += 1
+                added += 1; fa += 1
+        health.record_source(db, f"news:g:{f['gl']}:{f['lang']}:{f['q'][:16]}", "news_feed",
+                             f"Google News {f['gl']} ({f['lang']}) · {f['region']}", fa)
         db.commit()
         _t.sleep(2.5)  # pace to avoid Google News throttling the server IP
     for bq in BING_QUERIES:
+        ba = 0
         for item in _fetch_bing(bq):
             seen += 1
             if _upsert(db, item):
-                added += 1
+                added += 1; ba += 1
+        health.record_source(db, f"news:bing:{bq['q'][:20]}", "engine", f"Bing News · {bq['q']}", ba)
         db.commit()
     for gq in GDELT_QUERIES:
         _t.sleep(6)  # GDELT: one request / 5s
+        ga = 0
         for item in _fetch_gdelt(gq):
             seen += 1
             if _upsert(db, item):
-                added += 1
+                added += 1; ga += 1
+        health.record_source(db, f"news:gdelt:{gq}", "engine", f"GDELT firehose · {gq}", ga)
         db.commit()
     # keep a deep archive so trending-by-year works over time (retain newest 2000)
     ids = [r[0] for r in db.query(NewsArticle.id).order_by(NewsArticle.first_seen_at.desc())

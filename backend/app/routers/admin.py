@@ -13,7 +13,10 @@ from sqlalchemy.orm import Session
 
 from ..config import settings as cfg
 from ..db import get_db
-from ..models import Ad, AggregatedListing, AuditLog, Campaign, Event, Listing, Order, User
+from ..models import (
+    Ad, AggregatedListing, AuditLog, Campaign, Event, JobRun, Listing, Order,
+    SourceHealth, User,
+)
 from ..security import create_unsubscribe_token, require_admin
 from ..services import ai, settings_store
 from ..services import email as mail
@@ -96,6 +99,58 @@ def overview(db: Session = Depends(get_db)):
         },
         "ai_provider": ai.active_provider_label(),
     }
+
+
+# ---------------------------------------------------------------- System health
+JOBS = [
+    {"key": "news", "label": "News crawler", "detail": "38 feeds + Bing + GDELT", "cadence": "3×/day"},
+    {"key": "highlights", "label": "News highlights (AI)", "detail": "world-Wagyu synthesis", "cadence": "3×/day"},
+    {"key": "radar", "label": "Sale radar", "detail": "auto-detect auctions from news", "cadence": "3×/day"},
+    {"key": "roundup", "label": "Roundup aggregator", "detail": "55 genetics-seller sources", "cadence": "daily"},
+    {"key": "price_snapshot", "label": "Price index snapshot", "detail": "genetics price trend", "cadence": "daily"},
+    {"key": "digest", "label": "Wagyu Wire digest", "detail": "weekly email", "cadence": "weekly"},
+]
+
+
+@router.get("/health")
+def health(db: Session = Depends(get_db)):
+    from ..services import health as h
+    jobs = []
+    for j in JOBS:
+        last = (db.query(JobRun).filter(JobRun.job == j["key"])
+                .order_by(JobRun.started_at.desc()).first())
+        cad = h.JOB_CADENCE_H.get(j["key"], 30)
+        status = h.job_status(last.started_at if last else None, cad)
+        # last time this job actually contributed (added > 0)
+        last_ok = (db.query(JobRun).filter(JobRun.job == j["key"], JobRun.added > 0)
+                   .order_by(JobRun.started_at.desc()).first())
+        jobs.append({**j, "status": status,
+                     "last_run": last.started_at if last else None,
+                     "last_ok": last.ok if last else None,
+                     "last_added": last.added if last else None,
+                     "last_seen": last.seen if last else None,
+                     "last_error": last.error if last else None,
+                     "last_contributed": last_ok.started_at if last_ok else None})
+    # source-level health, worst (stalest) first
+    srcs = db.query(SourceHealth).order_by(SourceHealth.last_ok_at.asc().nullsfirst()).all()
+    now = _now()
+    sources = []
+    for s in srcs:
+        run_h = ((now - s.last_run_at).total_seconds() / 3600) if s.last_run_at else None
+        ok_h = ((now - s.last_ok_at).total_seconds() / 3600) if s.last_ok_at else None
+        sources.append({"key": s.key, "type": s.type, "label": s.label,
+                        "last_run": s.last_run_at, "last_contributed": s.last_ok_at,
+                        "last_count": s.last_count, "runs": s.runs, "ok_runs": s.ok_runs,
+                        "run_hours_ago": round(run_h, 1) if run_h is not None else None,
+                        "never_contributed": s.ok_runs == 0})
+    summary = {
+        "jobs_total": len(jobs),
+        "jobs_healthy": sum(1 for j in jobs if j["status"] == "healthy"),
+        "jobs_stale": sum(1 for j in jobs if j["status"] in ("stale", "down")),
+        "sources_total": len(sources),
+        "sources_never_contributed": sum(1 for s in sources if s["never_contributed"]),
+    }
+    return {"jobs": jobs, "sources": sources, "summary": summary, "server_time": now}
 
 
 # ---------------------------------------------------------------- Analytics

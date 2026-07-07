@@ -579,14 +579,20 @@ def run(db, sources: list[str] | None = None, delist: bool = True,
     added = seen = pages = 0
     visited: set = set()
     budget = [page_budget]
+    from . import health
     ok_sites: set[str] = set()
     for url in srcs:
         if budget[0] <= 0:
             break
         a, s, p, ok = _crawl_source(db, url, visited, budget)
         added += a; seen += s; pages += p
+        site = urlparse(url).netloc
         if ok:
-            ok_sites.add(urlparse(url).netloc)
+            ok_sites.add(site)
+        try:
+            health.record_source(db, f"roundup:{site}", "roundup_source", site, s)
+        except Exception:
+            pass
     delisted = 0
     if delist:
         from datetime import timedelta
