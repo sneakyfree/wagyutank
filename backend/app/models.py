@@ -317,6 +317,10 @@ class Listing(Base):
     video_embed_url: Mapped[str | None] = mapped_column(String(500))
     status: Mapped[ListingStatus] = mapped_column(_enum(ListingStatus), default=ListingStatus.ACTIVE, index=True)
     featured_until: Mapped[datetime | None] = mapped_column(DateTime)
+    # Sample listings show new users what an ad looks like — never buyable.
+    is_sample: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Seller wants this listing in the printed WagyuTank Semen Catalog edition.
+    catalog_opt_in: Mapped[bool] = mapped_column(Boolean, default=False)
     views: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 

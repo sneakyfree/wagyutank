@@ -12,7 +12,7 @@ from ..models import Campaign, User
 from ..security import create_unsubscribe_token
 from ..services import digest, email as mail, settings_store
 
-SUBJECT = "The Wagyu Wire — your weekly Wagyu digest"
+SUBJECT = "The State of the Wagyu — this week from WagyuTank"
 
 
 def _unsub(uid: int) -> str:

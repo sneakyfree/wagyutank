@@ -58,6 +58,8 @@ def buy(listing_id: int, user: User = Depends(get_current_user), db: Session = D
     li = db.get(Listing, listing_id)
     if not li or li.status != ListingStatus.ACTIVE:
         raise HTTPException(404, "Listing not available.")
+    if li.is_sample:
+        raise HTTPException(400, "This is a sample listing — it shows what your ad will look like and can't be purchased.")
     if li.sale_type != SaleType.FIXED or li.unit_price is None:
         raise HTTPException(400, "This listing is not a fixed-price purchase.")
     if li.seller_id == user.id:

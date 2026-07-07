@@ -1,7 +1,21 @@
 """Assembles the weekly "Wagyu Wire" digest email from live site data — the
 retention loop that pulls people back into the marketplace."""
-from ..models import Listing, ListingStatus, MarketQuote, NewsArticle, NotableSale
+from datetime import timedelta
+
+from ..models import Listing, ListingStatus, MarketQuote, NewsArticle, NotableSale, utcnow
 from . import price_index
+from .ai import chat
+
+_EDITORIAL_SYS = (
+    "You are the editor of The Wagyu Wire, WagyuTank.com's weekly letter to Wagyu "
+    "breeders worldwide. Write this week's 'State of the Wagyu' — a short editor's "
+    "letter (2-3 paragraphs, 130-200 words total) synthesizing the week from the "
+    "data provided. Plain, confident, rancher-to-rancher voice. No hype, no "
+    "emojis, no greetings or sign-offs, no headings. CRITICAL: use ONLY facts "
+    "present in the data below — never invent numbers, names, or events. If a "
+    "theme spans several headlines, call out the trend. Output plain text "
+    "paragraphs separated by blank lines."
+)
 
 BASE = "https://www.wagyutank.com"
 GOLD = "#8a6d2b"
@@ -56,7 +70,8 @@ def _market(db) -> str:
 
 
 def _listings(db) -> str:
-    rows = (db.query(Listing).filter(Listing.status == ListingStatus.ACTIVE)
+    rows = (db.query(Listing).filter(Listing.status == ListingStatus.ACTIVE,
+                                     Listing.is_sample == False)  # noqa: E712
             .order_by(Listing.created_at.desc()).limit(4).all())
     if not rows:
         return ""
@@ -80,7 +95,47 @@ def _record(db) -> str:
     return _section("🏆 From the record books", inner)
 
 
+def _editorial(db) -> str:
+    """LLM-written 'State of the Wagyu' editor's letter from the week's data."""
+    week_ago = utcnow() - timedelta(days=7)
+    arts = (db.query(NewsArticle).filter(NewsArticle.status == "active")
+            .order_by(NewsArticle.published_at.desc().nullslast(),
+                      NewsArticle.first_seen_at.desc())
+            .limit(16).all())
+    idx = price_index.compute(db)
+    m = idx.get("market", {})
+    new_listings = (db.query(Listing)
+                    .filter(Listing.status == ListingStatus.ACTIVE,
+                            Listing.is_sample == False,  # noqa: E712
+                            Listing.created_at >= week_ago).count())
+    facts = []
+    if arts:
+        facts.append("This week's headlines:\n" + "\n".join(
+            f"- [{a.region}] {a.title}" for a in arts))
+    if m.get("semen_avg"):
+        sires = " · ".join(f"{s['sire']} ${s['avg']:,.0f}" for s in idx.get("sires", [])[:4])
+        facts.append(f"Wagyu semen index: ${m['semen_avg']:,.0f}/straw average across "
+                     f"{m.get('semen_count', 0)} tracked listings. Marquee sires: {sires}")
+    cut = (db.query(MarketQuote).filter(MarketQuote.category == "cutout",
+           MarketQuote.label.like("Choice%")).first())
+    if cut and cut.value:
+        facts.append(f"Choice boxed beef cutout: ${cut.value:,.2f}/cwt")
+    if new_listings:
+        facts.append(f"{new_listings} new listing(s) posted on WagyuTank this week.")
+    if not facts:
+        return ""
+    try:
+        letter = chat(_EDITORIAL_SYS, "\n\n".join(facts), max_tokens=500)
+    except Exception:
+        letter = None
+    if not letter or len(letter.strip()) < 80:
+        return ""
+    paras = "".join(f"<p style='font-size:15px;color:#333;line-height:1.65;margin:0 0 14px'>{p.strip()}</p>"
+                    for p in letter.split("\n\n") if p.strip())
+    return _section("🖋 The State of the Wagyu", paras)
+
+
 def build_body(db) -> str:
     intro = ("<p style='font-size:15px;color:#444'>Your weekly window into the world of Wagyu — "
              "the news, the market, and the genetics moving right now.</p>")
-    return intro + _news(db) + _market(db) + _listings(db) + _record(db)
+    return intro + _editorial(db) + _news(db) + _market(db) + _listings(db) + _record(db)

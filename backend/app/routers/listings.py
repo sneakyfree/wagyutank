@@ -16,6 +16,7 @@ from ..models import (
 from ..schemas import (
     AdCopyRequest,
     BidCreate,
+    CatalogOptIn,
     ListingCreate,
     ListingOut,
 )
@@ -189,6 +190,8 @@ def place_bid(listing_id: int, payload: BidCreate, user: User = Depends(get_curr
         raise HTTPException(404, "Listing not found")
     if li.sale_type != SaleType.AUCTION or li.status != ListingStatus.ACTIVE:
         raise HTTPException(400, "This listing is not an active auction.")
+    if li.is_sample:
+        raise HTTPException(400, "This is a sample listing — it shows what your ad will look like and can't be bid on.")
     if li.ends_at and li.ends_at <= datetime.now(timezone.utc).replace(tzinfo=None):
         raise HTTPException(400, "This auction has ended.")
     if li.seller_id == user.id:
@@ -229,6 +232,22 @@ def feature_listing(
     li.featured_until = base + timedelta(days=days)
     db.commit()
     db.refresh(li)
+    return to_listing_out(li)
+
+
+@router.post("/{listing_id}/catalog", response_model=ListingOut)
+def toggle_catalog(listing_id: int, payload: CatalogOptIn,
+                   user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Seller opts a semen listing in/out of the printed WagyuTank Semen Catalog."""
+    li = db.get(Listing, listing_id)
+    if not li or li.seller_id != user.id:
+        raise HTTPException(404, "Listing not found")
+    if li.is_sample:
+        raise HTTPException(400, "Sample listings can't join the catalog.")
+    if li.product_type != ProductType.SEMEN:
+        raise HTTPException(400, "The printed catalog is for semen listings only.")
+    li.catalog_opt_in = payload.opt_in
+    db.commit(); db.refresh(li)
     return to_listing_out(li)
 
 

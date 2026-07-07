@@ -211,6 +211,8 @@ class ListingOut(BaseModel):
     who_pays_shipping: str
     export_eligibility: list
     css_status: str = "unknown"
+    is_sample: bool = False
+    catalog_opt_in: bool = False
     photo_url: str | None
     video_embed_url: str | None
     status: str
@@ -221,6 +223,10 @@ class ListingOut(BaseModel):
 
 class BidCreate(BaseModel):
     amount: float
+
+
+class CatalogOptIn(BaseModel):
+    opt_in: bool
 
 
 class FeedbackCreate(BaseModel):

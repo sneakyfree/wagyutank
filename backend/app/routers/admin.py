@@ -270,6 +270,23 @@ def email_list(opted_in_only: bool = True, db: Session = Depends(get_db)):
     return "\n".join(lines)
 
 
+@router.get("/catalog-export.csv", response_class=PlainTextResponse)
+def catalog_export(db: Session = Depends(get_db)):
+    """Semen listings opted into the printed catalog — the print-run worksheet."""
+    from ..models import Listing, ListingStatus
+    rows = (db.query(Listing).filter(Listing.catalog_opt_in == True,  # noqa: E712
+                                     Listing.status == ListingStatus.ACTIVE)
+            .order_by(Listing.created_at).all())
+    lines = ["listing_id,title,seller,seller_email,animal_reg,price_usd,css_status,created"]
+    for li in rows:
+        title = (li.title or "").replace(",", " ")
+        seller = (li.seller.display_name or "").replace(",", " ") if li.seller else ""
+        email = li.seller.email if li.seller else ""
+        lines.append(f"{li.id},{title},{seller},{email},{li.animal_reg or ''},"
+                     f"{li.unit_price or ''},{li.css_status},{li.created_at.date()}")
+    return "\n".join(lines)
+
+
 # ---------------------------------------------------------------- Settings + AI
 _SETTING_DEFAULTS = {
     "ai_provider": cfg.ai_provider,

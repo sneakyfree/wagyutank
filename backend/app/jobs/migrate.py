@@ -22,6 +22,8 @@ _MIGRATIONS = {
     },
     "listings": {
         "css_status": "VARCHAR(12) DEFAULT 'unknown'",
+        "is_sample": "BOOLEAN DEFAULT 0",
+        "catalog_opt_in": "BOOLEAN DEFAULT 0",
     },
     "aggregated_listings": {
         "css_status": "VARCHAR(12) DEFAULT 'unknown'",
