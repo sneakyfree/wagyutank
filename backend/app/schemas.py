@@ -196,6 +196,8 @@ class ListingOut(BaseModel):
     exclusive: bool
     lab_production_cost: float | None
     quantity_display: str = ""
+    seller_handle: str | None = None
+    seller_name: str | None = None
     quantity_visibility: str
     sale_type: str
     unit_price: float | None

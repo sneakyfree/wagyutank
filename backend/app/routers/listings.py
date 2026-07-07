@@ -49,6 +49,9 @@ def to_listing_out(li: Listing) -> ListingOut:
     out = ListingOut.model_validate(li, from_attributes=True)
     out.quantity_display = _quantity_display(li)
     out.featured = bool(li.featured_until and li.featured_until > datetime.now(timezone.utc).replace(tzinfo=None))
+    if li.seller:
+        out.seller_handle = li.seller.handle
+        out.seller_name = li.seller.display_name
     return out
 
 

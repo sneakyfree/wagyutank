@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..models import Follow, Listing, ListingStatus, User
 from ..schemas import StorefrontUpdate, UserPublic
-from ..security import get_current_user
+from ..security import get_current_user, get_optional_user
 from .listings import to_listing_out
 
 router = APIRouter(prefix="/api/users", tags=["users", "storefronts"])
@@ -15,6 +15,13 @@ class Storefront(BaseModel):
     seller: UserPublic
     listing_count: int
     listings: list
+    follower_count: int = 0
+    is_following: bool = False
+    member_since: str | None = None
+
+
+def _seller_follows(db: Session, handle: str):
+    return db.query(Follow).filter(Follow.target_type == "seller", Follow.target_key == handle)
 
 
 @router.patch("/me", response_model=UserPublic)
@@ -53,7 +60,8 @@ def become_seller(user: User = Depends(get_current_user), db: Session = Depends(
 
 
 @router.get("/{handle}", response_model=Storefront)
-def storefront(handle: str, db: Session = Depends(get_db)):
+def storefront(handle: str, viewer: User | None = Depends(get_optional_user),
+               db: Session = Depends(get_db)):
     seller = db.query(User).filter(User.handle == handle.lower()).first()
     if not seller:
         raise HTTPException(404, "Storefront not found")
@@ -63,10 +71,18 @@ def storefront(handle: str, db: Session = Depends(get_db)):
         .order_by(Listing.featured_until.desc().nullslast(), Listing.created_at.desc())
         .all()
     )
+    follower_count = _seller_follows(db, seller.handle).count() if seller.handle else 0
+    is_following = bool(
+        viewer and seller.handle
+        and _seller_follows(db, seller.handle).filter(Follow.follower_id == viewer.id).first()
+    )
     return Storefront(
         seller=UserPublic.model_validate(seller, from_attributes=True),
         listing_count=len(rows),
         listings=[to_listing_out(x).model_dump() for x in rows],
+        follower_count=follower_count,
+        is_following=is_following,
+        member_since=(seller.created_at.strftime("%B %Y") if seller.created_at else None),
     )
 
 
@@ -86,6 +102,15 @@ def follow(payload: FollowIn, user: User = Depends(get_current_user), db: Sessio
     db.add(Follow(follower_id=user.id, target_type=payload.target_type, target_key=payload.target_key))
     db.commit()
     return {"status": "following"}
+
+
+@router.post("/me/unfollow")
+def unfollow(payload: FollowIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    n = db.query(Follow).filter_by(
+        follower_id=user.id, target_type=payload.target_type, target_key=payload.target_key
+    ).delete()
+    db.commit()
+    return {"status": "unfollowed" if n else "not_following"}
 
 
 @router.get("/me/following")
