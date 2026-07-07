@@ -6,7 +6,8 @@ import time
 from ..models import Translation
 from .ai import chat
 
-LANGS = {"es": "Spanish", "pt": "Portuguese", "fr": "French", "ja": "Japanese", "en": "English"}
+LANGS = {"es": "Spanish", "pt": "Portuguese (Brazilian)", "de": "German",
+         "fr": "French", "ja": "Japanese", "en": "English"}
 
 
 def _key(text: str, lang: str) -> str:
