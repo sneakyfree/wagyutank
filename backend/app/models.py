@@ -222,6 +222,16 @@ class Animal(Base):
     )
     photos: Mapped[list[AnimalPhoto]] = relationship(back_populates="animal")
 
+    @property
+    def slug(self) -> str:
+        """Stable, URL-safe identifier — the reg number if it has one, else a
+        slugified name (so reg-less foundation cows get real, indexable URLs)."""
+        if self.registration_no:
+            return self.registration_no
+        import re
+        s = re.sub(r"[^a-z0-9]+", "-", (self.name or "").lower()).strip("-")
+        return s or f"animal-{self.id}"
+
 
 class AnimalPhoto(Base):
     """Photo candidate index (Content Engine §10) — harvested photos are NEVER

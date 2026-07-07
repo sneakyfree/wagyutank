@@ -92,6 +92,7 @@ class AnimalOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     registration_no: str | None
+    slug: str | None = None
     name: str
     aliases: list
     animal_type: str
