@@ -21,6 +21,12 @@ def main():
             print(f"News highlights: {len(b)} bullets generated.")
         except Exception as e:
             print(f"Highlights skipped: {e}")
+        try:
+            from ..services import sale_radar
+            r = sale_radar.scan(db)
+            print(f"Sale radar: {r['candidates']} candidates, {r['added']} auto-added.")
+        except Exception as e:
+            print(f"Sale radar skipped: {e}")
     finally:
         db.close()
 
