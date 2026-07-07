@@ -15,40 +15,80 @@ from .ai import chat
 UA = "WagyuTankBot/1.0 (+https://www.wagyutank.com/news; news aggregator)"
 
 # region, query, hl (ui lang), gl (country), lang (original content language).
-# English feeds cost nothing (no translation); non-English are throttle-translated.
+# English geo-feeds cost nothing (no translation); non-English are throttle-translated.
+# Regions: US=N.America SA=S.America EU=Europe AS=Asia JP=Japan AU=Oceania ME=MiddleEast AF=Africa
 FEEDS = [
-    # --- English (free, wide net) ---
+    # --- North America (English, free) ---
     {"region": "US", "q": "wagyu OR akaushi", "hl": "en-US", "gl": "US", "lang": "en"},
     {"region": "US", "q": "\"wagyu auction\" OR \"wagyu sale\" OR \"wagyu record\"", "hl": "en-US", "gl": "US", "lang": "en"},
     {"region": "US", "q": "\"kobe beef\" OR \"japanese wagyu\" OR akaushi", "hl": "en-US", "gl": "US", "lang": "en"},
+    {"region": "US", "q": "\"matsusaka beef\" OR \"wagyu export\" OR \"wagyu genetics\"", "hl": "en-US", "gl": "US", "lang": "en"},
+    {"region": "US", "q": "wagyu", "hl": "en-CA", "gl": "CA", "lang": "en"},
+    {"region": "US", "q": "wagyu OR \"carne wagyu\"", "hl": "es-419", "gl": "MX", "lang": "es"},
+    # --- Oceania (English, free) ---
     {"region": "AU", "q": "wagyu", "hl": "en-AU", "gl": "AU", "lang": "en"},
     {"region": "AU", "q": "\"wagyu sale\" OR \"wagyu bull sale\" OR \"elite wagyu\"", "hl": "en-AU", "gl": "AU", "lang": "en"},
     {"region": "AU", "q": "wagyu", "hl": "en-NZ", "gl": "NZ", "lang": "en"},
+    # --- Europe: English (free) + local (translated) ---
     {"region": "EU", "q": "wagyu", "hl": "en-GB", "gl": "GB", "lang": "en"},
     {"region": "EU", "q": "wagyu", "hl": "en-IE", "gl": "IE", "lang": "en"},
-    {"region": "US", "q": "wagyu", "hl": "en-CA", "gl": "CA", "lang": "en"},
-    {"region": "AS", "q": "wagyu", "hl": "en-IN", "gl": "IN", "lang": "en"},
-    {"region": "US", "q": "\"matsusaka beef\" OR \"wagyu export\" OR \"wagyu genetics\"", "hl": "en-US", "gl": "US", "lang": "en"},
-    # --- Japan (translated) ---
-    {"region": "JP", "q": "和牛 OR 但馬牛 OR 神戸牛", "hl": "ja", "gl": "JP", "lang": "ja"},
-    {"region": "JP", "q": "和牛 競り OR 子牛 価格 OR 和牛 セリ", "hl": "ja", "gl": "JP", "lang": "ja"},
-    # --- Asia (translated) ---
-    {"region": "AS", "q": "和牛 OR 日本牛肉", "hl": "zh-CN", "gl": "CN", "lang": "zh"},
-    {"region": "AS", "q": "와규", "hl": "ko", "gl": "KR", "lang": "ko"},
-    # --- Europe (translated) ---
     {"region": "EU", "q": "wagyu", "hl": "de", "gl": "DE", "lang": "de"},
     {"region": "EU", "q": "wagyu", "hl": "fr", "gl": "FR", "lang": "fr"},
     {"region": "EU", "q": "wagyu", "hl": "es", "gl": "ES", "lang": "es"},
+    {"region": "EU", "q": "wagyu", "hl": "it", "gl": "IT", "lang": "it"},
+    {"region": "EU", "q": "wagyu", "hl": "nl", "gl": "NL", "lang": "nl"},
+    # --- Japan (translated — the moat) ---
+    {"region": "JP", "q": "和牛 OR 但馬牛 OR 神戸牛", "hl": "ja", "gl": "JP", "lang": "ja"},
+    {"region": "JP", "q": "和牛 競り OR 子牛 価格 OR 和牛 セリ", "hl": "ja", "gl": "JP", "lang": "ja"},
+    # --- Asia: local (translated) + English (free) ---
+    {"region": "AS", "q": "和牛 OR 日本牛肉", "hl": "zh-CN", "gl": "CN", "lang": "zh"},
+    {"region": "AS", "q": "和牛", "hl": "zh-TW", "gl": "TW", "lang": "zh"},
+    {"region": "AS", "q": "와규", "hl": "ko", "gl": "KR", "lang": "ko"},
+    {"region": "AS", "q": "wagyu", "hl": "en-IN", "gl": "IN", "lang": "en"},
+    {"region": "AS", "q": "wagyu", "hl": "en-SG", "gl": "SG", "lang": "en"},
+    {"region": "AS", "q": "wagyu", "hl": "en-PH", "gl": "PH", "lang": "en"},
+    {"region": "AS", "q": "wagyu", "hl": "en-MY", "gl": "MY", "lang": "en"},
+    {"region": "AS", "q": "wagyu", "hl": "en-HK", "gl": "HK", "lang": "en"},
+    {"region": "AS", "q": "วากิว OR wagyu", "hl": "th", "gl": "TH", "lang": "th"},
+    {"region": "AS", "q": "wagyu OR daging wagyu", "hl": "id", "gl": "ID", "lang": "id"},
+    {"region": "AS", "q": "wagyu OR thịt bò wagyu", "hl": "vi", "gl": "VN", "lang": "vi"},
+    # --- Middle East (English, free — big luxury market) ---
+    {"region": "ME", "q": "wagyu", "hl": "en", "gl": "AE", "lang": "en"},
+    {"region": "ME", "q": "wagyu", "hl": "en", "gl": "SA", "lang": "en"},
+    {"region": "ME", "q": "wagyu", "hl": "en", "gl": "QA", "lang": "en"},
+    # --- Africa (English, free — real production) ---
+    {"region": "AF", "q": "wagyu", "hl": "en", "gl": "ZA", "lang": "en"},
     # --- South America (translated) ---
     {"region": "SA", "q": "wagyu", "hl": "pt-BR", "gl": "BR", "lang": "pt"},
     {"region": "SA", "q": "wagyu", "hl": "es-419", "gl": "AR", "lang": "es"},
+    {"region": "SA", "q": "wagyu", "hl": "es-419", "gl": "CL", "lang": "es"},
+    {"region": "SA", "q": "wagyu", "hl": "es-419", "gl": "CO", "lang": "es"},
+    {"region": "SA", "q": "wagyu", "hl": "es-419", "gl": "UY", "lang": "es"},
 ]
 
-# Bing News RSS — a second engine for extra coverage (English, free).
+# Bing News RSS — a second engine (English, free).
 BING_QUERIES = [
     {"region": "US", "q": "wagyu genetics"}, {"region": "US", "q": "wagyu auction sale"},
     {"region": "AU", "q": "wagyu australia sale"}, {"region": "US", "q": "akaushi cattle"},
+    {"region": "AS", "q": "wagyu japan"}, {"region": "EU", "q": "wagyu europe"},
 ]
+
+# GDELT — the global news firehose (100+ languages, catches outlets RSS misses).
+GDELT_QUERIES = ["wagyu", "akaushi", "\"kobe beef\""]
+_GDELT_REGION = {
+    "United States": "US", "Canada": "US", "Mexico": "US",
+    "Australia": "AU", "New Zealand": "AU",
+    "Japan": "JP",
+    "China": "AS", "Taiwan": "AS", "South Korea": "AS", "Korea": "AS", "India": "AS",
+    "Singapore": "AS", "Hong Kong": "AS", "Philippines": "AS", "Malaysia": "AS",
+    "Thailand": "AS", "Indonesia": "AS", "Vietnam": "AS",
+    "United Kingdom": "EU", "Ireland": "EU", "Germany": "EU", "France": "EU", "Spain": "EU",
+    "Italy": "EU", "Netherlands": "EU", "Belgium": "EU", "Austria": "EU", "Switzerland": "EU",
+    "Denmark": "EU", "Sweden": "EU", "Portugal": "EU", "Poland": "EU",
+    "United Arab Emirates": "ME", "Saudi Arabia": "ME", "Qatar": "ME", "Kuwait": "ME", "Bahrain": "ME",
+    "South Africa": "AF", "Nigeria": "AF", "Kenya": "AF",
+    "Brazil": "SA", "Argentina": "SA", "Chile": "SA", "Colombia": "SA", "Uruguay": "SA", "Peru": "SA",
+}
 
 
 def _now():
@@ -170,8 +210,48 @@ def _fetch_feed(f: dict, limit: int = 12) -> list[dict]:
     return out
 
 
+def _parse_gdelt_date(s: str | None):
+    if not s:
+        return None
+    try:
+        return datetime.strptime(s, "%Y%m%dT%H%M%SZ")
+    except Exception:
+        return None
+
+
+def _fetch_gdelt(query: str, limit: int = 60) -> list[dict]:
+    """GDELT Doc 2.0 — global news across 100+ languages. English-language results
+    only (RSS already covers translated non-English markets); maps source country
+    to region. Defensive: GDELT rate-limits and occasionally returns empty."""
+    import json as _json
+    try:
+        r = httpx.get("https://api.gdeltproject.org/api/v2/doc/doc",
+                      params={"query": query, "mode": "artlist", "format": "json",
+                              "maxrecords": limit, "timespan": "3d", "sort": "datedesc"},
+                      headers={"User-Agent": "Mozilla/5.0 (WagyuTankBot)"}, timeout=25)
+        if r.status_code != 200 or not r.text.strip().startswith("{"):
+            return []
+        arts = _json.loads(r.text).get("articles", [])
+    except Exception:
+        return []
+    out = []
+    for a in arts:
+        if (a.get("language") or "").lower() != "english":
+            continue  # keep GDELT clean/free; RSS handles translated markets
+        title, url = (a.get("title") or "").strip(), (a.get("url") or "").strip()
+        if not title or not url:
+            continue
+        region = _GDELT_REGION.get(a.get("sourcecountry", ""), None)
+        out.append({"region": region or "US", "lang": "en",
+                    "source_name": (a.get("domain") or "GDELT")[:120], "source_url": url,
+                    "published_at": _parse_gdelt_date(a.get("seendate")),
+                    "title": title, "is_translated": False})
+    return out
+
+
 def run(db) -> dict:
-    _TR_BUDGET[0] = 40  # reset per-run translation spike budget
+    import time as _t
+    _TR_BUDGET[0] = 60  # reset per-run translation spike budget
     added = seen = 0
     for f in FEEDS:
         for item in _fetch_feed(f):
@@ -179,8 +259,16 @@ def run(db) -> dict:
             if _upsert(db, item):
                 added += 1
         db.commit()
+        _t.sleep(2.5)  # pace to avoid Google News throttling the server IP
     for bq in BING_QUERIES:
         for item in _fetch_bing(bq):
+            seen += 1
+            if _upsert(db, item):
+                added += 1
+        db.commit()
+    for gq in GDELT_QUERIES:
+        _t.sleep(6)  # GDELT: one request / 5s
+        for item in _fetch_gdelt(gq):
             seen += 1
             if _upsert(db, item):
                 added += 1
