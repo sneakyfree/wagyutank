@@ -1,5 +1,6 @@
 """Assembles the weekly "Wagyu Wire" digest email from live site data — the
 retention loop that pulls people back into the marketplace."""
+import time
 from datetime import timedelta
 
 from ..models import Listing, ListingStatus, MarketQuote, NewsArticle, NotableSale, utcnow
@@ -124,10 +125,17 @@ def _editorial(db) -> str:
         facts.append(f"{new_listings} new listing(s) posted on WagyuTank this week.")
     if not facts:
         return ""
-    try:
-        letter = chat(_EDITORIAL_SYS, "\n\n".join(facts), max_tokens=500)
-    except Exception:
-        letter = None
+    # The free LLM lane rate-limits under burst (news crawls share it). The
+    # digest is a weekly oneshot, so wait out 429s rather than skip the letter.
+    letter = None
+    for attempt in range(5):
+        if attempt:
+            time.sleep(45)
+        try:
+            letter = chat(_EDITORIAL_SYS, "\n\n".join(facts), max_tokens=500)
+            break
+        except Exception:
+            continue
     if not letter or len(letter.strip()) < 80:
         return ""
     paras = "".join(f"<p style='font-size:15px;color:#333;line-height:1.65;margin:0 0 14px'>{p.strip()}</p>"
