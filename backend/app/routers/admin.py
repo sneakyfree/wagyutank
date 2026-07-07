@@ -225,6 +225,7 @@ _SETTING_DEFAULTS = {
     "platform_fee_bps": cfg.platform_fee_bps,
     "aggregator_enabled": True,
     "news_enabled": True,
+    "digest_enabled": True,
     "require_admin_2fa": False,
 }
 
@@ -399,6 +400,27 @@ def campaign_test(subject: str = Body(...), body_html: str = Body(...),
     unsub = f"{cfg.app_base_url.replace('www.', 'api.')}/api/auth/unsubscribe?token={create_unsubscribe_token(admin.id)}"
     ok = mail.send(admin.email, f"[TEST] {subject}", mail.campaign_html(body_html, unsub))
     return {"ok": ok, "sent_to": admin.email}
+
+
+@router.post("/digest/test")
+def digest_test(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    from ..services import digest
+    from ..security import create_unsubscribe_token
+    body = digest.build_body(db)
+    unsub = f"{cfg.app_base_url.replace('www.', 'api.')}/api/auth/unsubscribe?token={create_unsubscribe_token(admin.id)}"
+    ok = mail.send(admin.email, "[TEST] The Wagyu Wire", mail.campaign_html(body, unsub))
+    return {"ok": ok, "sent_to": admin.email}
+
+
+@router.post("/digest/send")
+def digest_send(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """Send the weekly digest now to all opted-in users (detached process)."""
+    try:
+        subprocess.Popen([sys.executable, "-m", "app.jobs.digest"], start_new_session=True)
+        _audit(db, admin, "digest.send")
+        return {"ok": True, "message": "Digest send started in the background."}
+    except Exception as e:
+        raise HTTPException(500, f"Could not start digest: {e}")
 
 
 @router.post("/campaign/send")
