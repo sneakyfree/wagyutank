@@ -19,6 +19,7 @@ FEEDS = [
     {"region": "US", "q": "wagyu OR akaushi", "hl": "en-US", "gl": "US", "lang": "en"},
     {"region": "AU", "q": "wagyu", "hl": "en-AU", "gl": "AU", "lang": "en"},
     {"region": "JP", "q": "和牛 OR 但馬牛 OR 神戸牛", "hl": "ja", "gl": "JP", "lang": "ja"},
+    {"region": "AS", "q": "和牛 OR 日本牛肉 OR wagyu", "hl": "zh-CN", "gl": "CN", "lang": "zh"},
     {"region": "EU", "q": "wagyu", "hl": "en-GB", "gl": "GB", "lang": "en"},
     {"region": "SA", "q": "wagyu", "hl": "pt-BR", "gl": "BR", "lang": "pt"},
 ]
@@ -112,11 +113,42 @@ def run(db) -> dict:
             if _upsert(db, item):
                 added += 1
         db.commit()
-    # prune very old articles to keep the feed fresh (keep newest 300)
+    # keep a deep archive so trending-by-year works over time (retain newest 2000)
     ids = [r[0] for r in db.query(NewsArticle.id).order_by(NewsArticle.first_seen_at.desc())
-           .offset(300).all()]
+           .offset(2000).all()]
     if ids:
         db.query(NewsArticle).filter(NewsArticle.id.in_(ids)).update(
             {NewsArticle.status: "archived"}, synchronize_session=False)
         db.commit()
     return {"feeds": len(FEEDS), "seen": seen, "added": added}
+
+
+HIGHLIGHTS_SYS = (
+    "You are the editor of a global Wagyu news brief. From the list of recent Wagyu "
+    "headlines, write 4-6 punchy bullet points summarizing the biggest themes and stories "
+    "in world Wagyu right now — prices, records, exports, Japan, breeding, market trends. "
+    "Each bullet one sentence, factual, no hype, no preamble. Return ONLY the bullets, one "
+    "per line, each starting with '- '."
+)
+
+
+def generate_highlights(db) -> list[str]:
+    """LLM synthesis of the current top news into bullet highlights (cached in Settings)."""
+    rows = (db.query(NewsArticle).filter(NewsArticle.status == "active")
+            .order_by(NewsArticle.published_at.desc().nullslast(), NewsArticle.first_seen_at.desc())
+            .limit(25).all())
+    if not rows:
+        return []
+    headlines = "\n".join(f"[{a.region}] {a.title}" for a in rows)
+    try:
+        out = chat(HIGHLIGHTS_SYS, headlines, max_tokens=400)
+    except Exception:
+        out = None
+    if not out:
+        return []
+    bullets = [ln.lstrip("-• ").strip() for ln in out.splitlines() if ln.strip().lstrip("-• ")]
+    bullets = [b for b in bullets if len(b) > 15][:6]
+    if bullets:
+        from . import settings_store
+        settings_store.set("news_highlights", {"bullets": bullets, "generated": _now().isoformat()})
+    return bullets

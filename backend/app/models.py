@@ -447,6 +447,24 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class UpcomingSale(Base):
+    """A scheduled/announced future Wagyu sale — the sales calendar."""
+    __tablename__ = "upcoming_sales"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dedup_key: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    sale_name: Mapped[str] = mapped_column(String(200))
+    date: Mapped[str | None] = mapped_column(String(24), index=True)  # YYYY-MM-DD or "2027-04 (typical)"
+    sort_date: Mapped[str | None] = mapped_column(String(10), index=True)  # YYYY-MM-DD for ordering
+    country: Mapped[str | None] = mapped_column(String(40))
+    continent: Mapped[str | None] = mapped_column(String(8), index=True)
+    venue: Mapped[str | None] = mapped_column(String(240))
+    host: Mapped[str | None] = mapped_column(String(200))
+    url: Mapped[str | None] = mapped_column(String(600))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class SaleEvent(Base):
     """A Wagyu auction/sale EVENT with per-category results — the forensic sales
     record that powers the sale-reports charts and the sale-data ticker."""

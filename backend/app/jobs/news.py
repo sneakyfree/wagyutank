@@ -16,6 +16,11 @@ def main():
     try:
         stats = news.run(db)
         print(f"News: feeds={stats['feeds']} seen={stats['seen']} added={stats['added']}")
+        try:
+            b = news.generate_highlights(db)
+            print(f"News highlights: {len(b)} bullets generated.")
+        except Exception as e:
+            print(f"Highlights skipped: {e}")
     finally:
         db.close()
 

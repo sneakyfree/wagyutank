@@ -55,6 +55,7 @@ app.include_router(news.router)
 app.include_router(market.router)
 app.include_router(sales.router)
 app.include_router(sale_events.router)
+app.include_router(sale_events.upcoming_router)
 app.include_router(orders.router)
 
 

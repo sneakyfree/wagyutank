@@ -4,9 +4,24 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import SaleEvent
+from ..models import SaleEvent, UpcomingSale
 
 router = APIRouter(prefix="/api/sale-events", tags=["sale-events"])
+upcoming_router = APIRouter(prefix="/api/upcoming-sales", tags=["upcoming-sales"])
+
+
+@upcoming_router.get("")
+def upcoming(continent: str | None = None, db: Session = Depends(get_db)):
+    """Future Wagyu sales calendar, soonest first. Past-dated entries drop off."""
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    q = db.query(UpcomingSale).filter((UpcomingSale.sort_date >= today) | (UpcomingSale.sort_date == None))  # noqa: E711
+    if continent:
+        q = q.filter(UpcomingSale.continent == continent.upper())
+    rows = q.order_by(UpcomingSale.sort_date.asc().nullslast()).all()
+    return [{"id": s.id, "sale_name": s.sale_name, "date": s.date, "sort_date": s.sort_date,
+             "country": s.country, "continent": s.continent, "venue": s.venue, "host": s.host,
+             "url": s.url, "notes": s.notes} for s in rows]
 
 USD_RATE = {"USD": 1.0, "AUD": 0.66, "NZD": 0.60, "GBP": 1.27, "EUR": 1.08,
             "BRL": 0.18, "JPY": 0.0067}

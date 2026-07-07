@@ -25,8 +25,15 @@ def _out(s: NotableSale) -> dict:
 
 
 @router.get("")
-def sales(db: Session = Depends(get_db)):
-    rows = db.query(NotableSale).order_by(NotableSale.sort_order.asc()).all()
+def sales(window: str | None = None, db: Session = Depends(get_db)):
+    from datetime import datetime, timezone
+    q = db.query(NotableSale)
+    now_year = datetime.now(timezone.utc).year
+    if window == "year":
+        q = q.filter(NotableSale.year == now_year)
+    elif window == "decade":
+        q = q.filter(NotableSale.year >= now_year - 10)
+    rows = q.order_by(NotableSale.sort_order.asc()).all()
     grouped: dict[str, list] = {c["key"]: [] for c in CATEGORIES}
     for s in rows:
         grouped.setdefault(s.category, []).append(_out(s))
