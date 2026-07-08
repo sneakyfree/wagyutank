@@ -61,23 +61,29 @@ def main():
 
 
 def _promote_admins():
-    """Promote configured admin emails (accounts must already exist)."""
+    """Promote configured staff emails to their bootstrap role (super_admin >
+    admin). Only ever raises a role, never demotes — manual changes stick."""
     from ..config import settings
     from ..db import SessionLocal
     from ..models import User
-    emails = [e.strip().lower() for e in (settings.admin_emails or "").split(",") if e.strip()]
-    if not emails:
+    from ..roles import rank, role_for_email
+
+    all_emails = [e.strip().lower() for e in
+                  f"{settings.super_admin_emails},{settings.admin_emails}".split(",") if e.strip()]
+    if not all_emails:
         return
     db = SessionLocal()
     try:
         promoted = 0
-        for u in db.query(User).filter(func_lower_in(User.email, emails)).all():
-            if u.role != "admin":
-                u.role = "admin"
+        for u in db.query(User).filter(func_lower_in(User.email, all_emails)).all():
+            target = role_for_email(u.email, settings.super_admin_emails, settings.admin_emails)
+            if rank(target) > rank(u.role):
+                u.role = target
                 promoted += 1
+                print(f"  ↑ {u.email} → {target}")
         db.commit()
         if promoted:
-            print(f"Promoted {promoted} account(s) to admin.")
+            print(f"Promoted {promoted} staff account(s).")
     finally:
         db.close()
 

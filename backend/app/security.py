@@ -92,11 +92,8 @@ def get_optional_user(
     return _user_from_token(token, db)
 
 
-def require_admin(user: User = Depends(get_current_user)) -> User:
-    """Gate for /api/admin/* — requires an active account with the admin role,
-    and 2FA when the admin has enforced it platform-wide."""
-    if user.role != "admin" or user.account_status != "active":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
+def _enforce_2fa(user: User) -> None:
+    """When an admin has enforced platform-wide 2FA, staff without it are locked out."""
     try:
         from .services import settings_store
         if settings_store.get("require_admin_2fa", False) and not user.totp_enabled:
@@ -106,4 +103,26 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
         raise
     except Exception:
         pass
+
+
+def _require_rank(user: User, min_rank: int, label: str) -> User:
+    from .roles import rank
+    if user.account_status != "active" or rank(user.role) < min_rank:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"{label} access required.")
+    _enforce_2fa(user)
     return user
+
+
+def require_staff(user: User = Depends(get_current_user)) -> User:
+    """Manager and up — panel visibility (analytics, members, moderation)."""
+    return _require_rank(user, 1, "Staff")
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    """Admin and up — member/settings/campaign control. Super admins pass too."""
+    return _require_rank(user, 2, "Admin")
+
+
+def require_super_admin(user: User = Depends(get_current_user)) -> User:
+    """Super admin only — assigning/removing admins."""
+    return _require_rank(user, 3, "Super-admin")

@@ -21,7 +21,10 @@ class Settings(BaseSettings):
     # Advertising — free during launch to build the audience; flip to False to charge.
     ads_free_launch: bool = True
 
-    # Super-admin bootstrap — accounts with these emails are promoted to admin on migrate.
+    # Staff bootstrap — accounts with these emails are promoted on register/migrate.
+    # super_admin_emails outrank admin_emails; a super admin can do everything an
+    # admin can plus assign/remove other admins.
+    super_admin_emails: str = "grantwhitmer3@gmail.com"
     admin_emails: str = "grant@wagyutank.com,johnsmithkit05@gmail.com"
 
     # Email (Resend) — wagyutank.com is a verified sending domain.

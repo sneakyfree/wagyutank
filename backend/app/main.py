@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from .config import settings
 from .db import Base, engine, get_db
 from .routers import (
-    admin, ads, aggregated, animals, auth, discussions, events, facilities, listings,
+    admin, ads, aggregated, animals, auth, catalog, discussions, events, facilities, listings,
     market, news, orders, payments, sale_events, sales, search, users,
 )
 
@@ -57,6 +57,7 @@ app.include_router(sales.router)
 app.include_router(sale_events.router)
 app.include_router(sale_events.upcoming_router)
 app.include_router(orders.router)
+app.include_router(catalog.router)
 
 
 @app.get("/api/health", tags=["meta"])

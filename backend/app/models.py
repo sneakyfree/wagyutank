@@ -110,7 +110,7 @@ class User(Base):
     is_email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Admin / moderation
-    role: Mapped[str] = mapped_column(String(12), default="user", index=True)     # user | admin
+    role: Mapped[str] = mapped_column(String(12), default="user", index=True)     # user | manager | admin | super_admin
     account_status: Mapped[str] = mapped_column(String(12), default="active", index=True)  # active | suspended | deleted
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime)
 
@@ -744,3 +744,41 @@ class AggregatedListing(Base):
     outbound_clicks: Mapped[int] = mapped_column(Integer, default=0)
     flagged: Mapped[bool] = mapped_column(Boolean, default=False)  # opt-out / removal requested
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class CatalogSubmission(Base):
+    """An entry a member submits for a printed WagyuTank Semen Catalog edition.
+    Distinct from a marketplace listing — this is "put my bull / ranch in the
+    book". Carries a mailing address so we can ship the printed copy."""
+    __tablename__ = "catalog_submissions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    edition: Mapped[str] = mapped_column(String(40), index=True)  # e.g. "2026-northern"
+
+    ranch_name: Mapped[str] = mapped_column(String(160))
+    animal_name: Mapped[str | None] = mapped_column(String(160))
+    animal_reg: Mapped[str | None] = mapped_column(String(40))
+    bloodline: Mapped[str | None] = mapped_column(String(60))
+    product_type: Mapped[str] = mapped_column(String(20), default="semen")  # semen | embryo | bull | ranch
+    price_note: Mapped[str | None] = mapped_column(String(120))
+    description: Mapped[str | None] = mapped_column(Text)
+    photo_url: Mapped[str | None] = mapped_column(String(500))
+
+    contact_email: Mapped[str] = mapped_column(String(255))
+    contact_phone: Mapped[str | None] = mapped_column(String(32))
+    website: Mapped[str | None] = mapped_column(String(200))
+
+    # Mailing address for the printed copy
+    ship_name: Mapped[str | None] = mapped_column(String(160))
+    ship_address: Mapped[str | None] = mapped_column(String(240))
+    ship_city: Mapped[str | None] = mapped_column(String(120))
+    ship_region: Mapped[str | None] = mapped_column(String(120))
+    ship_postal: Mapped[str | None] = mapped_column(String(24))
+    ship_country: Mapped[str | None] = mapped_column(String(60))
+
+    listing_id: Mapped[int | None] = mapped_column(ForeignKey("listings.id"))
+    status: Mapped[str] = mapped_column(String(12), default="pending", index=True)  # pending|approved|printed|rejected
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+    user: Mapped[User] = relationship()

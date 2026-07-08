@@ -1,7 +1,10 @@
-"""Super-admin control panel API. Every route is gated by require_admin.
+"""Staff control panel API. The router is gated by require_staff (manager and
+up); sensitive mutations add require_admin/require_super_admin per route.
 
-Overview KPIs + time-series, account management, the marketing email export,
-Roundup + ad moderation, live LLM-provider switching, and runtime settings."""
+Overview KPIs + time-series, member management + role assignment, owner
+analytics (what sells, what drives traffic), the marketing email export,
+Roundup + ad moderation, catalog submissions, live LLM-provider switching,
+and runtime settings."""
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -17,7 +20,10 @@ from ..models import (
     Ad, AggregatedListing, AuditLog, Campaign, Event, JobRun, Listing, Order,
     SourceHealth, User,
 )
-from ..security import create_unsubscribe_token, require_admin
+from ..roles import ASSIGNABLE_ROLES, RANK, rank
+from ..security import (
+    create_unsubscribe_token, require_admin, require_staff, require_super_admin,
+)
 from ..services import ai, settings_store
 from ..services import email as mail
 
@@ -29,7 +35,9 @@ def _audit(db: Session, admin: User, action: str, target_type: str | None = None
                     detail=detail))
     db.commit()
 
-router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_admin)])
+# Panel visibility (analytics, members, moderation) is open to managers and up;
+# individual mutating routes below add Depends(require_admin/require_super_admin).
+router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_staff)])
 
 
 def _now():
@@ -65,6 +73,11 @@ def overview(db: Session = Depends(get_db)):
             "sellers": users.filter(User.stripe_account_id != None).count(),  # noqa: E711
             "suspended": db.query(User).filter(User.account_status == "suspended").count(),
             "marketing_opt_in": users.filter(User.marketing_opt_in == True).count(),  # noqa: E712
+            "staff": {
+                "managers": users.filter(User.role == "manager").count(),
+                "admins": users.filter(User.role == "admin").count(),
+                "super_admins": users.filter(User.role == "super_admin").count(),
+            },
         },
         "listings": {
             "active": db.query(Listing).filter(Listing.status == "active").count(),
@@ -186,12 +199,44 @@ def analytics(days: int = 30, db: Session = Depends(get_db)):
     signups = db.query(User).filter(User.created_at >= start).count()
     sellers = db.query(User).filter(User.created_at >= start, User.stripe_account_id != None).count()  # noqa: E711
     purchases = db.query(Order).filter(Order.created_at >= start, Order.status == "paid").count()
+
+    # ---- What's selling: most-viewed native listings + best-selling by orders ----
+    top_listings = [{"id": li.id, "title": li.title, "product_type": li.product_type.value,
+                     "views": li.views, "price": li.unit_price,
+                     "seller": li.seller.handle if li.seller else None}
+                    for li in db.query(Listing)
+                    .filter(Listing.status == "active", Listing.is_sample == False)  # noqa: E712
+                    .order_by(Listing.views.desc()).limit(10).all()]
+    best_sellers = [{"title": t or "(removed)", "orders": n, "gmv": (g or 0) / 100}
+                    for t, n, g in db.query(Listing.title, func.count(Order.id),
+                                            func.coalesce(func.sum(Order.amount_cents), 0))
+                    .join(Order, Order.listing_id == Listing.id)
+                    .filter(Order.status == "paid").group_by(Listing.id)
+                    .order_by(func.count(Order.id).desc()).limit(10).all()]
+    sales_by_type = [{"type": (pt.value if hasattr(pt, "value") else pt), "orders": n, "gmv": (g or 0) / 100}
+                     for pt, n, g in db.query(Listing.product_type, func.count(Order.id),
+                                              func.coalesce(func.sum(Order.amount_cents), 0))
+                     .join(Order, Order.listing_id == Listing.id)
+                     .filter(Order.status == "paid").group_by(Listing.product_type).all()]
+
+    # ---- What draws the crowd: most-viewed animal/bloodline pages + Roundup demand ----
+    top_animals = [{"path": p, "views": n} for p, n in db.query(Event.path, func.count())
+                   .filter(pv, Event.path.like("/animal%"), Event.created_at >= start)
+                   .group_by(Event.path).order_by(func.count().desc()).limit(10).all() if p]
+    roundup_demand = [{"title": (r.animal_name or r.title or "")[:48], "source": r.source_site,
+                       "clicks": r.outbound_clicks, "url": r.source_url}
+                      for r in db.query(AggregatedListing)
+                      .filter(AggregatedListing.outbound_clicks > 0)
+                      .order_by(AggregatedListing.outbound_clicks.desc()).limit(10).all()]
+
     return {
         "days": days, "has_data": (db.query(Event).count() > 0),
         "charts": {"visitors": visitors_series, "page_views": pv_series},
         "top_pages": top_pages, "top_searches": top_searches, "referrers": referrers,
         "funnel": [{"step": "Visitors", "n": visitors}, {"step": "Signups", "n": signups},
                    {"step": "Sellers", "n": sellers}, {"step": "Purchases", "n": purchases}],
+        "top_listings": top_listings, "best_sellers": best_sellers, "sales_by_type": sales_by_type,
+        "top_animals": top_animals, "roundup_demand": roundup_demand,
     }
 
 
@@ -230,14 +275,29 @@ def list_users(q: str | None = None, status: str | None = None, role: str | None
     return {"total": total, "users": [_user_row(u) for u in rows]}
 
 
+def _can_act_on(actor: User, target: User) -> bool:
+    """A staff member may act only on accounts strictly below their rank —
+    except super admins, who can also manage each other (co-owners)."""
+    ar, tr = rank(actor.role), rank(target.role)
+    if ar < tr:
+        return False
+    if ar == tr and actor.role != "super_admin":
+        return False
+    return True
+
+
 @router.post("/users/{user_id}/action")
 def user_action(user_id: int, action: str = Body(..., embed=True),
+                role: str | None = Body(None, embed=True),
                 admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     u = db.get(User, user_id)
     if not u:
         raise HTTPException(404, "User not found")
-    if u.id == admin.id and action in ("suspend", "delete", "remove_admin"):
-        raise HTTPException(400, "You can't do that to your own admin account.")
+    if u.id == admin.id:
+        raise HTTPException(400, "You can't change your own role or status here.")
+    if action in ("suspend", "activate", "delete", "set_role") and not _can_act_on(admin, u):
+        raise HTTPException(403, "You can't act on an account at or above your own level.")
+
     if action == "suspend":
         u.account_status = "suspended"
     elif action == "activate":
@@ -246,19 +306,51 @@ def user_action(user_id: int, action: str = Body(..., embed=True),
         u.account_status = "deleted"
         u.email = f"deleted+{u.id}@wagyutank.invalid"
         u.handle = None
-    elif action == "make_admin":
-        u.role = "admin"
-    elif action == "remove_admin":
-        u.role = "user"
+    elif action == "set_role":
+        if role not in ASSIGNABLE_ROLES:
+            raise HTTPException(400, "Unknown role.")
+        # Assigning or removing an admin/super-admin is reserved to super admins.
+        touches_admin_tier = rank(role) >= RANK["admin"] or rank(u.role) >= RANK["admin"]
+        if touches_admin_tier and admin.role != "super_admin":
+            raise HTTPException(403, "Only a super admin can assign or remove admins.")
+        # You can never grant a role above your own authority.
+        if rank(role) > rank(admin.role):
+            raise HTTPException(403, "You can't assign a role above your own level.")
+        # Never demote the last remaining active super admin.
+        if u.role == "super_admin" and role != "super_admin":
+            others = db.query(User).filter(User.role == "super_admin",
+                                           User.account_status == "active", User.id != u.id).count()
+            if others == 0:
+                raise HTTPException(400, "You can't remove the last super admin.")
+        u.role = role
     else:
         raise HTTPException(400, "Unknown action")
     db.commit()
-    _audit(db, admin, f"user.{action}", "user", u.id, {"email": u.email})
+    detail = {"email": u.email}
+    if action == "set_role":
+        detail["role"] = role
+    _audit(db, admin, f"user.{action}", "user", u.id, detail)
     return {"ok": True, "status": u.account_status, "role": u.role}
 
 
+@router.post("/users/{user_id}/message")
+def message_user(user_id: int, subject: str = Body(...), body: str = Body(...),
+                 admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """Send a one-off direct email to a single member (transactional, not marketing)."""
+    u = db.get(User, user_id)
+    if not u or u.account_status == "deleted":
+        raise HTTPException(404, "User not found")
+    safe = (body or "").replace("\n", "<br>")
+    html = mail._shell(f"<p>{safe}</p><p style='color:#999;font-size:12px;margin-top:20px'>"
+                       f"This is a direct message from the WagyuTank team. "
+                       f"Reply to this email to reach us.</p>")
+    ok = mail.send(u.email, subject[:200], html)
+    _audit(db, admin, "user.message", "user", u.id, {"email": u.email, "subject": subject[:120]})
+    return {"ok": ok, "sent_to": u.email}
+
+
 @router.get("/email-list.csv", response_class=PlainTextResponse)
-def email_list(opted_in_only: bool = True, db: Session = Depends(get_db)):
+def email_list(opted_in_only: bool = True, _: User = Depends(require_admin), db: Session = Depends(get_db)):
     q = db.query(User).filter(User.account_status == "active")
     if opted_in_only:
         q = q.filter(User.marketing_opt_in == True)  # noqa: E712
@@ -271,7 +363,7 @@ def email_list(opted_in_only: bool = True, db: Session = Depends(get_db)):
 
 
 @router.get("/catalog-export.csv", response_class=PlainTextResponse)
-def catalog_export(db: Session = Depends(get_db)):
+def catalog_export(_: User = Depends(require_admin), db: Session = Depends(get_db)):
     """Semen listings opted into the printed catalog — the print-run worksheet."""
     from ..models import Listing, ListingStatus
     rows = (db.query(Listing).filter(Listing.catalog_opt_in == True,  # noqa: E712
@@ -299,6 +391,12 @@ _SETTING_DEFAULTS = {
     "news_enabled": True,
     "digest_enabled": True,
     "require_admin_2fa": False,
+    # Printed Semen Catalog — the current open edition (admin-editable, no redeploy).
+    "catalog_edition_key": "2026-northern",
+    "catalog_edition_label": "2026 Northern Hemisphere Edition",
+    "catalog_deadline": "February 1, 2026",
+    "catalog_mail_month": "March 2026",
+    "catalog_submit_open": True,
 }
 
 # Every place the platform calls an LLM — surfaced so the admin knows what a swap affects.
@@ -370,7 +468,7 @@ def admin_roundup(flagged: bool = False, limit: int = 50, db: Session = Depends(
 
 @router.post("/roundup/{listing_id}/action")
 def roundup_action(listing_id: int, action: str = Body(..., embed=True),
-                   admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+                   admin: User = Depends(require_staff), db: Session = Depends(get_db)):
     r = db.get(AggregatedListing, listing_id)
     if not r:
         raise HTTPException(404, "Not found")
@@ -391,7 +489,7 @@ def roundup_action(listing_id: int, action: str = Body(..., embed=True),
 
 
 @router.post("/roundup/run")
-def roundup_run(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def roundup_run(admin: User = Depends(require_staff), db: Session = Depends(get_db)):
     """Kick off the aggregator as a detached background process."""
     try:
         subprocess.Popen([sys.executable, "-m", "app.jobs.aggregate"], start_new_session=True)
@@ -416,7 +514,7 @@ def admin_ads(status: str | None = None, db: Session = Depends(get_db)):
 
 @router.post("/ads/{ad_id}/action")
 def ad_action(ad_id: int, action: str = Body(..., embed=True),
-              admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+              admin: User = Depends(require_staff), db: Session = Depends(get_db)):
     a = db.get(Ad, ad_id)
     if not a:
         raise HTTPException(404, "Not found")
@@ -438,7 +536,7 @@ def ad_action(ad_id: int, action: str = Body(..., embed=True),
 
 # ---------------------------------------------------------------- Audit log
 @router.get("/audit")
-def audit_log(limit: int = 100, db: Session = Depends(get_db)):
+def audit_log(limit: int = 100, _: User = Depends(require_admin), db: Session = Depends(get_db)):
     rows = db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(limit).all()
     return [{"id": r.id, "admin_email": r.admin_email, "action": r.action,
              "target_type": r.target_type, "target_id": r.target_id, "detail": r.detail,
@@ -517,3 +615,70 @@ def campaign_send(subject: str = Body(...), body_html: str = Body(...),
     db.commit()
     _audit(db, admin, "campaign.send", "campaign", camp.id, {"segment": segment, "sent": sent})
     return {"ok": True, "recipients": len(users), "sent": sent, "campaign_id": camp.id}
+
+
+# ---------------------------------------------------------------- Catalog submissions
+@router.get("/catalog/submissions")
+def catalog_submissions(edition: str | None = None, status: str | None = None,
+                        db: Session = Depends(get_db)):
+    from ..models import CatalogSubmission
+    q = db.query(CatalogSubmission)
+    if edition:
+        q = q.filter(CatalogSubmission.edition == edition)
+    if status:
+        q = q.filter(CatalogSubmission.status == status)
+    rows = q.order_by(CatalogSubmission.created_at.desc()).limit(500).all()
+    editions = [e for (e,) in db.query(CatalogSubmission.edition).distinct().all()]
+    return {"editions": editions, "submissions": [
+        {"id": s.id, "edition": s.edition, "ranch_name": s.ranch_name,
+         "animal_name": s.animal_name, "animal_reg": s.animal_reg, "bloodline": s.bloodline,
+         "product_type": s.product_type, "price_note": s.price_note, "description": s.description,
+         "contact_email": s.contact_email, "contact_phone": s.contact_phone, "website": s.website,
+         "ship_city": s.ship_city, "ship_country": s.ship_country,
+         "status": s.status, "created_at": s.created_at,
+         "user_handle": (s.user.handle if s.user else None)} for s in rows]}
+
+
+@router.post("/catalog/submissions/{sub_id}/action")
+def catalog_submission_action(sub_id: int, action: str = Body(..., embed=True),
+                              admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    from ..models import CatalogSubmission
+    s = db.get(CatalogSubmission, sub_id)
+    if not s:
+        raise HTTPException(404, "Submission not found")
+    if action == "approve":
+        s.status = "approved"
+    elif action == "reject":
+        s.status = "rejected"
+    elif action == "mark_printed":
+        s.status = "printed"
+    elif action == "delete":
+        db.delete(s); db.commit(); _audit(db, admin, "catalog.delete", "catalog_submission", sub_id)
+        return {"ok": True, "deleted": True}
+    else:
+        raise HTTPException(400, "Unknown action")
+    db.commit()
+    _audit(db, admin, f"catalog.{action}", "catalog_submission", sub_id, {"ranch": s.ranch_name})
+    return {"ok": True, "status": s.status}
+
+
+@router.get("/catalog-submissions.csv", response_class=PlainTextResponse)
+def catalog_submissions_csv(edition: str | None = None, _: User = Depends(require_admin),
+                            db: Session = Depends(get_db)):
+    """Print-run worksheet incl. mailing addresses for the paper copies."""
+    from ..models import CatalogSubmission
+    q = db.query(CatalogSubmission).filter(CatalogSubmission.status.in_(("approved", "printed")))
+    if edition:
+        q = q.filter(CatalogSubmission.edition == edition)
+    rows = q.order_by(CatalogSubmission.ranch_name).all()
+
+    def c(v):
+        return (str(v).replace(",", " ").replace("\n", " ") if v is not None else "")
+    lines = ["edition,ranch,animal,reg,bloodline,type,price_note,email,phone,website,"
+             "ship_name,ship_address,ship_city,ship_region,ship_postal,ship_country,status"]
+    for s in rows:
+        lines.append(",".join(c(x) for x in [
+            s.edition, s.ranch_name, s.animal_name, s.animal_reg, s.bloodline, s.product_type,
+            s.price_note, s.contact_email, s.contact_phone, s.website,
+            s.ship_name, s.ship_address, s.ship_city, s.ship_region, s.ship_postal, s.ship_country, s.status]))
+    return "\n".join(lines)
