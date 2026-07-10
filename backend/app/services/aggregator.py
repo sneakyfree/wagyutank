@@ -306,7 +306,7 @@ def _extract(text: str, source_url: str) -> list[dict]:
         if gap > 0:
             time.sleep(gap)
         try:
-            out = chat(_EXTRACT_SYSTEM, f"Page URL: {source_url}\n\nPage text:\n{text}", max_tokens=1800)
+            out = chat(_EXTRACT_SYSTEM, f"Page URL: {source_url}\n\nPage text:\n{text}", max_tokens=3200)
             _LAST_LLM[0] = time.monotonic()
             break
         except Exception:
@@ -562,6 +562,48 @@ def _crawl_source(db, start_url: str, visited: set, budget: list) -> tuple[int, 
             db.rollback()
         time.sleep(2)  # be polite
     return added, seen, pages, ok
+
+
+def ingest_rendered_pages(db, pages: list[dict]) -> dict:
+    """Ingest pages already rendered by the JS crawler (Playwright on Windy 0).
+
+    Each page = {source_url, source_site, text}. The crawler renders the
+    JavaScript that static fetch can't see; here we reuse the same LLM
+    extraction + upsert path (facts + our neutral summary + link-back — never
+    the seller's ad copy or images), so SPA seller catalogs finally flow into
+    the Roundup. Sources touched this run are recorded so delisting still works.
+    """
+    from sqlalchemy.exc import IntegrityError
+
+    from . import health
+    added = seen = 0
+    touched_sites: dict[str, int] = {}
+    for pg in pages:
+        url = (pg.get("source_url") or "").strip()
+        site = (pg.get("source_site") or urlparse(url).netloc).strip()
+        text = pg.get("text") or ""
+        if not url or len(text) < 60:
+            continue
+        for li in _extract(text[:16000], url):
+            seen += 1
+            # A savepoint per listing: if the LLM repeats a listing (identical
+            # dedup_key) the collision rolls back only this row, never the whole
+            # job — one dup used to abort the entire ingest mid-run.
+            try:
+                with db.begin_nested():
+                    created = _upsert(db, li, url, site)
+                if created:
+                    added += 1
+                    touched_sites[site] = touched_sites.get(site, 0) + 1
+            except IntegrityError:
+                pass
+        db.commit()
+    for site, n in touched_sites.items():
+        try:
+            health.record_source(db, f"roundup:{site}", "roundup_source", f"{site} (JS)", n)
+        except Exception:
+            pass
+    return {"pages": len(pages), "seen": seen, "added": added, "sites": len(touched_sites)}
 
 
 def run(db, sources: list[str] | None = None, delist: bool = True,
