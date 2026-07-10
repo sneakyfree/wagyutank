@@ -94,8 +94,10 @@ def translate_batch(db, items: list[dict], lang: str) -> dict:
     possible. items = [{id, text}]. Returns {id: translated_text} for the ones
     that actually translated. Cache-first per item; uncached ones go in one
     numbered-list prompt per ~20."""
+    # Unlike translate(), the TARGET here may be English — comments arrive in any
+    # language and are read in the viewer's, which is often English.
     lang = (lang or "en").lower()
-    if lang == "en" or lang not in LANGS:
+    if lang not in LANGS:
         return {}
     result: dict = {}
     pending: list[dict] = []
