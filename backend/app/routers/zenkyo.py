@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..db import get_db
@@ -35,6 +36,33 @@ def zenkyo(db: Session = Depends(get_db)):
                                 "host_prefecture": "Hokkaido", "city": "Otofuke & Obihiro (Tokachi)",
                                 "starts_at": "2027-08-26"},
             "delegation_interested": interested}
+
+
+@router.get("/event/{number}")
+def zenkyo_event(number: int, db: Session = Depends(get_db)):
+    """A single Zenkyo's scrapbook: the event, its champions, and any videos from
+    that year/prefecture the Theater has harvested."""
+    d = _load()
+    ev = next((e for e in d.get("events", []) if e.get("number") == number), None)
+    if not ev:
+        raise HTTPException(404, "Event not found")
+    # Related Theater videos: match the host prefecture or year token in title.
+    from ..models import WagyuVideo
+    pref = (ev.get("host_prefecture") or "").lower()
+    yr = str(ev.get("year") or "")
+    vids = []
+    q = (db.query(WagyuVideo).filter(WagyuVideo.status == "approved",
+                                     WagyuVideo.embeddable == True)  # noqa: E712
+         .filter((func.lower(WagyuVideo.title).like(f"%zenkyo%")) |
+                 (func.lower(WagyuVideo.title).like(f"%{yr}%") & func.lower(WagyuVideo.title).like("%wagyu%")))
+         .order_by(WagyuVideo.views.desc().nullslast()).limit(6).all())
+    for v in q:
+        vids.append({"id": v.id, "title": v.title_en or v.title, "channel": v.channel,
+                     "thumbnail_url": v.thumbnail_url, "views": v.views})
+    # Champions whose record mentions this event number/year (best-effort link).
+    champs = [c for c in d.get("champions", [])
+              if str(number) in (c.get("zenkyo_record") or "") or yr in (c.get("zenkyo_record") or "")]
+    return {"event": ev, "champions": champs, "videos": vids}
 
 
 def _client_ip(request: Request) -> str:

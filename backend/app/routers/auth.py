@@ -55,6 +55,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         display_name=payload.display_name,
         handle=handle,
         phone=(payload.phone or "").strip() or None,
+        country=((payload.country or "").strip().upper()[:2] or None),
         recovery_email=payload.recovery_email,
         marketing_opt_in=payload.marketing_opt_in,
         role=role_for_email(payload.email, _cfg.super_admin_emails, _cfg.admin_emails),

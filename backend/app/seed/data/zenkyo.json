@@ -12,6 +12,13 @@
    "sources": [
     "https://ja.wikipedia.org/wiki/全国和牛能力共進会",
     "https://okayama.lin.gr.jp/tosyo/history/2-2-2-61.htm"
+   ],
+   "breeding_winner": "Okayama",
+   "meat_winner": "Okayama",
+   "champion_note": "Okayama's Yokouji-go (bull) and Nishiisami-go (steer)",
+   "winning_breeder": null,
+   "photo_links": [
+    "https://www.beefcentral.com/genetics/japans-magnificent-zenkyo-wagyu-show-in-pictures-and-words/"
    ]
   },
   {
@@ -25,7 +32,12 @@
    "notable_facts": "32 prefectures took part with 3,840 head applied; the first Zenkyo to carry an explicit theme, as the every-five-years national format took hold.",
    "sources": [
     "https://contents.wagyu-kagoshima.jp/kyousinkai/"
-   ]
+   ],
+   "breeding_winner": "Oita",
+   "meat_winner": "Kagoshima",
+   "champion_note": null,
+   "winning_breeder": null,
+   "photo_links": []
   },
   {
    "number": 3,
@@ -38,7 +50,12 @@
    "notable_facts": "28 prefectures, 4,318 head applied; 281 cattle shown. Shimane's Itozakura-line dominance overshadowed rivals — the line that flows into many exported foundation sires.",
    "sources": [
     "https://okayama.lin.gr.jp/tosyo/history/2-2-2-61.htm"
-   ]
+   ],
+   "breeding_winner": "Shimane",
+   "meat_winner": "Shimane",
+   "champion_note": "Shimane's Kasuga/Harubi bloodline",
+   "winning_breeder": null,
+   "photo_links": []
   },
   {
    "number": 4,
@@ -52,7 +69,12 @@
    "sources": [
     "https://ja.wikipedia.org/wiki/全国和牛能力共進会",
     "https://www.rocking711.com/sires/"
-   ]
+   ],
+   "breeding_winner": "Hiroshima",
+   "meat_winner": "Kagoshima",
+   "champion_note": null,
+   "winning_breeder": null,
+   "photo_links": []
   },
   {
    "number": 5,
@@ -65,7 +87,12 @@
    "notable_facts": "As host, Shimane posted a strong showing on home ground, the Itozakura line proving its national influence just as its descendants were beginning to spread worldwide.",
    "sources": [
     "https://crd.ndl.go.jp/reference/modules/d3ndlcrdentry/index.php?page=ref_view&id=1000249992"
-   ]
+   ],
+   "breeding_winner": "Hiroshima",
+   "meat_winner": "Shimane",
+   "champion_note": "Shimane's Itozakura line",
+   "winning_breeder": null,
+   "photo_links": []
   },
   {
    "number": 6,
@@ -79,7 +106,12 @@
    "sources": [
     "https://www.pref.oita.jp/site/archive/200908.html",
     "https://tokushige-waic.com/hirashigekatsu"
-   ]
+   ],
+   "breeding_winner": "Kagoshima",
+   "meat_winner": "Hyogo",
+   "champion_note": "Kedaka bull Hirashigekatsu took the Honor Prize",
+   "winning_breeder": null,
+   "photo_links": []
   },
   {
    "number": 7,
@@ -93,7 +125,12 @@
    "sources": [
     "https://ja.wikipedia.org/wiki/全国和牛能力共進会",
     "https://www.rocking711.com/sires/"
-   ]
+   ],
+   "breeding_winner": "Iwate",
+   "meat_winner": "Shizuoka",
+   "champion_note": "Grand Champion sired by Kitaguni 7-8",
+   "winning_breeder": null,
+   "photo_links": []
   },
   {
    "number": 8,
@@ -106,6 +143,13 @@
    "notable_facts": "Hida beef's triumph, built on the Yasufuku bloodline, catapulted Gifu's brand to national prominence — its highest-ever result.",
    "sources": [
     "https://meatbook.jp/hida-beef/"
+   ],
+   "breeding_winner": "Gifu",
+   "meat_winner": "Oita",
+   "champion_note": "Gifu (Hida beef) — Prime Minister's Award + Grand Champion Carcass",
+   "winning_breeder": null,
+   "photo_links": [
+    "http://hidagyu-gifu.com/hidagyu.php"
    ]
   },
   {
@@ -120,6 +164,14 @@
    "sources": [
     "http://cus4.zwtk.or.jp/zw9/zenkyo.html",
     "https://www.rocking711.com/sires/"
+   ],
+   "breeding_winner": "Miyazaki",
+   "meat_winner": "Miyazaki",
+   "champion_note": "Miyazaki swept both divisions — the start of its four-in-a-row",
+   "winning_breeder": null,
+   "photo_links": [
+    "http://cus4.zwtk.or.jp/zw9/zenkyo.html",
+    "https://www.beefcentral.com/genetics/japans-magnificent-zenkyo-wagyu-show-in-pictures-and-words/"
    ]
   },
   {
@@ -133,6 +185,14 @@
    "notable_facts": "Miyazaki took first in 5 of 9 sections for back-to-back overall supremacy; ~486,000 attended. Host Nagasaki captured the meat top prize on home ground.",
    "sources": [
     "http://cus4.zwtk.or.jp/zw10/zenke00.html"
+   ],
+   "breeding_winner": "Miyazaki",
+   "meat_winner": "Nagasaki",
+   "champion_note": "Miyazaki (breeding); host Nagasaki (meat)",
+   "winning_breeder": null,
+   "photo_links": [
+    "http://www.nga.gr.jp/pref_info/tembo/2012/12/post_2043.html",
+    "https://www.beefcentral.com/genetics/japans-magnificent-zenkyo-wagyu-show-in-pictures-and-words/"
    ]
   },
   {
@@ -147,6 +207,14 @@
    "sources": [
     "http://cus4.zwtk.or.jp/zw11/zengai00.html",
     "https://www.beefcentral.com/genetics/japans-magnificent-zenkyo-wagyu-show-in-pictures-and-words/"
+   ],
+   "breeding_winner": "Oita",
+   "meat_winner": "Miyazaki",
+   "champion_note": "Miyazaki meat champion Manten Meisho (満天明彰), by the sire Manten Shirakiyo",
+   "winning_breeder": null,
+   "photo_links": [
+    "http://wagyu.miyazaki.jp/73/",
+    "https://www.beefcentral.com/news/welcome-to-zenkyo-japans-famous-wagyu-cattle-olympics-pictures/"
    ]
   },
   {
@@ -161,6 +229,15 @@
    "sources": [
     "https://www.beefcentral.com/news/welcome-to-zenkyo-japans-famous-wagyu-cattle-olympics-pictures/",
     "https://www.pref.kagoshima.jp/ag35/12th-zenkyou/wagyunihoniti.html"
+   ],
+   "breeding_winner": "Kagoshima",
+   "meat_winner": "Miyazaki",
+   "champion_note": "Kagoshima breeding champion cow Yasuko (やすこ), Yusui Town; Miyazaki meat champion (Section 7, BMS 12)",
+   "winning_breeder": "Meat champion exhibited by Sato Kosuke (佐藤孝輔) of Takachiho, Miyazaki",
+   "photo_links": [
+    "https://www.pref.kagoshima.jp/ag35/12th-zenkyou/wagyunihoniti.html",
+    "https://www.miyazakigyu.jp/zenkyo/",
+    "https://www.beefcentral.com/news/welcome-to-zenkyo-japans-famous-wagyu-cattle-olympics-pictures/"
    ]
   },
   {
@@ -175,6 +252,13 @@
    "sources": [
     "https://zenkyo-hokkaido.jp/",
     "https://www.town.otofuke.hokkaido.jp/keizai/2027wagyuzenkyo/hokkaidotaikai.html"
+   ],
+   "breeding_winner": null,
+   "meat_winner": null,
+   "champion_note": "To be decided — August 2027, Hokkaido",
+   "winning_breeder": null,
+   "photo_links": [
+    "https://zenkyo-hokkaido.jp/"
    ]
   }
  ],

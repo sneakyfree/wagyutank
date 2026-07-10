@@ -597,6 +597,7 @@ class Comment(Base):
     author_handle: Mapped[str] = mapped_column(String(64))
     author_name: Mapped[str | None] = mapped_column(String(120))
     body: Mapped[str] = mapped_column(Text)
+    lang: Mapped[str] = mapped_column(String(5), default="en")  # source language the author wrote in
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("comments.id"), index=True)
     is_seed: Mapped[bool] = mapped_column(Boolean, default=False)
     likes: Mapped[int] = mapped_column(Integer, default=0)

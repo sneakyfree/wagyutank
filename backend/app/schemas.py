@@ -20,6 +20,7 @@ class UserCreate(BaseModel):
     display_name: str = Field(min_length=1, max_length=120)
     handle: str | None = Field(default=None, max_length=64)
     phone: str | None = Field(default=None, max_length=32)
+    country: str | None = Field(default=None, max_length=2)
     recovery_email: EmailStr | None = None
     marketing_opt_in: bool = True
 

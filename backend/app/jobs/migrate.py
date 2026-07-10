@@ -35,6 +35,9 @@ _MIGRATIONS = {
     "wagyu_videos": {
         "editorial": "TEXT",
     },
+    "comments": {
+        "lang": "VARCHAR(5) DEFAULT 'en'",
+    },
     "animals": {  # ensure the breed-history columns too (safe if already present)
         "prefecture": "VARCHAR(60)",
         "bio": "TEXT",
