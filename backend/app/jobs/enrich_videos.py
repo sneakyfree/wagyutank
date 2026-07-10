@@ -13,7 +13,6 @@ import time
 from ..db import SessionLocal
 from ..models import Animal, WagyuVideo
 from ..services.ai import chat
-from ..services.translate import translate_batch
 
 ED_SYS = (
     "You write 60-110 word editorial notes for WagyuTank, the Wagyu breed's "
@@ -36,17 +35,38 @@ def main():
         ja = (db.query(WagyuVideo)
               .filter(WagyuVideo.lang == "ja", WagyuVideo.title_en == None)  # noqa: E711
               .order_by(WagyuVideo.views.desc().nullslast()).limit(120).all())
-        if ja:
-            items = [{"id": v.id, "text": v.title} for v in ja]
-            got = translate_batch(db, items, "en")
-            n = 0
-            for v in ja:
-                t = got.get(v.id)
-                if t:
+        n = 0
+        for i in range(0, len(ja), 15):
+            batch = ja[i:i + 15]
+            sys_p = ("Translate each numbered Japanese YouTube title into natural English for "
+                     "cattle breeders. Keep names/terms like Wagyu, Tajima intact. Return ONLY "
+                     "the numbered list, one translation per line.")
+            prompt = "\n".join(f"{k+1}. {v.title[:150]}" for k, v in enumerate(batch))
+            out = None
+            for _ in range(2):
+                try:
+                    out = chat(sys_p, prompt, max_tokens=900)
+                except Exception:
+                    out = None
+                if out:
+                    break
+                time.sleep(5)
+            if not out:
+                continue
+            lines = {}
+            for ln in out.splitlines():
+                m = ln.strip()
+                dot = m.find(".")
+                if dot > 0 and m[:dot].isdigit():
+                    lines[int(m[:dot])] = m[dot + 1:].strip()
+            for k, v in enumerate(batch):
+                t = lines.get(k + 1)
+                if t and t != v.title:
                     v.title_en = t[:300]
                     n += 1
             db.commit()
-            print(f"Translated {n}/{len(ja)} Japanese titles.")
+            time.sleep(1)
+        print(f"Translated {n}/{len(ja)} Japanese titles.")
 
         # ---- 2. Editorial notes for the most-watched ----
         rows = (db.query(WagyuVideo)
