@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import Animal, AnimalSource, AnimalType, Listing, ListingStatus
+from ..models import Animal, AnimalSource, AnimalType, Listing, ListingStatus, User
 from ..schemas import AnimalOut, AnimalUpsert, ListingOut
+from ..security import get_current_user
 from ..services.ai import extract_pedigree_from_image
 from .listings import to_listing_out
 
@@ -137,6 +138,50 @@ def animal_price_history(reg: str, db: Session = Depends(get_db)):
 
     return {"registration_no": reg_key, "name": a.name if a else reg,
             "reference": reference, "history": history, "market": market}
+
+
+def _embed_url(url: str) -> str | None:
+    """Turn a YouTube/Vimeo watch URL into an embeddable one. Returns None if we
+    can't safely embed it (so we won't iframe an arbitrary page)."""
+    import re as _re
+    u = (url or "").strip()
+    m = _re.search(r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)([A-Za-z0-9_-]{6,})", u)
+    if m:
+        return f"https://www.youtube.com/embed/{m.group(1)}"
+    m = _re.search(r"vimeo\.com/(\d+)", u)
+    if m:
+        return f"https://player.vimeo.com/video/{m.group(1)}"
+    return None
+
+
+@router.get("/{reg}/videos")
+def animal_videos(reg: str, db: Session = Depends(get_db)):
+    from ..models import AnimalVideo
+    rows = (db.query(AnimalVideo)
+            .filter(func.lower(AnimalVideo.animal_reg) == reg.lower(), AnimalVideo.status == "approved")
+            .order_by(AnimalVideo.created_at.desc()).all())
+    return [{"id": v.id, "title": v.title, "embed_url": v.embed_url, "video_url": v.video_url,
+             "submitter_name": v.submitter_name, "created_at": v.created_at} for v in rows]
+
+
+@router.post("/{reg}/videos")
+def submit_animal_video(reg: str, payload: dict = Body(...),
+                        user: "User" = Depends(get_current_user), db: Session = Depends(get_db)):
+    from ..models import AnimalVideo
+    title = (payload.get("title") or "").strip()
+    url = (payload.get("video_url") or "").strip()
+    if not title or not url:
+        raise HTTPException(400, "A title and a video link are required.")
+    embed = _embed_url(url)
+    if not embed:
+        raise HTTPException(400, "Please paste a YouTube or Vimeo link so we can embed it.")
+    v = AnimalVideo(animal_reg=reg, user_id=user.id, title=title[:200], video_url=url[:600],
+                    embed_url=embed, submitter_name=(user.display_name or user.handle or "A member")[:120],
+                    status="approved")
+    db.add(v)
+    db.commit(); db.refresh(v)
+    return {"id": v.id, "title": v.title, "embed_url": v.embed_url,
+            "submitter_name": v.submitter_name, "created_at": v.created_at}
 
 
 def upsert_animal(db: Session, data: AnimalUpsert, source: AnimalSource = AnimalSource.CACHE) -> Animal:

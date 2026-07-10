@@ -804,3 +804,22 @@ class FoundationReferencePrice(Base):
     confidence: Mapped[str] = mapped_column(String(8), default="low")  # high|medium|low
     source_name: Mapped[str | None] = mapped_column(String(160))
     notes: Mapped[str | None] = mapped_column(Text)
+
+
+class AnimalVideo(Base):
+    """A member-submitted video about a foundation animal's genetics — 'here's my
+    experience working with this bloodline.' We embed a URL (YouTube/Vimeo), never
+    host the file. Builds the per-animal media complex + user-generated content."""
+    __tablename__ = "animal_videos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    animal_reg: Mapped[str] = mapped_column(String(40), index=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String(200))
+    video_url: Mapped[str] = mapped_column(String(600))
+    embed_url: Mapped[str | None] = mapped_column(String(600))
+    submitter_name: Mapped[str | None] = mapped_column(String(120))
+    status: Mapped[str] = mapped_column(String(12), default="approved", index=True)  # approved|pending|hidden
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+
+    user: Mapped[User] = relationship()
