@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     super_admin_emails: str = "grantwhitmer3@gmail.com"
     admin_emails: str = "grant@wagyutank.com,johnsmithkit05@gmail.com"
 
+    # R2 native video hosting (zero-egress; presigned browser uploads)
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_endpoint: str = ""
+    r2_bucket: str = "wagyutank-videos"
+    r2_public_base: str = "https://videos.wagyutank.com"
+
     # Email (Resend) — wagyutank.com is a verified sending domain.
     resend_api_key: str = ""
     mail_from: str = "WagyuTank <noreply@wagyutank.com>"

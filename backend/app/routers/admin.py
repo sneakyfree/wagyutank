@@ -725,3 +725,28 @@ def admin_video_action(vid: int, action: str = Body(..., embed=True),
     db.commit()
     _audit(db, admin, f"video.{action}", "video", vid, {"title": v.title[:80]})
     return {"ok": True, "status": v.status, "category": v.category}
+
+
+@router.get("/video-claims")
+def video_claims(status: str = "pending", db: Session = Depends(get_db)):
+    from ..models import ChannelClaim
+    rows = (db.query(ChannelClaim).filter(ChannelClaim.status == status)
+            .order_by(ChannelClaim.created_at.desc()).limit(100).all())
+    return [{"id": c.id, "channel": c.channel, "channel_id": c.channel_id,
+             "handle": c.user.handle if c.user else None, "email": c.user.email if c.user else None,
+             "note": c.note, "status": c.status, "created_at": c.created_at} for c in rows]
+
+
+@router.post("/video-claims/{claim_id}/action")
+def video_claim_action(claim_id: int, action: str = Body(..., embed=True),
+                       admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    from ..models import ChannelClaim
+    c = db.get(ChannelClaim, claim_id)
+    if not c:
+        raise HTTPException(404, "Claim not found")
+    if action not in ("approve", "reject"):
+        raise HTTPException(400, "Unknown action")
+    c.status = "approved" if action == "approve" else "rejected"
+    db.commit()
+    _audit(db, admin, f"video_claim.{action}", "channel_claim", claim_id, {"channel": c.channel})
+    return {"ok": True, "status": c.status}

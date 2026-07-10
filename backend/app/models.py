@@ -879,3 +879,20 @@ class WagyuVideo(Base):
         if self.source == "youtube" and self.video_id:
             return f"https://i.ytimg.com/vi/{self.video_id}/hqdefault.jpg"
         return None
+
+
+class ChannelClaim(Base):
+    """Claim-your-channel — a member asserts a harvested YouTube channel is
+    theirs. Admin-approved (small community, manual verification); once
+    approved, the channel's videos link to the member's WagyuTank storefront."""
+    __tablename__ = "channel_claims"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    channel_id: Mapped[str] = mapped_column(String(40), index=True)
+    channel: Mapped[str | None] = mapped_column(String(160))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    note: Mapped[str | None] = mapped_column(String(300))   # "how can we verify?"
+    status: Mapped[str] = mapped_column(String(12), default="pending", index=True)  # pending|approved|rejected
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    user: Mapped[User] = relationship()
