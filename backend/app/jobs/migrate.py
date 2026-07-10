@@ -32,6 +32,9 @@ _MIGRATIONS = {
         "source_updated_at": "DATETIME",
         "source_date_type": "VARCHAR(16)",
     },
+    "wagyu_videos": {
+        "editorial": "TEXT",
+    },
     "animals": {  # ensure the breed-history columns too (safe if already present)
         "prefecture": "VARCHAR(60)",
         "bio": "TEXT",

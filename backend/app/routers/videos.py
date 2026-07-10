@@ -94,6 +94,7 @@ def detail(video_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Video not found")
     d = _out(v)
     d["description"] = (v.description or "")[:800]
+    d["editorial"] = v.editorial
     if v.matched_sale_id:
         s = db.get(SaleEvent, v.matched_sale_id)
         if s:

@@ -862,6 +862,7 @@ class WagyuVideo(Base):
     query: Mapped[str | None] = mapped_column(String(160))          # which harvest query found it
     embeddable: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    editorial: Mapped[str | None] = mapped_column(Text)  # WagyuTank's write-up (grounded in real metadata)
     submitted_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))  # native/member videos
     status: Mapped[str] = mapped_column(String(12), default="approved", index=True)  # approved|pending|hidden|dead
     first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
