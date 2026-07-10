@@ -1,0 +1,387 @@
+{
+ "events": [
+  {
+   "number": 1,
+   "year": 1966,
+   "dates": "October 14–17, 1966",
+   "host_prefecture": "Okayama",
+   "city": "Okayama City",
+   "theme": null,
+   "top_honors": "Okayama — Prime Minister's Award in both breeding (bull Yokouji-go) and meat (steer Nishiisami-go)",
+   "notable_facts": "The inaugural National Wagyu Ability Expo had a research-study character, tracking feeding and body measurements over ~11 months. 100 head plus reference cattle from the 6 Chugoku-region prefectures. It established the objective, economic-performance evaluation format that defines the modern Zenkyo.",
+   "sources": [
+    "https://ja.wikipedia.org/wiki/全国和牛能力共進会",
+    "https://okayama.lin.gr.jp/tosyo/history/2-2-2-61.htm"
+   ]
+  },
+  {
+   "number": 2,
+   "year": 1970,
+   "dates": "May 11–15, 1970",
+   "host_prefecture": "Kagoshima",
+   "city": "Kagoshima City",
+   "theme": "Let us complete a uniquely Japanese beef breed",
+   "top_honors": null,
+   "notable_facts": "32 prefectures took part with 3,840 head applied; the first Zenkyo to carry an explicit theme, as the every-five-years national format took hold.",
+   "sources": [
+    "https://contents.wagyu-kagoshima.jp/kyousinkai/"
+   ]
+  },
+  {
+   "number": 3,
+   "year": 1977,
+   "dates": "May 11–15, 1977",
+   "host_prefecture": "Miyazaki",
+   "city": "Miyakonojo City",
+   "theme": "Let us establish wagyu within Japanese farm management",
+   "top_honors": "Shimane — standout results via its Itozakura-family bloodline",
+   "notable_facts": "28 prefectures, 4,318 head applied; 281 cattle shown. Shimane's Itozakura-line dominance overshadowed rivals — the line that flows into many exported foundation sires.",
+   "sources": [
+    "https://okayama.lin.gr.jp/tosyo/history/2-2-2-61.htm"
+   ]
+  },
+  {
+   "number": 4,
+   "year": 1982,
+   "dates": "1982",
+   "host_prefecture": "Fukushima",
+   "city": "Fukushima",
+   "theme": "Let us develop the wagyu improvement cooperatives",
+   "top_honors": null,
+   "notable_facts": "The first Zenkyo held outside western Japan, marking the event's nationwide expansion. A landmark for the exported bloodlines: Monjiro J11550 — sire of Michifuku and Haruki 2 — took a young-bull Honorable Prize here at age one, the earliest documented show credential in the Western foundation lineage.",
+   "sources": [
+    "https://ja.wikipedia.org/wiki/全国和牛能力共進会",
+    "https://www.rocking711.com/sires/"
+   ]
+  },
+  {
+   "number": 5,
+   "year": 1987,
+   "dates": "1987",
+   "host_prefecture": "Shimane",
+   "city": "Shimane",
+   "theme": "Let us steadily expand the scale of wagyu calf production",
+   "top_honors": "Shimane — Prime Minister's Award (meat division), credited to its Itozakura bloodline",
+   "notable_facts": "As host, Shimane posted a strong showing on home ground, the Itozakura line proving its national influence just as its descendants were beginning to spread worldwide.",
+   "sources": [
+    "https://crd.ndl.go.jp/reference/modules/d3ndlcrdentry/index.php?page=ref_view&id=1000249992"
+   ]
+  },
+  {
+   "number": 6,
+   "year": 1992,
+   "dates": "October 1–5, 1992",
+   "host_prefecture": "Oita",
+   "city": "Yufu City (Tsukahara Plateau)",
+   "theme": "Let us aim for wagyu production that wins international competition",
+   "top_honors": "The Kedaka-line bull Hirashigekatsu took the Honor Prize with dominant results — a rare non-Tajima champion",
+   "notable_facts": "About 284 head from 32 prefectures on the Tsukahara Plateau, with ~500,000 spectators expected. Hirashigekatsu's win pioneered the 'quality and quantity in one' ideal from a non-Tajima line.",
+   "sources": [
+    "https://www.pref.oita.jp/site/archive/200908.html",
+    "https://tokushige-waic.com/hirashigekatsu"
+   ]
+  },
+  {
+   "number": 7,
+   "year": 1997,
+   "dates": "1997",
+   "host_prefecture": "Iwate",
+   "city": "Takizawa & Shiwa",
+   "theme": "Grow wagyu production with breeding value and fighting spirit",
+   "top_honors": "Kitaguni 7-8 sired the Grand Champion; Hirashigekatsu added a second-event excellence award",
+   "notable_facts": "The first Zenkyo in the Tohoku region, emphasizing estimated breeding values (EBVs). Kitaguni 7-8 — son of Dai 7 Itozakura and sire of the exported Kitaguni Jr. — produced the Grand Champion, placing a Zenkyo grand-champion pedigree one generation from Western herds.",
+   "sources": [
+    "https://ja.wikipedia.org/wiki/全国和牛能力共進会",
+    "https://www.rocking711.com/sires/"
+   ]
+  },
+  {
+   "number": 8,
+   "year": 2002,
+   "dates": "2002",
+   "host_prefecture": "Gifu",
+   "city": "Takayama City",
+   "theme": "With young energy and breeding value, accelerate wagyu improvement",
+   "top_honors": "Gifu (Hida beef) — Prime Minister's Award + Grand Champion Carcass Award",
+   "notable_facts": "Hida beef's triumph, built on the Yasufuku bloodline, catapulted Gifu's brand to national prominence — its highest-ever result.",
+   "sources": [
+    "https://meatbook.jp/hida-beef/"
+   ]
+  },
+  {
+   "number": 9,
+   "year": 2007,
+   "dates": "October 11–14, 2007",
+   "host_prefecture": "Tottori",
+   "city": "Yonago & Sakaiminato",
+   "theme": "Rediscover wagyu! Building wagyu's future in our regions",
+   "top_honors": "Miyazaki — Prime Minister's Award in BOTH divisions (a rare double)",
+   "notable_facts": "~270,000 visitors over four days; Their Imperial Highnesses Prince and Princess Hitachi attended the opening. This double win began Miyazaki's historic four-consecutive streak. Yasufuku J930's bloodline dominated, siring a champion and grandsiring two more; a descendant carcass sold for ~$97,000.",
+   "sources": [
+    "http://cus4.zwtk.or.jp/zw9/zenkyo.html",
+    "https://www.rocking711.com/sires/"
+   ]
+  },
+  {
+   "number": 10,
+   "year": 2012,
+   "dates": "October 25–29, 2012",
+   "host_prefecture": "Nagasaki",
+   "city": "Sasebo & Shimabara",
+   "theme": "Wagyu Restoration! Grow production power in our regions",
+   "top_honors": "Miyazaki — breeding Prime Minister's Award; Nagasaki (host) — meat Prime Minister's Award",
+   "notable_facts": "Miyazaki took first in 5 of 9 sections for back-to-back overall supremacy; ~486,000 attended. Host Nagasaki captured the meat top prize on home ground.",
+   "sources": [
+    "http://cus4.zwtk.or.jp/zw10/zenke00.html"
+   ]
+  },
+  {
+   "number": 11,
+   "year": 2017,
+   "dates": "September 7–11, 2017",
+   "host_prefecture": "Miyagi",
+   "city": "Sendai City",
+   "theme": "Raise production power, convey wagyu power, connect to tomorrow",
+   "top_honors": "Oita — breeding Prime Minister's Award; Miyazaki — meat Prime Minister's Award",
+   "notable_facts": "A record 513 head from 39 prefectures, ~417,000 visitors. Miyazaki's meat win made it the first prefecture ever to take the top meat prize at three consecutive expos; Tottori claimed its first-ever No.1 in meat quality.",
+   "sources": [
+    "http://cus4.zwtk.or.jp/zw11/zengai00.html",
+    "https://www.beefcentral.com/genetics/japans-magnificent-zenkyo-wagyu-show-in-pictures-and-words/"
+   ]
+  },
+  {
+   "number": 12,
+   "year": 2022,
+   "dates": "October 6–10, 2022",
+   "host_prefecture": "Kagoshima",
+   "city": "Kirishima & Minamikyushu",
+   "theme": "New era of wagyu — regions shining with wagyu power",
+   "top_honors": "Kagoshima (host) — breeding-bull championship; Miyazaki — meat Prime Minister's Award (4th consecutive)",
+   "notable_facts": "438 head from 41 of Japan's 47 prefectures, ~310,000 visitors. Miyazaki's meat win made it the first prefecture in history to take the top prize at FOUR consecutive expos, while host Kagoshima captured the breeding crown.",
+   "sources": [
+    "https://www.beefcentral.com/news/welcome-to-zenkyo-japans-famous-wagyu-cattle-olympics-pictures/",
+    "https://www.pref.kagoshima.jp/ag35/12th-zenkyou/wagyunihoniti.html"
+   ]
+  },
+  {
+   "number": 13,
+   "year": 2027,
+   "dates": "August 26–30, 2027",
+   "host_prefecture": "Hokkaido",
+   "city": "Otofuke & Obihiro (Tokachi)",
+   "theme": "Broadcasting appeal — with new power, connecting the future of wagyu",
+   "top_honors": null,
+   "notable_facts": "UPCOMING — the first Zenkyo ever held in Hokkaido, in the Tokachi region. A planned 475 head (255 breeding, 193 meat, 27 special-section), with strengthened fat-quality (MUFA) evaluation and DNA/genomic selection tools. Roughly 380,000 visitors expected — and the target of the WagyuTank Delegation.",
+   "sources": [
+    "https://zenkyo-hokkaido.jp/",
+    "https://www.town.otofuke.hokkaido.jp/keizai/2027wagyuzenkyo/hokkaidotaikai.html"
+   ]
+  }
+ ],
+ "champions": [
+  {
+   "name": "Monjiro",
+   "name_jp": "紋次郎",
+   "registration": "J11550",
+   "prefecture": "Hyogo",
+   "line": "Tajima",
+   "zenkyo_record": "4th Zenkyo, Fukushima 1982 — Honorable Prize (young bull), age 1",
+   "foundation_connections": [
+    {
+     "foundation_animal": "Michifuku",
+     "reg": "FB1615",
+     "relationship": "sire"
+    },
+    {
+     "foundation_animal": "Haruki 2",
+     "reg": "FB1614",
+     "relationship": "sire"
+    },
+    {
+     "foundation_animal": "Sanjirou",
+     "reg": "FB2501",
+     "relationship": "paternal grandsire"
+    }
+   ],
+   "bio": "Tajima sire born 1981, produced over 400,000 lifetime semen units, prized for fine marbling and balanced, easy-calving progeny. His towering legacy is siring Michifuku FB1615 and Haruki 2 FB1614 — two pillar bulls exported to the U.S. and Australia — making him a direct ancestor of a large share of Western fullblood herds. His 1982 Fukushima Zenkyo young-bull honor is the earliest documented show credential among the exported foundation lineages.",
+   "confidence": "high",
+   "sources": [
+    "https://www.rocking711.com/sires/",
+    "https://www.lonemountaincattle.com/foundation-sires/"
+   ]
+  },
+  {
+   "name": "Kitaguni 7-8",
+   "name_jp": "北国7の8",
+   "registration": "J1530",
+   "prefecture": "Shimane",
+   "line": "Fujiyoshi / Itozakura",
+   "zenkyo_record": "Sired the Grand Champion of the 7th Zenkyo, Iwate 1997; won national carcass contests four straight years 1997–2000",
+   "foundation_connections": [
+    {
+     "foundation_animal": "Kitaguni Jr.",
+     "reg": "FB2422",
+     "relationship": "sire"
+    }
+   ],
+   "bio": "The most famous son of Dai 7 Itozakura, a defining Itozakura/Fujiyoshi sire celebrated for frame, growth and carcass yield. He sired the Grand Champion at the 7th Zenkyo (Iwate, 1997) and dominated national carcass competitions four years running. His son Kitaguni Jr. FB2422 was exported and became a widely used outcross sire in the West, carrying the Dai 7 Itozakura frame-and-growth package abroad.",
+   "confidence": "high",
+   "sources": [
+    "https://www.rocking711.com/sires/"
+   ]
+  },
+  {
+   "name": "Dai 7 Itozakura",
+   "name_jp": "第7糸桜",
+   "registration": "J65",
+   "prefecture": "Shimane",
+   "line": "Itozakura",
+   "zenkyo_record": "Founder of the modern Itozakura line; national celebrity (his portrait was issued on a Japanese telephone card). Individual Zenkyo prize not documented.",
+   "foundation_connections": [
+    {
+     "foundation_animal": "Itozurudoi",
+     "reg": "FB3685",
+     "relationship": "grandsire"
+    },
+    {
+     "foundation_animal": "Kenhanafuji",
+     "reg": "FB2461",
+     "relationship": "ancestor via sire Itohana"
+    },
+    {
+     "foundation_animal": "Kitaguni Jr.",
+     "reg": "FB2422",
+     "relationship": "grandsire via Kitaguni 7-8"
+    },
+    {
+     "foundation_animal": "Itomichi 1/2",
+     "reg": "FB2126",
+     "relationship": "grandsire"
+    }
+   ],
+   "bio": "Born in Shimane in 1970, Dai 7 Itozakura founded the modern Itozakura line prized for frame size, weight gain and gentle temperament, with marbling reportedly triple that of many contemporaries. Ranked by Kenichi Ono as roughly the 2nd most important Wagyu ever, his fame made him a cultural icon — his portrait appeared on a Japanese telephone card. He is a foundational ancestor of numerous exported Itozakura/Fujiyoshi sires including Itozurudoi TF151, Kenhanafuji, Itomichi and Kitaguni Jr.",
+   "confidence": "medium",
+   "sources": [
+    "https://www.rocking711.com/sires/",
+    "https://www.y2wagyu.com/itozakura-wagyu-history.html"
+   ]
+  },
+  {
+   "name": "Yasufuku J930",
+   "name_jp": "安福",
+   "registration": "J930",
+   "prefecture": "Hyogo",
+   "line": "Tajima",
+   "zenkyo_record": "At the 9th Zenkyo (Tottori, 2007) his bloodline dominated — sired one champion, grandsired two more, maternal grandsire of two runners-up; a descendant carcass sold for ~$97,000",
+   "foundation_connections": [
+    {
+     "foundation_animal": "Yasufuku Jr.",
+     "reg": "FB5061",
+     "relationship": "sire"
+    }
+   ],
+   "bio": "Born 1980 in Hyogo, Yasufuku J930 is regarded by Kenichi Ono as the greatest and most well-balanced of all Wagyu sires — the words 'ultimate' and 'perfection' recur in descriptions. In Japan's 2001 Sire Evaluation he sired the three highest-marbling sires. His genetics overwhelmed the 9th Zenkyo (2007), siring a champion and grandsiring two more. Only two of his sons left Japan, making his direct Western influence scarce and prized; descendant carcasses have fetched up to $97,000.",
+   "confidence": "high",
+   "sources": [
+    "https://www.rocking711.com/sires/",
+    "https://cfreefarms.com/black-sire-guide/yasufuku-930-fb576/"
+   ]
+  },
+  {
+   "name": "Hirashigekatsu",
+   "name_jp": "平茂勝",
+   "registration": "Kagoshima registry",
+   "prefecture": "Kagoshima",
+   "line": "Kedaka (non-Tajima)",
+   "zenkyo_record": "6th Zenkyo, Oita 1992 — Honor Prize (名誉賞) with dominant results; added an excellence award at the 7th Zenkyo, Iwate 1997. A rare multi-event champion from a non-Tajima line.",
+   "foundation_connections": [
+    {
+     "foundation_animal": "(via son Tadafuji — Miyazaki 9th-Zenkyo sire)",
+     "reg": null,
+     "relationship": "sire of Tadafuji; no direct exported foundation son"
+    }
+   ],
+   "bio": "Born 1990 in Kagoshima from Kedaka-line sire Dai 20 Hirashige, Hirashigekatsu was developed at the Tokushige Wagyu AI Center. He took the Honor Prize at the 6th Zenkyo (Oita, 1992) with dominant results, then added an excellence award at the 7th (Iwate, 1997) — a rare multi-event champion from a NON-Tajima (Kedaka) line, pioneering the 'quality and quantity in one' ideal. He lived 18 years and sired roughly 250,000–300,000 calves and 300-plus sire sons, including Miyazaki's Tadafuji.",
+   "confidence": "high",
+   "sources": [
+    "https://tokushige-waic.com/hirashigekatsu",
+    "https://373news.com/news/local/detail/149266/"
+   ]
+  },
+  {
+   "name": "Dai 20 Hirashige",
+   "name_jp": "第20平茂",
+   "registration": "J287",
+   "prefecture": "Tottori",
+   "line": "Kedaka",
+   "zenkyo_record": "Awarded Ikushu-Toroku (育種登録), Japan's highest breeding honor (a registry distinction, not a Zenkyo ring prize)",
+   "foundation_connections": [
+    {
+     "foundation_animal": "Hirashigetayasu J2351",
+     "reg": "FB670",
+     "relationship": "sire"
+    }
+   ],
+   "bio": "A Tottori Kedaka-line sire recognized for higher growth rates, high meat quality, fine hair and loose skin, honored with Ikushu-Toroku — Japan's top breeding registration. He anchors the Kedaka growth genetics that complemented Tajima marbling. His exported son Hirashigetayasu FB670 carried the line abroad, and through son Hirashigekatsu he is grandsire of the Miyazaki sire Tadafuji tied to the 9th Zenkyo championship.",
+   "confidence": "medium",
+   "sources": [
+    "https://www.rocking711.com/sires/",
+    "https://tokushige-waic.com/hirashigekatsu"
+   ]
+  },
+  {
+   "name": "Tadafuji",
+   "name_jp": "忠富士",
+   "registration": "Miyazaki registry",
+   "prefecture": "Miyazaki",
+   "line": "Kedaka-influenced",
+   "zenkyo_record": "A leading Miyazaki sire behind Miyazaki's historic sweep of the 9th Zenkyo (Tottori, 2007) — Prime Minister's Award in both breeding and meat divisions. Culled in the 2010 Miyazaki foot-and-mouth epidemic.",
+   "foundation_connections": [],
+   "bio": "A star Miyazaki breeding bull sired by Hirashigekatsu, Tadafuji was central to Miyazaki Prefecture's first overall victory at the 9th Zenkyo (Tottori, 2007), when Miyazaki swept the Prime Minister's Award in both divisions. His story turned tragic in the 2010 foot-and-mouth epidemic: relocated as one of six protected elite sires, he tested positive and was culled — a symbol of an outbreak that destroyed most of Miyazaki's sire stock.",
+   "confidence": "medium",
+   "sources": [
+    "https://kobayashi-machi.com/en/7231"
+   ]
+  },
+  {
+   "name": "Kikuyasu Doi",
+   "name_jp": "菊安土",
+   "registration": "sire of Kikuyasu-400",
+   "prefecture": "Hyogo",
+   "line": "Tajima",
+   "zenkyo_record": "Credited with siring the Grand Champion Group at a National (Zenkyo) Competition; the exact edition is not documented",
+   "foundation_connections": [
+    {
+     "foundation_animal": "Kikuyasu-400",
+     "reg": "FB2100",
+     "relationship": "sire"
+    }
+   ],
+   "bio": "A Tajima sire in the Kikunoridoi/Yasumi Doi orbit, Kikuyasu Doi is noted as the sire of the Grand Champion Group at a Japanese National (Zenkyo) Competition. His enduring Western legacy runs through son Kikuyasu-400 FB2100 — at ~1,980 lbs the largest, heaviest Tajima bull to leave Japan. The specific Zenkyo edition of his grand-champion-group credential is not stated in available sources.",
+   "confidence": "medium",
+   "sources": [
+    "https://www.rocking711.com/sires/"
+   ]
+  },
+  {
+   "name": "Shigeshigenami",
+   "name_jp": "重重浪",
+   "registration": "10632",
+   "prefecture": "Hyogo",
+   "line": "Tajima",
+   "zenkyo_record": "No individual Zenkyo prize documented; ranked #4 by Kenichi Ono; sired ~30% of Miyagi Prefecture's Wagyu calves",
+   "foundation_connections": [
+    {
+     "foundation_animal": "Itoshigenami",
+     "reg": "TF148",
+     "relationship": "sire"
+    }
+   ],
+   "bio": "Born 1972 in Hyogo, Shigeshigenami is a Tajima marbling powerhouse ranked #4 by Kenichi Ono, so influential he sired roughly 30% of Miyagi Prefecture's Wagyu calves. His single exported son, Itoshigenami TF148, is considered one of the top three bulls ever to leave Japan and a marbling cornerstone of Western fullblood herds.",
+   "confidence": "medium",
+   "sources": [
+    "https://www.rocking711.com/sires/"
+   ]
+  }
+ ]
+}

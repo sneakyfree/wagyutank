@@ -593,6 +593,7 @@ class Comment(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     animal_reg: Mapped[str] = mapped_column(String(40), index=True)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
+    user: Mapped[User | None] = relationship()
     author_handle: Mapped[str] = mapped_column(String(64))
     author_name: Mapped[str | None] = mapped_column(String(120))
     body: Mapped[str] = mapped_column(Text)
@@ -896,3 +897,18 @@ class ChannelClaim(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     user: Mapped[User] = relationship()
+
+
+class ZenkyoInterest(Base):
+    """Interest list for the WagyuTank Delegation to Zenkyo 2027 (Hokkaido) —
+    zero-liability email capture; an established Japan agri-tour operator will
+    contract and carry the actual travel when we partner."""
+    __tablename__ = "zenkyo_interest"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(255), index=True)
+    name: Mapped[str | None] = mapped_column(String(160))
+    country: Mapped[str | None] = mapped_column(String(60))
+    party_size: Mapped[int] = mapped_column(Integer, default=1)
+    note: Mapped[str | None] = mapped_column(String(400))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

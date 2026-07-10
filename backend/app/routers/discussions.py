@@ -11,8 +11,10 @@ router = APIRouter(tags=["discussions"])
 
 
 def _out(c: Comment) -> dict:
+    # Region flair: the commenter's country makes the global room feel global.
+    country = c.user.country if getattr(c, "user", None) else None
     return {"id": c.id, "author_handle": c.author_handle, "author_name": c.author_name,
-            "body": c.body, "likes": c.likes, "is_seed": c.is_seed,
+            "body": c.body, "likes": c.likes, "is_seed": c.is_seed, "country": country,
             "parent_id": c.parent_id, "created_at": c.created_at}
 
 

@@ -89,6 +89,28 @@ def animal_offers(reg: str, db: Session = Depends(get_db)):
     return [to_listing_out(x) for x in rows]
 
 
+@router.get("/{reg}/zenkyo")
+def animal_zenkyo(reg: str, db: Session = Depends(get_db)):
+    """Zenkyo champions in this animal's pedigree — powers the 🏆 badge."""
+    import json as _json
+    from pathlib import Path as _Path
+    a = find_animal(db, reg)
+    key = (a.registration_no if a else reg) or reg
+    data_path = _Path(__file__).resolve().parent.parent / "seed" / "data" / "zenkyo.json"
+    try:
+        champs = _json.loads(data_path.read_text()).get("champions", [])
+    except Exception:
+        champs = []
+    hits = []
+    for c in champs:
+        for fc in c.get("foundation_connections", []):
+            if (fc.get("reg") or "").upper() == key.upper():
+                hits.append({"champion": c["name"], "name_jp": c.get("name_jp"),
+                             "zenkyo_record": c.get("zenkyo_record"), "relationship": fc.get("relationship"),
+                             "line": c.get("line")})
+    return {"registration_no": key, "champions": hits}
+
+
 @router.get("/{reg}/price-history")
 def animal_price_history(reg: str, db: Session = Depends(get_db)):
     """Per-bull price analytics: the curated reference price + snapshot history +
