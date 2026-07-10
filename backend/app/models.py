@@ -823,3 +823,58 @@ class AnimalVideo(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
     user: Mapped[User] = relationship()
+
+
+class WagyuVideo(Base):
+    """The Wagyu Theater — every video the site knows about, from ANY source.
+
+    End-state-shaped from day one (the strategic gradient): source='youtube'
+    rows come from the harvest engine and render as embeds; source='native'
+    rows (member uploads to R2, later) use file_url and our own player. The
+    canonical page for every video is a WagyuTank URL either way, and the
+    community layer (reg index, comments, blogs) is native from the start.
+
+    Registration numbers found in titles/descriptions are stored PERMANENTLY in
+    matched_regs — never discarded — powering the pedigree video registry."""
+    __tablename__ = "wagyu_videos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source: Mapped[str] = mapped_column(String(12), default="youtube", index=True)  # youtube | native
+    video_id: Mapped[str | None] = mapped_column(String(24), unique=True, index=True)  # YouTube id
+    file_url: Mapped[str | None] = mapped_column(String(600))       # native uploads (R2), later
+
+    title: Mapped[str] = mapped_column(String(300))
+    title_en: Mapped[str | None] = mapped_column(String(300))       # translated title for JP videos
+    description: Mapped[str | None] = mapped_column(Text)
+    channel: Mapped[str | None] = mapped_column(String(160), index=True)
+    channel_id: Mapped[str | None] = mapped_column(String(40))
+    duration: Mapped[int | None] = mapped_column(Integer)           # seconds
+    views: Mapped[int | None] = mapped_column(Integer, index=True)
+    views_prev: Mapped[int | None] = mapped_column(Integer)         # last refresh — chart movement
+    published_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)
+
+    category: Mapped[str] = mapped_column(String(16), default="general", index=True)
+    # sire | sale | ranch | education | japan | cooking | general
+    lang: Mapped[str | None] = mapped_column(String(5))
+    matched_regs: Mapped[list] = mapped_column(JSON, default=list)  # ALL regs found — permanent
+    matched_animal_reg: Mapped[str | None] = mapped_column(String(40), index=True)  # resolved to our Animal
+    matched_sale_id: Mapped[int | None] = mapped_column(ForeignKey("sale_events.id"))
+    query: Mapped[str | None] = mapped_column(String(160))          # which harvest query found it
+    embeddable: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    submitted_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))  # native/member videos
+    status: Mapped[str] = mapped_column(String(12), default="approved", index=True)  # approved|pending|hidden|dead
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+    refreshed_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+    @property
+    def embed_url(self) -> str | None:
+        if self.source == "youtube" and self.video_id:
+            return f"https://www.youtube.com/embed/{self.video_id}"
+        return self.file_url
+
+    @property
+    def thumbnail_url(self) -> str | None:
+        if self.source == "youtube" and self.video_id:
+            return f"https://i.ytimg.com/vi/{self.video_id}/hqdefault.jpg"
+        return None

@@ -156,12 +156,47 @@ def _embed_url(url: str) -> str | None:
 
 @router.get("/{reg}/videos")
 def animal_videos(reg: str, db: Session = Depends(get_db)):
-    from ..models import AnimalVideo
-    rows = (db.query(AnimalVideo)
-            .filter(func.lower(AnimalVideo.animal_reg) == reg.lower(), AnimalVideo.status == "approved")
-            .order_by(AnimalVideo.created_at.desc()).all())
-    return [{"id": v.id, "title": v.title, "embed_url": v.embed_url, "video_url": v.video_url,
-             "submitter_name": v.submitter_name, "created_at": v.created_at} for v in rows]
+    """Member-shared videos + Theater-harvested videos for this animal, unified.
+    Also walks one pedigree step (sire/dam) for 'videos in this pedigree'."""
+    from ..models import AnimalVideo, WagyuVideo
+    out = []
+    member = (db.query(AnimalVideo)
+              .filter(func.lower(AnimalVideo.animal_reg) == reg.lower(), AnimalVideo.status == "approved")
+              .order_by(AnimalVideo.created_at.desc()).all())
+    out += [{"id": f"m{v.id}", "kind": "member", "title": v.title, "embed_url": v.embed_url,
+             "submitter_name": v.submitter_name, "created_at": v.created_at} for v in member]
+
+    def _theater(r: str, pedigree_of: str | None = None):
+        key = r.upper().replace(" ", "")
+        rows = (db.query(WagyuVideo)
+                .filter(WagyuVideo.status == "approved", WagyuVideo.embeddable == True,  # noqa: E712
+                        (func.upper(WagyuVideo.matched_animal_reg) == r.upper())
+                        | func.upper(func.cast(WagyuVideo.matched_regs, __import__("sqlalchemy").String)).like(f'%"{key}"%'))
+                .order_by(WagyuVideo.views.desc().nullslast()).limit(8).all())
+        return [{"id": f"t{v.id}", "kind": "theater", "theater_id": v.id, "title": v.title,
+                 "channel": v.channel, "views": v.views, "embed_url": v.embed_url,
+                 "thumbnail_url": v.thumbnail_url, "pedigree_of": pedigree_of} for v in rows]
+
+    out += _theater(reg)
+    a = find_animal(db, reg)
+    if a:
+        if a.name:
+            # name-match too (query-matched harvests may lack the reg)
+            nm = a.name.lower()
+            rows = (db.query(WagyuVideo)
+                    .filter(WagyuVideo.status == "approved", WagyuVideo.embeddable == True,  # noqa: E712
+                            WagyuVideo.matched_animal_reg == None,  # noqa: E711
+                            func.lower(WagyuVideo.title).like(f"%{nm}%"))
+                    .order_by(WagyuVideo.views.desc().nullslast()).limit(4).all())
+            have = {o.get("theater_id") for o in out if o.get("theater_id")}
+            out += [{"id": f"t{v.id}", "kind": "theater", "theater_id": v.id, "title": v.title,
+                     "channel": v.channel, "views": v.views, "embed_url": v.embed_url,
+                     "thumbnail_url": v.thumbnail_url} for v in rows if v.id not in have]
+        for anc_reg, label in ((a.sire_reg, "sire"), (a.dam_reg, "dam")):
+            if anc_reg:
+                have = {o.get("theater_id") for o in out if o.get("theater_id")}
+                out += [v for v in _theater(anc_reg, pedigree_of=label) if v["theater_id"] not in have]
+    return out
 
 
 @router.post("/{reg}/videos")

@@ -682,3 +682,46 @@ def catalog_submissions_csv(edition: str | None = None, _: User = Depends(requir
             s.price_note, s.contact_email, s.contact_phone, s.website,
             s.ship_name, s.ship_address, s.ship_city, s.ship_region, s.ship_postal, s.ship_country, s.status]))
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- Wagyu Theater
+@router.get("/videos")
+def admin_videos(status: str | None = None, category: str | None = None, q: str | None = None,
+                 limit: int = 100, db: Session = Depends(get_db)):
+    from ..models import WagyuVideo
+    query = db.query(WagyuVideo)
+    if status:
+        query = query.filter(WagyuVideo.status == status)
+    if category:
+        query = query.filter(WagyuVideo.category == category)
+    if q:
+        query = query.filter(func.lower(WagyuVideo.title).like(f"%{q.lower()}%"))
+    rows = query.order_by(WagyuVideo.first_seen_at.desc()).limit(limit).all()
+    return [{"id": v.id, "title": v.title, "channel": v.channel, "views": v.views,
+             "category": v.category, "lang": v.lang, "status": v.status,
+             "matched_animal_reg": v.matched_animal_reg, "video_id": v.video_id,
+             "source": v.source} for v in rows]
+
+
+@router.post("/videos/{vid}/action")
+def admin_video_action(vid: int, action: str = Body(..., embed=True),
+                       category: str | None = Body(None, embed=True),
+                       admin: User = Depends(require_staff), db: Session = Depends(get_db)):
+    from ..models import WagyuVideo
+    v = db.get(WagyuVideo, vid)
+    if not v:
+        raise HTTPException(404, "Video not found")
+    if action == "hide":
+        v.status = "hidden"
+    elif action == "approve":
+        v.status = "approved"
+    elif action == "set_category" and category:
+        v.category = category
+    elif action == "delete":
+        db.delete(v); db.commit(); _audit(db, admin, "video.delete", "video", vid)
+        return {"ok": True, "deleted": True}
+    else:
+        raise HTTPException(400, "Unknown action")
+    db.commit()
+    _audit(db, admin, f"video.{action}", "video", vid, {"title": v.title[:80]})
+    return {"ok": True, "status": v.status, "category": v.category}
