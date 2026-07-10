@@ -123,14 +123,24 @@ def extract_regs(text):
     return regs[:10]
 
 
+CATTLE_CONTEXT = ("cattle", "bull", "cow", "beef", "calf", "heifer", "steer", "semen",
+                  "embryo", "stud", "ranch", "herd", "lot ", "genetics", "sire", "dam")
+
+
 def relevant(item, query_meta):
     hay = f"{item['title']} {item.get('channel') or ''} {item.get('description') or ''}".lower()
     if any(k in hay for k in OFFTOPIC):
         return False
     if any(k in hay for k in WAGYU_WORDS):
         return True
+    # Animal-name fallback: common-word names (Judo, Mt. Fuji, Mazda…) collide
+    # with the wider world — require cattle context or a registration number too.
     an = (query_meta.get("animal_name") or "").lower()
-    return bool(an and an.split()[0] in hay)
+    if not (an and an.split()[0] in hay):
+        return False
+    if any(k in hay for k in CATTLE_CONTEXT):
+        return True
+    return bool(extract_regs(f"{item['title']} {item.get('description') or ''}"))
 
 
 def check_embeddable(video_id):
