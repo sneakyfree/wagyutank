@@ -16,7 +16,7 @@ SEEDS="$BACKEND/app/seed/data/roundup_seeds.json"
 OUT="/tmp/roundup_rendered_$(date +%s 2>/dev/null || echo run).json"
 VPS="${VPS_HOST:-vps}"
 
-echo "[$(date)] crawling $(python3 -c "import json;print(len(json.load(open('$SEEDS'))))") seed sites…"
+echo "[$(date)] crawling $(python3 -c 'import json,sys;print(len(json.load(open(sys.argv[1]))))' "$SEEDS") seed sites…"
 node "$BACKEND/scripts/crawl_listings.cjs" \
   --seeds "$SEEDS" --out "$OUT" \
   --per-site 5 --concurrency 3 --goto-timeout 30000 --max-pages 900
