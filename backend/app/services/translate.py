@@ -65,9 +65,19 @@ def translate(db, text: str, lang: str, *, is_markdown: bool = False) -> str:
         parts.append(out.strip())
         time.sleep(0.7)
     result = "\n\n".join(parts)
-    db.add(Translation(cache_key=key, lang=lang, text=result))
-    db.commit()
+    _cache_put(db, key, lang, result)
     return result
+
+
+def _cache_put(db, key: str, lang: str, text: str) -> None:
+    """Insert a translation, tolerating a concurrent request that cached the same
+    key first (the unique constraint would otherwise 500 the whole response)."""
+    from sqlalchemy.exc import IntegrityError
+    db.add(Translation(cache_key=key, lang=lang, text=text))
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()  # another request won the race — its row is fine
 
 
 def translate_one(db, text: str, lang: str) -> tuple[str, bool]:
@@ -132,6 +142,5 @@ def translate_batch(db, items: list[dict], lang: str) -> dict:
             tr = lines.get(n + 1)
             if tr and tr != b["text"]:
                 result[b["id"]] = tr
-                db.add(Translation(cache_key=_key(b["text"], lang), lang=lang, text=tr))
-        db.commit()
+                _cache_put(db, _key(b["text"], lang), lang, tr)
     return result
