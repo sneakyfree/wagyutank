@@ -39,6 +39,7 @@ _MIGRATIONS = {
         "lang": "VARCHAR(5) DEFAULT 'en'",
     },
     "animals": {  # ensure the breed-history columns too (safe if already present)
+        "is_legend": "BOOLEAN DEFAULT 0",
         "prefecture": "VARCHAR(60)",
         "bio": "TEXT",
         "marbling_note": "TEXT",

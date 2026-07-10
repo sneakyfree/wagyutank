@@ -201,6 +201,7 @@ class Animal(Base):
     import_year: Mapped[int | None] = mapped_column(Integer)
     prefecture: Mapped[str | None] = mapped_column(String(60))     # Japanese prefecture of origin
     is_foundation: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    is_legend: Mapped[bool] = mapped_column(Boolean, default=False, index=True)  # encyclopedia great sire/dam (may not be exported)
     notable: Mapped[str | None] = mapped_column(Text)              # one-line significance
     bio: Mapped[str | None] = mapped_column(Text)                  # long-form narrative (breed-history section)
     marbling_note: Mapped[str | None] = mapped_column(Text)        # marbling / EBV / carcass reputation

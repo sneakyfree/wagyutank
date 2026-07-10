@@ -33,7 +33,7 @@ def find_animal(db: Session, reg_or_name: str) -> Animal | None:
     if a:
         return a
     # slug fallback — reg-less foundation animals are addressed by slugified name
-    for cand in db.query(Animal).filter(Animal.is_foundation == True).all():  # noqa: E712
+    for cand in db.query(Animal).filter((Animal.is_foundation == True) | (Animal.is_legend == True)).all():  # noqa: E712
         if cand.slug.lower() == key.lower():
             return cand
     # alias contains (JSON stored as text on SQLite) — best-effort

@@ -109,6 +109,7 @@ class AnimalOut(BaseModel):
     importer: str | None
     prefecture: str | None = None
     is_foundation: bool
+    is_legend: bool = False
     notable: str | None
     bio: str | None = None
     marbling_note: str | None = None
