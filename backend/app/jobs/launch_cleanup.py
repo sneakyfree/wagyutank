@@ -29,7 +29,7 @@ _PREAMBLE = (
 
 SAMPLES = [
     dict(
-        product_type=ProductType.SEMEN,
+        product_type=ProductType.SEMEN, photo_url="/foundation/FB1615.jpg",
         title="SAMPLE — Wagyu Semen: Michifuku (FB1615)",
         animal_reg="FB1615",
         semen_type=SemenType.CONVENTIONAL,
@@ -43,7 +43,7 @@ SAMPLES = [
         ),
     ),
     dict(
-        product_type=ProductType.EMBRYO,
+        product_type=ProductType.EMBRYO, photo_url="/foundation/FB1615.jpg",
         title="SAMPLE — Wagyu Embryos: Michifuku × Okutani",
         sire_reg="FB1615", dam_reg="FB1616",
         embryo_grade="IVF Grade 1", embryo_sex="SEXED_FEMALE",
@@ -56,7 +56,7 @@ SAMPLES = [
         ),
     ),
     dict(
-        product_type=ProductType.CLONE_RIGHTS,
+        product_type=ProductType.CLONE_RIGHTS, photo_url="/foundation/FB1615.jpg",
         title="SAMPLE — Cloning Rights: preserve a proven sire line",
         animal_reg="FB1615",
         unit_price=12000.0, quantity_available=1,
