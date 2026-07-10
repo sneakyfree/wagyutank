@@ -357,8 +357,14 @@ def _title(animal: str | None, product: ProductType, seller: str | None) -> str:
 def _summary(li: dict, animal: str | None, product: ProductType) -> str:
     bits = []
     qty = li.get("quantity")
-    noun = {"semen": "semen straws", "embryo": "embryos", "clone_rights": "cloning rights"}[product.value]
-    lead = f"{qty} " if qty else ""
+    try:
+        qn = int(float(qty)) if qty not in (None, "") else None
+    except (TypeError, ValueError):
+        qn = None
+    singular = {"semen": "semen straw", "embryo": "embryo", "clone_rights": "cloning right"}[product.value]
+    plural = {"semen": "semen straws", "embryo": "embryos", "clone_rights": "cloning rights"}[product.value]
+    noun = singular if qn == 1 else plural
+    lead = f"{qn} " if qn else ""
     reg = f" ({li['registration_no']})" if li.get("registration_no") else ""
     bits.append(f"{lead}{noun} from {animal or 'a Wagyu sire'}{reg}.")
     if li.get("bloodline"):
@@ -366,9 +372,11 @@ def _summary(li: dict, animal: str | None, product: ProductType) -> str:
     if li.get("seller_name"):
         loc = f" in {li['location']}" if li.get("location") else ""
         bits.append(f"Listed by {li['seller_name']}{loc}.")
-    if li.get("price"):
+    price = li.get("price")
+    if price not in (None, "", 0):
+        cur = li.get("currency") or "USD"
         unit = f" {li['price_unit']}" if li.get("price_unit") else ""
-        bits.append(f"Asking {li.get('currency', 'USD')} {li['price']}{unit}.")
+        bits.append(f"Asking {cur} {price}{unit}.")
     return " ".join(bits)
 
 

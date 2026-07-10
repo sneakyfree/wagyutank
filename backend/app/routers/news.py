@@ -73,6 +73,33 @@ def regions(db: Session = Depends(get_db)):
                                                        NewsArticle.is_translated == True).count()}  # noqa: E712
 
 
+@router.get("/{article_id}")
+def get_article(article_id: int, lang: str = "en", db: Session = Depends(get_db)):
+    """On-site article view — headline + our summary, translatable to any of the
+    site languages, with a clear link to the original source. This is what the
+    reader lands on (instead of an immediate bounce) so a language selector has
+    somewhere to live."""
+    a = db.get(NewsArticle, article_id)
+    if not a or a.status not in ("active", "archived"):
+        raise HTTPException(404, "Article not found")
+    title = a.title
+    summary = a.summary
+    translated = False
+    if lang and lang != "en":
+        from ..services import translate
+        title, t1 = translate.translate_one(db, a.title, lang)
+        if a.summary:
+            summary, t2 = translate.translate_one(db, a.summary, lang)
+        translated = t1
+    return {
+        "id": a.id, "title": title, "original_title": a.original_title,
+        "english_title": a.title, "summary": summary, "source_name": a.source_name,
+        "source_url": a.source_url, "region": a.region, "language": a.language,
+        "is_translated": a.is_translated, "published_at": a.published_at,
+        "lang": lang, "translated": translated, "clicks": a.clicks,
+    }
+
+
 @router.get("/{article_id}/go")
 def go(article_id: int, db: Session = Depends(get_db)):
     a = db.get(NewsArticle, article_id)

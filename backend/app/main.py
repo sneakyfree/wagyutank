@@ -78,8 +78,21 @@ def breed_history(lang: str = "en", db: Session = Depends(get_db)):
 @app.post("/api/translate", tags=["content"])
 def translate_content(text: str = Body(..., embed=True), lang: str = Body("es"),
                       db: Session = Depends(get_db)):
-    """Translate a block of our own content (cached). Length-capped."""
+    """Translate a block of our own content (cached). Length-capped. The
+    `translated` flag lets the client distinguish a real translation from the
+    English fallback (so it can retry/label instead of showing stale text)."""
     from .services import translate
     if len(text) > 12000:
         text = text[:12000]
-    return {"text": translate.translate(db, text, lang), "lang": lang}
+    out, ok = translate.translate_one(db, text, lang)
+    return {"text": out, "lang": lang, "translated": ok}
+
+
+@app.post("/api/translate/batch", tags=["content"])
+def translate_batch_content(items: list[dict] = Body(...), lang: str = Body("es"),
+                            db: Session = Depends(get_db)):
+    """Translate many short strings (headlines) in one call. items=[{id,text}].
+    Returns {translations: {id: text}} for the ones that actually translated."""
+    from .services import translate
+    items = (items or [])[:60]
+    return {"translations": translate.translate_batch(db, items, lang), "lang": lang}

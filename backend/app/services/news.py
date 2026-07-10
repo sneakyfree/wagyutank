@@ -162,10 +162,57 @@ def _fetch_bing(bq: dict, limit: int = 8) -> list[dict]:
     return out
 
 
+# Wagyu-domain relevance gate — keep the feed on-topic. A headline must touch
+# the breed/beef/genetics world; this rejects the celebrity/sports noise that
+# generic queries and the GDELT firehose drag in.
+_RELEVANT = (
+    "wagyu", "waygu", "akaushi", "kobe beef", "kobe-beef", "matsusaka", "miyazaki",
+    "olive wagyu", "japanese black", "japanese beef", "fullblood", "full blood",
+    "cattle", "beef", "cow", "bull", "heifer", "steer", "calf", "calv", "herd",
+    "semen", "embryo", "genetic", "bloodline", "sire", "marbl", "carcase", "carcass",
+    "ranch", "feedlot", "livestock", "brahman", "angus", "cross-bred", "seedstock",
+    "和牛", "但馬", "神戸", "松阪", "黒毛",
+)
+# Obvious off-topic markers that occasionally co-occur with "wagyu" (a restaurant
+# review that's really about a celebrity/sports event) — reject when present and
+# no strong cattle keyword is.
+_OFFTOPIC = ("bieber", "super bowl", "halftime", "fifa", "world cup final",
+             "taylor swift", "kardashian", "grammy", "oscars", "box office")
+
+
+def _relevant(item: dict) -> bool:
+    hay = f"{item.get('title','')} {item.get('original_title','') or ''} {item.get('summary','') or ''}".lower()
+    if not any(k in hay for k in _RELEVANT):
+        return False
+    if any(k in hay for k in _OFFTOPIC) and not any(
+            k in hay for k in ("cattle", "beef cattle", "wagyu beef", "genetic", "semen", "embryo", "ranch", "herd")):
+        return False
+    return True
+
+
+def _title_key(title: str) -> str:
+    """Normalized headline fingerprint for cross-source duplicate detection."""
+    t = re.sub(r"[^a-z0-9 ]", "", (title or "").lower())
+    t = re.sub(r"\s+", " ", t).strip()
+    return t[:70]
+
+
 def _upsert(db, item: dict) -> bool:
+    if not _relevant(item):
+        return False
     key = hashlib.sha1(item["source_url"].encode()).hexdigest()[:40]
     if db.query(NewsArticle).filter(NewsArticle.dedup_key == key).first():
         return False
+    # Cross-source dedup: same story, different URL/publisher. Compare the
+    # normalized title against recently-seen active articles.
+    tk = _title_key(item.get("original_title") or item["title"])
+    if tk and len(tk) > 12:
+        recent = (db.query(NewsArticle.title, NewsArticle.original_title)
+                  .filter(NewsArticle.status == "active")
+                  .order_by(NewsArticle.first_seen_at.desc()).limit(400).all())
+        for (t, ot) in recent:
+            if _title_key(ot or t) == tk:
+                return False
     db.add(NewsArticle(
         dedup_key=key, title=item["title"][:400], original_title=item.get("original_title"),
         summary=item.get("summary"), source_name=item["source_name"][:120],

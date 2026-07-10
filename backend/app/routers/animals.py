@@ -80,11 +80,63 @@ def animal_offers(reg: str, db: Session = Depends(get_db)):
     """Multi-seller aggregation (§8): every live offer for this animal, in one place."""
     rows = (
         db.query(Listing)
-        .filter(func.lower(Listing.animal_reg) == reg.lower(), Listing.status == ListingStatus.ACTIVE)
+        .filter(func.lower(Listing.animal_reg) == reg.lower(), Listing.status == ListingStatus.ACTIVE,
+                Listing.is_sample == False)  # noqa: E712 — sample listings aren't real offers
         .order_by(Listing.unit_price.asc().nullslast())
         .all()
     )
     return [to_listing_out(x) for x in rows]
+
+
+@router.get("/{reg}/price-history")
+def animal_price_history(reg: str, db: Session = Depends(get_db)):
+    """Per-bull price analytics: the curated reference price + snapshot history +
+    what this animal's genetics currently list for on the marketplace/roundup."""
+    from ..models import (AggregatedListing, FoundationReferencePrice, PriceSnapshot,
+                          ProductType)
+    a = find_animal(db, reg)
+    ref = None
+    q = db.query(FoundationReferencePrice)
+    if a and a.registration_no:
+        ref = q.filter(func.lower(FoundationReferencePrice.registration_no) == a.registration_no.lower()).first()
+    if not ref:
+        ref = q.filter(func.lower(FoundationReferencePrice.registration_no) == reg.lower()).first()
+    if not ref and a:
+        ref = q.filter(func.lower(FoundationReferencePrice.sire).like(f"%{a.name.lower()}%")).first()
+
+    reference = None
+    if ref:
+        reference = {
+            "semen_usd": ref.semen_usd, "semen_low": ref.semen_low, "semen_high": ref.semen_high,
+            "embryo_usd": ref.embryo_usd, "as_of_year": ref.as_of_year,
+            "availability": ref.availability, "confidence": ref.confidence,
+            "source": ref.source_name, "notes": ref.notes,
+        }
+
+    # Snapshot trend for this sire's reference key
+    history = []
+    if ref:
+        key = f"ref:{ref.registration_no or ref.sire}"
+        snaps = (db.query(PriceSnapshot).filter(PriceSnapshot.key == key,
+                 PriceSnapshot.avg_price != None)  # noqa: E711
+                 .order_by(PriceSnapshot.created_at.asc()).all())
+        history = [{"date": s.created_at.date().isoformat(), "price": s.avg_price} for s in snaps]
+
+    # What this animal's genetics list for right now on the marketplace + roundup
+    reg_key = (a.registration_no if a else reg) or reg
+    def _agg(pt):
+        rows = [r[0] for r in db.query(AggregatedListing.price).filter(
+            AggregatedListing.status == "active", AggregatedListing.product_type == pt,
+            AggregatedListing.price != None,  # noqa: E711
+            func.lower(AggregatedListing.animal_name).like(f"%{(a.name if a else reg).lower()}%")).all() if r[0]]
+        if not rows:
+            return None
+        return {"count": len(rows), "avg": round(sum(rows) / len(rows), 2),
+                "min": round(min(rows), 2), "max": round(max(rows), 2)}
+    market = {"semen": _agg(ProductType.SEMEN), "embryo": _agg(ProductType.EMBRYO)}
+
+    return {"registration_no": reg_key, "name": a.name if a else reg,
+            "reference": reference, "history": history, "market": market}
 
 
 def upsert_animal(db: Session, data: AnimalUpsert, source: AnimalSource = AnimalSource.CACHE) -> Animal:

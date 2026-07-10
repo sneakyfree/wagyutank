@@ -72,12 +72,25 @@ def compute(db: Session) -> dict:
         AggregatedListing.status == "active", AggregatedListing.product_type == ProductType.EMBRYO,
         AggregatedListing.price != None).all() if r[0]]  # noqa: E711
     market_avg = round(sum(semen) / len(semen), 2) if semen else None
+
+    # Foundation-sire prices come from the CURATED reference table — NOT scrape
+    # averages, which conflate a foundation bull with cheap namesake descendants
+    # (the "$85 Rueshaw" bug). These are human-verified, sourced reference prices.
+    from ..models import FoundationReferencePrice
+    refs = (db.query(FoundationReferencePrice)
+            .filter(FoundationReferencePrice.semen_usd != None)  # noqa: E711
+            .order_by(FoundationReferencePrice.semen_usd.desc()).all())
     sires = []
-    for label, frags in MARQUEE:
-        st = _sire_stats(db, frags)
-        if st:
-            sires.append({"sire": label, **st, "trend": _trend(db, f"sire:{label}", st["avg"])})
-    sires.sort(key=lambda s: s["count"], reverse=True)
+    for r in refs:
+        key = f"ref:{r.registration_no or r.sire}"
+        sires.append({
+            "sire": r.sire, "registration_no": r.registration_no,
+            "slug": r.registration_no or r.sire.lower().replace(" ", "-"),
+            "avg": r.semen_usd, "min": r.semen_low, "max": r.semen_high,
+            "embryo": r.embryo_usd, "as_of": r.as_of_year, "availability": r.availability,
+            "confidence": r.confidence, "source": r.source_name, "verified": True,
+            "trend": _trend(db, key, r.semen_usd),
+        })
     return {
         "market": {
             "semen_avg": market_avg, "semen_min": round(min(semen), 2) if semen else None,
@@ -99,6 +112,7 @@ def snapshot(db: Session) -> int:
     if m["semen_avg"] is not None:
         db.add(PriceSnapshot(key="market:semen", avg_price=m["semen_avg"], count=m["semen_count"])); n += 1
     for s in data["sires"]:
-        db.add(PriceSnapshot(key=f"sire:{s['sire']}", avg_price=s["avg"], count=s["count"])); n += 1
+        key = f"ref:{s.get('registration_no') or s['sire']}"
+        db.add(PriceSnapshot(key=key, avg_price=s["avg"], count=1)); n += 1
     db.commit()
     return n

@@ -782,3 +782,25 @@ class CatalogSubmission(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
     user: Mapped[User] = relationship()
+
+
+class FoundationReferencePrice(Base):
+    """Curated, human-verified reference prices for the ORIGINAL foundation sires.
+
+    This is the source of truth for the ticker + per-bull price panel — NOT the
+    naive scrape-average, which conflates a foundation sire with his cheap
+    namesake descendants (the '$85 Rueshaw' bug). Every row cites a source."""
+    __tablename__ = "foundation_reference_prices"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    registration_no: Mapped[str | None] = mapped_column(String(40), index=True)
+    sire: Mapped[str] = mapped_column(String(120), index=True)
+    semen_usd: Mapped[int | None] = mapped_column(Integer)          # verified reference $/straw
+    semen_low: Mapped[int | None] = mapped_column(Integer)
+    semen_high: Mapped[int | None] = mapped_column(Integer)
+    embryo_usd: Mapped[int | None] = mapped_column(Integer)
+    as_of_year: Mapped[int | None] = mapped_column(Integer)
+    availability: Mapped[str | None] = mapped_column(String(120))
+    confidence: Mapped[str] = mapped_column(String(8), default="low")  # high|medium|low
+    source_name: Mapped[str | None] = mapped_column(String(160))
+    notes: Mapped[str | None] = mapped_column(Text)
