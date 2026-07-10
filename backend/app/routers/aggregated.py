@@ -52,6 +52,9 @@ def browse(
         query = query.filter(or_(
             func.lower(AggregatedListing.title).like(like),
             func.lower(AggregatedListing.seller_name).like(like),
+            func.lower(AggregatedListing.animal_name).like(like),
+            func.lower(AggregatedListing.animal_reg).like(like),
+            func.lower(AggregatedListing.bloodline).like(like),
         ))
     if sort == "price_asc":
         query = query.order_by(AggregatedListing.price.asc().nullslast())
@@ -87,8 +90,14 @@ def stats(db: Session = Depends(get_db)):
     countries = sorted(c[0] for c in db.query(AggregatedListing.country)
                        .filter(active, AggregatedListing.country != None).distinct() if c[0])  # noqa: E711
     css_export = base.filter(AggregatedListing.css_status == "css").count()
+    bloodlines = dict(
+        db.query(AggregatedListing.bloodline, func.count())
+        .filter(active, AggregatedListing.bloodline != None)  # noqa: E711
+        .group_by(AggregatedListing.bloodline).order_by(func.count().desc()).all()
+    )
     return {"active": base.count(), "sources": len(sites), "sites": sorted(sites),
-            "regions": regions, "countries": countries, "css_export_eligible": css_export}
+            "regions": regions, "countries": countries, "css_export_eligible": css_export,
+            "bloodlines": bloodlines}
 
 
 @router.get("/{listing_id}/go")

@@ -64,6 +64,8 @@ def main():
                         existing.bio = e["bio"]
                     if not existing.notable and e.get("epithet"):
                         existing.notable = e["epithet"]
+                    if not existing.photo_url and e.get("photo"):
+                        existing.photo_url = e["photo"]
                     linked += 1
                     continue
                 # Create the legend animal.
@@ -77,6 +79,7 @@ def main():
                     notable=e.get("epithet"), bio=e.get("bio"),
                     marbling_note="; ".join(e.get("key_facts", []))[:900] or None,
                     source=AnimalSource.FOUNDATION, confidence="medium",
+                    photo_url=e.get("photo"),
                 ))
                 created += 1
         db.commit()
