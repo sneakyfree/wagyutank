@@ -73,6 +73,13 @@ def create_listing(payload: ListingCreate, user: User = Depends(get_current_user
         # Soft gate for MVP dev: allow, but flag. In prod require Stripe Connect onboarding.
         pass
 
+    # Config-driven product gate: a tank only accepts the product types its
+    # tank.json enables (e.g. a semen-only breed omits embryos/cloning). For
+    # WagyuTank all three are enabled, so this changes nothing here.
+    from .. import tank
+    if payload.product_type and payload.product_type.value not in tank.product_keys():
+        raise HTTPException(400, f"This marketplace doesn't accept {payload.product_type.value} listings.")
+
     # Resolve the animal name for the title (from the canonical registry if we have it).
     # For embryos, the headline animal is the sire.
     from .animals import find_animal  # lazy import to avoid circular import
