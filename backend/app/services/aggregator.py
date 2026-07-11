@@ -328,7 +328,19 @@ def _extract(text: str, source_url: str) -> list[dict]:
     if not isinstance(data, list):
         return []
     for item in data:
-        if isinstance(item, dict) and item.get("listing_date"):
+        if not isinstance(item, dict):
+            continue
+        # LLMs sometimes return a scalar text field as a list (e.g. bloodline
+        # ["Tajima","Fujiyoshi"]) — SQLite can't bind a list, so coerce every
+        # free-text field to a plain string before it reaches the ORM.
+        for f in ("animal_name", "registration_no", "bloodline", "seller_name",
+                  "location", "price_unit", "currency", "title", "quantity", "product_type"):
+            v = item.get(f)
+            if isinstance(v, list):
+                item[f] = ", ".join(str(x).strip() for x in v if x not in (None, "")) or None
+            elif isinstance(v, dict):
+                item[f] = None
+        if item.get("listing_date"):
             dt = _parse_date(item["listing_date"])
             if dt:
                 item["_updated_at"] = dt
@@ -595,7 +607,9 @@ def ingest_rendered_pages(db, pages: list[dict]) -> dict:
                 if created:
                     added += 1
                     touched_sites[site] = touched_sites.get(site, 0) + 1
-            except IntegrityError:
+            except Exception:
+                # Any malformed row (dup dedup_key, bad LLM data type, …) rolls
+                # back only this savepoint — never aborts the whole batch.
                 pass
         db.commit()
     for site, n in touched_sites.items():
