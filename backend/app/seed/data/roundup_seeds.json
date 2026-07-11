@@ -2008,5 +2008,35 @@
   "url": "https://sekgenetics.mybigcommerce.com/wagyu-kobe-beef/",
   "site": "sekgenetics.mybigcommerce.com",
   "country": "US"
+ },
+ {
+  "url": "https://herdyard.com/browse?breed=Wagyu",
+  "site": "herdyard.com",
+  "country": "US"
+ },
+ {
+  "url": "https://www.wagyuinternational.com/genetics.php",
+  "site": "wagyuinternational.com",
+  "country": "US"
+ },
+ {
+  "url": "https://asociacionakaushimexicana.org.mx/sobre-nosotros.html",
+  "site": "asociacionakaushimexicana.org.mx",
+  "country": "MX"
+ },
+ {
+  "url": "https://stellawagyu.co.za/",
+  "site": "stellawagyu.co.za",
+  "country": "ZA"
+ },
+ {
+  "url": "https://wagyuprime.com.co/",
+  "site": "wagyuprime.com.co",
+  "country": "CO"
+ },
+ {
+  "url": "https://wagyuparaguay.com.py/material.html",
+  "site": "wagyuparaguay.com.py",
+  "country": "PY"
  }
 ]
