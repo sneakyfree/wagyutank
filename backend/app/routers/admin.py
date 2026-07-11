@@ -390,6 +390,7 @@ _SETTING_DEFAULTS = {
     "aggregator_enabled": True,
     "news_enabled": True,
     "digest_enabled": True,
+    "help_bot_enabled": True,
     "require_admin_2fa": False,
     # Printed Semen Catalog — the current open edition (admin-editable, no redeploy).
     "catalog_edition_key": "2026-northern",
@@ -404,6 +405,8 @@ AI_INSERTION_POINTS = [
     {"where": "Ad-copy generator", "detail": "Writes listing descriptions from a reg number (Sell flow).",
      "model_key": "adcopy"},
     {"where": "Roundup extractor", "detail": "Pulls structured listings from crawled seller pages (daily job).",
+     "model_key": "adcopy"},
+    {"where": "Help assistant", "detail": "Answers visitor questions on the Help/FAQ page (help_bot_enabled).",
      "model_key": "adcopy"},
     {"where": "Pedigree vision (planned)", "detail": "Reads a registry screenshot into a pedigree.",
      "model_key": "vision"},

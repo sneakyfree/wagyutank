@@ -1,0 +1,40 @@
+{
+  "intro": "Answers to the questions we hear most — about WagyuTank, about buying and selling Wagyu and Akaushi genetics, and about the breed itself. New to Wagyu? Start anywhere; the help assistant at the bottom can answer anything not covered here.",
+  "categories": [
+    {
+      "name": "About WagyuTank",
+      "items": [
+        {"q": "What is WagyuTank?", "a": "WagyuTank is a global marketplace and knowledge hub for frozen Wagyu and Akaushi genetics — semen straws, embryos, and cloning/cell-line rights — plus a free, worldwide index of genetics listings found elsewhere on the web (the Roundup), a translated Wagyu news feed, a genetics price index, foundation-bloodline records, and educational resources on the breed and its husbandry."},
+        {"q": "Is WagyuTank free to use?", "a": "Browsing the marketplace, the Roundup, news, price data, bloodline records, and all educational content is free. Sellers list for free during launch; there is a small platform fee only when a sale is completed on-site."},
+        {"q": "What is 'the Roundup'?", "a": "The Roundup is our free, attributed index of Wagyu and Akaushi genetics listings found on sellers' own websites around the world. Each entry shows the facts (what's for sale, the sire, price when stated) plus a link straight back to the seller's original page. We never rehost a seller's photos or ad copy — the Roundup is a directory that points you to the source."},
+        {"q": "I'm a breeder — how do I get my listings on (or off) WagyuTank?", "a": "To be listed as a WagyuTank seller, create a free account and post your genetics. If you find your own public listings in the Roundup and would like them removed, click 'This is my listing — remove it' on any of your cards and enter an email address on your own website's domain; we'll send a one-click removal link there. Requests from other addresses go to manual review so no one but you can remove your listings."}
+      ]
+    },
+    {
+      "name": "Buying genetics",
+      "items": [
+        {"q": "How do I buy Wagyu semen or embryos?", "a": "For WagyuTank seller listings, you can purchase or place a bid directly on the listing page. For Roundup entries (third-party listings from around the web), click through to the seller's own site to purchase — those are not WagyuTank vendors, and we link you to the source."},
+        {"q": "What does CSS / export-eligible mean?", "a": "CSS stands for Certified Semen Services (a program of the U.S. National Association of Animal Breeders). Only CSS-collected semen — and embryos produced from CSS semen — is eligible for export from the U.S. to most countries. Listings show a CSS/export-eligibility badge so you can filter for genetics that can legally ship to your destination."},
+        {"q": "Can genetics ship internationally?", "a": "Often, but it depends on the destination country's import rules and the genetics' certification (see CSS above). Each listing shows its stated export destinations where available. Always confirm current import requirements with the seller and your own country's animal-health authority before purchasing."},
+        {"q": "What's the difference between semen, embryos, and cloning rights?", "a": "Semen straws let you breed your own cows to a chosen sire (you supply the dam). Embryos are a complete genetic package — both sire and dam already combined — implanted into a recipient cow, the fastest way to establish a fullblood herd. Cloning/cell-line rights let you reproduce a specific proven animal; this is the rarest and most specialized offering."}
+      ]
+    },
+    {
+      "name": "Selling genetics",
+      "items": [
+        {"q": "How do I sell on WagyuTank?", "a": "Create a free account, then post a listing with the sire/animal, product type (semen/embryo/cloning rights), price, quantity, and export details. Listing is free during launch. Getting paid on-site uses Stripe Connect — you complete a short onboarding once so funds reach your account."},
+        {"q": "What does it cost?", "a": "Listing is free during launch. WagyuTank takes a small platform fee only on completed on-site sales. You keep full control of your listings and can edit or remove them any time."},
+        {"q": "Can I add my semen to the printed Semen Catalog?", "a": "Yes — semen listings can opt into the printed, mailed Semen Catalog from your dashboard. There's a Northern-Hemisphere edition (deadline Feb 1, mails early March) and a Southern-Hemisphere edition (deadline Sep 1, mails early October)."}
+      ]
+    },
+    {
+      "name": "Understanding Wagyu",
+      "items": [
+        {"q": "What does 'Wagyu' actually mean?", "a": "'Wagyu' simply means 'Japanese cattle.' It's an umbrella term, not a single breed. The two most relevant to genetics buyers are Japanese Black (Kuroge Washu — the source of most famous marbling bloodlines) and Akaushi (Japanese Red / Kumamoto Red), which is a distinct breed with its own herdbook — not merely a color variety. We use 'Akaushi' rather than the imprecise 'Red Wagyu.'"},
+        {"q": "What are 'foundation' bloodlines?", "a": "A small number of Wagyu and Akaushi animals were exported from Japan (chiefly in 1976 and the 1990s) before Japan closed genetic exports. Nearly all Wagyu outside Japan descends from these few founders. WagyuTank keeps free, researched bio pages for the foundation sires and dams, with pedigrees, records, and the strains (Tajima, Fujiyoshi, Itozakura, and others) behind them."},
+        {"q": "I'm brand new to Wagyu — where should I start?", "a": "Read the breed history and the foundation-bloodline pages to learn who the key sires are, browse the Roundup to see what genetics are available worldwide, and check the Art of Feeding Wagyu section to understand how marbling is actually produced. The help assistant below can point you to the right page for any question."},
+        {"q": "How is Wagyu's famous marbling produced?", "a": "Marbling comes from a long, carefully managed finishing period (typically 600–900 days) on a high-energy ration, with vitamin-A intake deliberately controlled at key stages — the single biggest lever on marbling, though it carries real animal-health risk if mismanaged. Genetics set the ceiling; feeding and husbandry determine how close you get to it. See the Art of Feeding Wagyu section for the documented science."}
+      ]
+    }
+  ]
+}
