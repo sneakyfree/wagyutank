@@ -142,13 +142,20 @@ per the email doctrine).
 
 ## 7. Migration path for WagyuTank (no big-bang)
 
-- **P0 (prep):** create `tanks/wagyu/` + tank.json; engine reads config with
-  hardcoded-Wagyu fallbacks. Site keeps working identically.
-- **P1:** ProductType → config-driven (§4). Feature flags for Wagyu-only pages.
-- **P2:** sweep the hardcoded strings (§3 list) → config/vocab. Frontend theme
-  tokens + copy from config.
-- **P3:** `new-tank.sh` + systemd template unit + watchdog per-tank grouping.
-- **P4:** stand up HighlandTank as the proving run.
+- **P0 (prep) — DONE:** `tanks/wagyu/tank.json` created; nothing reads it yet.
+- **P1 (backend config) — DONE (live, invisible):** `app/tank.py` loader (TANK env,
+  wagyu fallback) + `GET /api/config` + config-driven product gate on listing-create.
+  KEY FINDING: `product_type` columns are already plain `VARCHAR(32)` (no CHECK) —
+  the enum is Python-only — so config narrows the *allowed subset* per tank with
+  ZERO DB risk. Novel product types (dog stud-service) only need the model column
+  typed `String`; do it at first-non-cattle-tank scaffold (fresh DB, no migration).
+- **P2 (frontend config-driven):** frontend reads `/api/config` for product
+  labels/units/icons, feature-flagged nav/footer/sitemap, brand tokens + copy.
+  Sweep remaining hardcoded-Wagyu strings (§3 list) → config/vocab; LLM prompts
+  (extractor/classifier/help/news queries) template in `vocab`.
+- **P3:** `new-tank.sh` + systemd template unit + watchdog per-tank grouping +
+  shared-identity (passport) auth service.
+- **P4:** stand up clone #1 (breed TBD) as the proving run.
 
 P0–P3 ≈ a focused multi-day sprint; nothing user-visible changes on wagyutank.com.
 
