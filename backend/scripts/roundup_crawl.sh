@@ -29,4 +29,9 @@ ssh "$VPS" 'cd /root/wagyutank/backend && .venv/bin/python -m app.jobs.ingest_re
 # ones (removed listing pages the extraction crawl can't notice). No LLM cost.
 echo "[$(date)] reaping stale Roundup links…"
 ssh "$VPS" 'cd /root/wagyutank/backend && .venv/bin/python -m app.jobs.reap_links'
+
+# Phone home: record that this weekly crawl actually ran, so the daily watchdog
+# knows Windy 0 is alive and harvesting. If Windy 0 is asleep the script never
+# reaches here -> no record -> watchdog flags roundup_crawl as stale/down.
+ssh "$VPS" 'cd /root/wagyutank/backend && .venv/bin/python -m app.jobs.record_run roundup_crawl'
 echo "[$(date)] done."

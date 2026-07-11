@@ -36,9 +36,13 @@ def record_source(db, key: str, type_: str, label: str, count: int):
     # caller commits in batch
 
 
-# Expected max gap (hours) before a job is considered STALE/overdue.
+# Expected max gap (hours) before a job is considered STALE/overdue. Weekly jobs
+# get ~7.5 days so a normal Sunday run isn't flagged mid-week; missing a full
+# week trips STALE, missing two trips DOWN. The Windy-0 jobs (roundup_crawl,
+# video_harvest) "phone home" a run record so a sleeping Windy 0 surfaces here.
 JOB_CADENCE_H = {"news": 10, "roundup": 30, "digest": 200, "radar": 10,
-                 "highlights": 10, "price_snapshot": 30}
+                 "highlights": 10, "price_snapshot": 30,
+                 "roundup_crawl": 180, "video_harvest": 180, "reaper": 180}
 
 
 def job_status(last_run: datetime | None, cadence_h: float) -> str:
