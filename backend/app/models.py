@@ -752,6 +752,30 @@ class AggregatedListing(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
+class DirectorySeller(Base):
+    """The Wagyu Atlas registry — every identified Wagyu/Akaushi operation with a
+    website, whether or not our crawler can extract listings from it. Seeded from
+    the curated Roundup seed list (each entry was hand/agent-verified as a real
+    operation) and enriched from each site's own public homepage: what they do
+    (genetics / live cattle / beef / feedlot / stud services) and breed focus.
+    Public facts + a link back — never contact info, never rehosted content."""
+    __tablename__ = "directory_sellers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    site: Mapped[str] = mapped_column(String(120), unique=True, index=True)  # registrable domain
+    name: Mapped[str] = mapped_column(String(160))
+    url: Mapped[str] = mapped_column(String(600))
+    country: Mapped[str | None] = mapped_column(String(2), index=True)
+    region: Mapped[str | None] = mapped_column(String(24), index=True)
+    categories: Mapped[list] = mapped_column(JSON, default=list)  # genetics|live_cattle|beef|feedlot|stud_services
+    breeds: Mapped[list] = mapped_column(JSON, default=list)      # black_wagyu | akaushi
+    blurb: Mapped[str | None] = mapped_column(String(300))        # our own one-line description
+    source: Mapped[str] = mapped_column(String(24), default="roundup_seed")
+    status: Mapped[str] = mapped_column(String(12), default="active", index=True)  # active | hidden
+    enriched_at: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class RemovalRequest(Base):
     """A request to take a Roundup listing (and its seller's other listings) down.
 
