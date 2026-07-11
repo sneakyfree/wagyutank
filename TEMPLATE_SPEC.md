@@ -149,10 +149,14 @@ per the email doctrine).
   the enum is Python-only — so config narrows the *allowed subset* per tank with
   ZERO DB risk. Novel product types (dog stud-service) only need the model column
   typed `String`; do it at first-non-cattle-tank scaffold (fresh DB, no migration).
-- **P2 (frontend config-driven):** frontend reads `/api/config` for product
-  labels/units/icons, feature-flagged nav/footer/sitemap, brand tokens + copy.
-  Sweep remaining hardcoded-Wagyu strings (§3 list) → config/vocab; LLM prompts
-  (extractor/classifier/help/news queries) template in `vocab`.
+- **P2 (frontend config-driven) — DONE (partial, live, invisible):** build-time
+  bake of `/api/config` → `lib/tank.config.json` (prebuild `scripts-gen-tank-config.mjs`,
+  `TANK_API` picks tank, committed WagyuTank default so builds never need the API);
+  `lib/tank.ts` featureOn()/products(); Header nav (desktop+mobile) feature-gated +
+  product sub-links from config. Wagyu byte-identical (all 13 links verified live).
+  STILL TODO in P2: brand tokens (name/logo/colors/contact/legal) + hero/footer copy
+  from config; sweep remaining hardcoded-Wagyu strings (§3) → vocab; template the
+  backend LLM prompts (extractor/classifier/help/news queries) in `vocab`.
 - **P3:** `new-tank.sh` + systemd template unit + watchdog per-tank grouping +
   shared-identity (passport) auth service.
 - **P4:** stand up clone #1 (breed TBD) as the proving run.
