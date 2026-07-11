@@ -7,9 +7,15 @@
     "species": "cattle",
     "breed": "Wagyu & Akaushi",
     "logoText": "WT",
+    "wordmark": ["WAGYU", "TANK"],
     "colors": { "gold": "#8a6d2b" },
     "contactEmail": "office@wagyutank.com",
-    "legal": "Salt Lake City, Utah, USA · a Utah company"
+    "location": "Salt Lake City, Utah, USA",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "WagyuTank — The Global Marketplace & Knowledge Hub for Wagyu Genetics",
+    "footerBlurb": "the world's marketplace for frozen Wagyu genetics",
+    "description": "Buy and sell frozen Wagyu genetics — semen, embryos, and cloning rights — and explore the world's deepest Wagyu breed history, a live genetics price index, translated global news, and market data. Free to list.",
+    "keywords": ["Wagyu", "Akaushi", "Wagyu semen", "Wagyu embryos", "Wagyu genetics", "fullblood Wagyu", "Tajima", "Michifuku", "Wagyu marketplace", "Wagyu bloodlines"]
   },
   "products": [
     { "key": "semen",        "label": "Semen",          "unit": "straw",  "icon": "sperm",  "fresh_chilled": false },
@@ -28,7 +34,8 @@
     "registry_names": ["American Wagyu Association", "American Akaushi Association"],
     "export_program": "CSS",
     "news_search_terms": ["Wagyu", "Akaushi", "Kobe beef"],
-    "video_search_terms": ["Wagyu cattle", "Wagyu bull", "Akaushi"]
+    "video_search_terms": ["Wagyu cattle", "Wagyu bull", "Akaushi"],
+    "help_nuance": "Use 'Akaushi' rather than 'Red Wagyu'. Wagyu = 'Japanese cattle' (an umbrella); Japanese Black and Akaushi are distinct breeds."
   },
   "langs": ["en", "es", "pt", "de", "ja", "zh"],
   "crawl": { "cron_offset_min": 0 }

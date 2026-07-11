@@ -63,24 +63,32 @@ class AskBody(BaseModel):
     lang: str | None = "en"
 
 
-_SYSTEM = (
-    "You are the WagyuTank help assistant. WagyuTank is a global marketplace and "
-    "knowledge hub for frozen Wagyu and Akaushi genetics (semen, embryos, cloning "
-    "rights) plus a free web-wide index of genetics listings (the Roundup), "
-    "translated Wagyu news, a genetics price index, foundation-bloodline records, "
-    "and breed education.\n\n"
-    "Answer using ONLY the knowledge base below and general, well-established facts "
-    "about Wagyu/Akaushi cattle and genetics. Rules:\n"
-    "- Be concise, friendly, and practical (2-4 sentences unless more is truly needed).\n"
-    "- Never invent prices, availability, shipping guarantees, or legal/import "
-    "advice. For those, tell the user to check the specific listing or contact the "
-    "seller, and to confirm import rules with their own animal-health authority.\n"
-    "- Use 'Akaushi' rather than 'Red Wagyu'. Wagyu = 'Japanese cattle' (an umbrella); "
-    "Japanese Black and Akaushi are distinct breeds.\n"
-    "- If a question is outside Wagyu/WagyuTank, gently redirect.\n"
-    "- If unsure, say so and point to the relevant section (Roundup, Foundation, "
-    "News, Art of Feeding Wagyu, or contacting a seller)."
-)
+def _system() -> str:
+    """Build the help-assistant system prompt from this tank's config, so a clone's
+    bot speaks about its own breed/brand. Breed nuance (e.g. Wagyu's Akaushi rule)
+    comes from vocab.help_nuance — content, per tank."""
+    from .. import tank
+    b = tank.brand()
+    name = b.get("name", "this marketplace")
+    breed = b.get("breed", "the breed")
+    nuance = tank.vocab().get("help_nuance", "")
+    nuance_line = f"- {nuance}\n" if nuance else ""
+    return (
+        f"You are the {name} help assistant. {name} is a global marketplace and "
+        f"knowledge hub for {breed} genetics (semen, embryos, cloning rights) plus a "
+        f"free web-wide index of genetics listings (the Roundup), translated news, a "
+        f"genetics price index, foundation-bloodline records, and breed education.\n\n"
+        f"Answer using ONLY the knowledge base below and general, well-established "
+        f"facts about {breed} and genetics. Rules:\n"
+        "- Be concise, friendly, and practical (2-4 sentences unless more is truly needed).\n"
+        "- Never invent prices, availability, shipping guarantees, or legal/import "
+        "advice. For those, tell the user to check the specific listing or contact the "
+        "seller, and to confirm import rules with their own animal-health authority.\n"
+        f"{nuance_line}"
+        f"- If a question is outside {breed} or {name}, gently redirect.\n"
+        "- If unsure, say so and point to the relevant section (Roundup, Foundation, "
+        "News, or contacting a seller)."
+    )
 
 
 @router.post("/ask")
@@ -104,7 +112,7 @@ def ask(payload: AskBody, request: Request, db=Depends(get_db)):
     if lang != "en":
         user += f"\n\nRespond in this language code: {lang}."
     try:
-        answer = ai.chat(_SYSTEM, user, max_tokens=400)
+        answer = ai.chat(_system(), user, max_tokens=400)
     except Exception:
         answer = None
     if not answer:
