@@ -60,14 +60,15 @@ def _self_heal(report: dict) -> list[str]:
 
 
 def _recipients() -> list[str]:
-    raw = f"{settings.super_admin_emails},{settings.admin_emails}"
+    # Daily report -> the owner's real inbox only (super_admin_emails). We don't
+    # spray the test / domain admin accounts every single day.
     seen, out = set(), []
-    for e in raw.split(","):
+    for e in (settings.super_admin_emails or "").split(","):
         e = e.strip().lower()
         if e and e not in seen:
             seen.add(e)
             out.append(e)
-    return out
+    return out or ["grantwhitmer3@gmail.com"]
 
 
 def main():
