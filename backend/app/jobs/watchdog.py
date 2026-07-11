@@ -81,7 +81,9 @@ def main():
         if actions:  # re-assess so the email reflects post-heal state
             report = watchdog.assess(db)
         html = watchdog.render_html(report, actions)
-        subject = f"[{report['verdict'].upper()}] State of the WagyuTank — {watchdog.summary_line(report)}"
+        from .. import tank
+        name = tank.brand().get("name", "WagyuTank")
+        subject = f"[{report['verdict'].upper()}] State of the {name} — {watchdog.summary_line(report)}"
 
         if dry:
             print(subject)

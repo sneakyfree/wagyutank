@@ -158,11 +158,36 @@ per the email doctrine).
   contact, wordmark, help-bot Akaushi rule all verified). REMAINING (deferred to
   clone-scaffold, they're per-tank CONTENT not engine): home hero i18n strings,
   news/video search-term feeds, extractor species mention, medallion SVG per tank.
-- **P3:** `new-tank.sh` + systemd template unit + watchdog per-tank grouping +
-  shared-identity (passport) auth service.
+- **P3 (factory) — DONE (scaffold + template unit + watchdog labeling):**
+  `deploy/new-tank.sh` (own DB + fresh JWT + port + schema + systemd enable;
+  verified DATABASE_URL env-override isolates tank DBs) + `deploy/tank@.service`
+  template unit + watchdog now labels per-tank (brand name in subject/header).
+  Passport SSO DESIGNED (§7b) but wired at P4 (needs a 2nd tank to test).
 - **P4:** stand up clone #1 (breed TBD) as the proving run.
 
 P0–P3 ≈ a focused multi-day sprint; nothing user-visible changes on wagyutank.com.
+
+## 7b. Passport (shared identity across tanks) — architecture
+
+Decided: one account works on every tank; reputation travels. Chosen design (to
+wire when clone #1 exists, so it's testable across two real tanks):
+
+- **Shared AUTH database, per-tank MARKETPLACE databases.** Add `AUTH_DATABASE_URL`
+  (defaults to the tank's own `DATABASE_URL` — so WagyuTank alone is unchanged).
+  When a shared value is set, the `users` table + all auth flows (register, login,
+  reset, verify, 2FA, roles) read/write the shared auth DB; listings/orders/bids/
+  ratings stay in the tank's own DB. A JWT signed with a shared `AUTH_JWT_SECRET`
+  validates on any tank → one login everywhere.
+- **Reputation travel:** buyer/seller ratings live on the shared `users` row
+  (aggregate), so a strong WagyuTank seller arrives on HighlandTank already
+  reputable. Per-transaction Feedback rows stay per-tank; each tank's `_recompute`
+  writes the aggregate to the shared user.
+- **Registration friction remover:** "already have an account on any of our
+  marketplaces? just sign in" — same shared auth DB makes this automatic.
+- **Future OmniTank/TankTank hub:** a directory site over the shared auth DB +
+  each tank's public listing API. Not needed until several tanks exist.
+- **Why deferred:** cross-DB auth routing touches every auth query; building it
+  with zero clones = untestable. Wire + verify at P4 with a real second tank.
 
 ## 8. Decisions (Grant, 2026-07-11)
 

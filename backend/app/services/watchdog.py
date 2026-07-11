@@ -42,6 +42,11 @@ def _now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
+def _tank_name() -> str:
+    from .. import tank
+    return tank.brand().get("name", "WagyuTank")
+
+
 def assess(db) -> dict:
     """Build the structured health report (no I/O beyond the DB)."""
     now = _now()
@@ -178,7 +183,7 @@ def render_html(report: dict, actions: list[str] | None = None) -> str:
     return (
         f"<div style='font-family:-apple-system,Segoe UI,sans-serif;max-width:640px;margin:0 auto;color:#222'>"
         f"<div style='background:{banner};color:#fff;padding:16px 20px;border-radius:8px 8px 0 0'>"
-        f"<div style='font-size:13px;opacity:.85;letter-spacing:.5px'>STATE OF THE WAGYUTANK</div>"
+        f"<div style='font-size:13px;opacity:.85;letter-spacing:.5px'>STATE OF THE {_tank_name().upper()}</div>"
         f"<div style='font-size:22px;font-weight:700;margin-top:2px'>{report['verdict_word']}</div>"
         f"<div style='font-size:14px;margin-top:4px;opacity:.95'>{summary_line(report)}</div></div>"
         f"<div style='border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px;padding:18px 20px'>"
@@ -189,7 +194,7 @@ def render_html(report: dict, actions: list[str] | None = None) -> str:
         f"<tbody>{rows}</tbody></table>"
         f"<h3 style='font-size:14px;margin:20px 0 4px'>Source fleet ({s['total']} spiders)</h3>"
         f"{src_bar}{regressed}{act}"
-        f"<p style='font-size:11px;color:#aaa;margin-top:18px'>Generated {gen} · WagyuTank daily watchdog. "
+        f"<p style='font-size:11px;color:#aaa;margin-top:18px'>Generated {gen} · {_tank_name()} daily watchdog. "
         f"You receive this every day; if it stops arriving, the watchdog itself may be down.</p>"
         f"</div></div>"
     )

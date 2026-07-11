@@ -1,0 +1,24 @@
+# Systemd TEMPLATE unit — one instance per tank: `systemctl enable --now tank@highland`.
+# Reads the tank's identity/port/DB from tanks/<key>/tank.env (written by new-tank.sh).
+# Shared secrets (Resend, WindyMind) still come from backend/.env via pydantic;
+# real environment variables here OVERRIDE .env, giving per-tank DB + JWT isolation.
+#
+# Install: cp deploy/tank@.service /etc/systemd/system/ && systemctl daemon-reload
+# NOTE: WagyuTank itself still runs as the original wagyutank-api.service (port 8120);
+# migrate it to tank@wagyu at leisure — not required.
+
+[Unit]
+Description=Tank API (%i)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/wagyutank/backend
+EnvironmentFile=/root/wagyutank/tanks/%i/tank.env
+ExecStart=/root/wagyutank/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port ${PORT}
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
