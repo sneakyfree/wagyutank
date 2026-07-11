@@ -1,0 +1,35 @@
+{
+  "key": "wagyu",
+  "brand": {
+    "name": "WagyuTank",
+    "domain": "wagyutank.com",
+    "tagline": "The world's marketplace & knowledge hub for frozen Wagyu genetics",
+    "species": "cattle",
+    "breed": "Wagyu & Akaushi",
+    "logoText": "WT",
+    "colors": { "gold": "#8a6d2b" },
+    "contactEmail": "office@wagyutank.com",
+    "legal": "Salt Lake City, Utah, USA · a Utah company"
+  },
+  "products": [
+    { "key": "semen",        "label": "Semen",          "unit": "straw",  "icon": "sperm",  "fresh_chilled": false },
+    { "key": "embryo",       "label": "Embryos",        "unit": "embryo", "icon": "morula", "fresh_chilled": false },
+    { "key": "clone_rights", "label": "Cloning Rights", "unit": "right",  "icon": "helix",  "fresh_chilled": false }
+  ],
+  "features": {
+    "roundup": true, "directory": true, "help": true, "ads": true,
+    "foundation": true, "history": true, "news": true, "videos": true,
+    "price_index": true, "sale_reports": true, "catalog": true, "market_data": true,
+    "japan_hub": true, "zenkyo": true, "feeding": true, "great_sires": true
+  },
+  "vocab": {
+    "animal_singular": "sire",
+    "animal_plural": "cattle",
+    "registry_names": ["American Wagyu Association", "American Akaushi Association"],
+    "export_program": "CSS",
+    "news_search_terms": ["Wagyu", "Akaushi", "Kobe beef"],
+    "video_search_terms": ["Wagyu cattle", "Wagyu bull", "Akaushi"]
+  },
+  "langs": ["en", "es", "pt", "de", "ja", "zh"],
+  "crawl": { "cron_offset_min": 0 }
+}

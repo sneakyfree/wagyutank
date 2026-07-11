@@ -152,11 +152,22 @@ per the email doctrine).
 
 P0–P3 ≈ a focused multi-day sprint; nothing user-visible changes on wagyutank.com.
 
-## 8. Decisions parked (Grant)
+## 8. Decisions (Grant, 2026-07-11)
 
-- Shared "passport" login across tanks vs isolated accounts → **isolated now**,
-  revisit after the model proves out.
-- Depth per clone: full Wagyu treatment vs lean core (marketplace+Roundup+Atlas+
-  help) → default lean, deepen winners.
-- Legal entity/footer per tank (all "a Utah company"?).
-- Which 10 breeds, and Highland confirmed as clone #1.
+- **Passport login: YES — decided.** One account works across every tank ("do you
+  already have an account with any of these platforms?"). Future roll-up hub à la
+  Craigslist (TankTank/OmniTank .com) listing all tanks. Design the engine's auth
+  for a shared identity service from the start; reputation (buyer/seller ratings)
+  travels with the account across tanks.
+- **Engine: build DELUXE — decided.** All machinery (encyclopedia, history,
+  price index, news, videos, market data frameworks) goes into the one-time
+  engine; every clone inherits every capability.
+- **Cost model (clarified):** engine = one-time. Per-breed deluxe CONTENT (that
+  breed's foundation animals/history/records) ≈ $30–80 of research tokens per
+  clone — recurring per breed, can't be templated. Lean-vs-deluxe is therefore a
+  per-breed content dial, not a template fork. Grant's current lean: deluxe
+  content for early breeds; revisit only at hundreds-of-niches scale.
+- Model policy: Sonnet for discovery/research/wiring, Opus/Fable for flagship
+  prose + final fact-check, Haiku/scripts for mechanical steps.
+- Still open: which breed is clone #1 (Highland vs Holstein vs other — under
+  discussion); legal entity/footer per tank.
