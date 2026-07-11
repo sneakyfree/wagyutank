@@ -18,7 +18,7 @@ from ..config import settings as cfg
 from ..db import get_db
 from ..models import (
     Ad, AggregatedListing, AuditLog, Campaign, Event, JobRun, Listing, Order,
-    SourceHealth, User,
+    RemovalRequest, SourceHealth, User,
 )
 from ..roles import ASSIGNABLE_ROLES, RANK, rank
 from ..security import (
@@ -486,6 +486,47 @@ def roundup_action(listing_id: int, action: str = Body(..., embed=True),
     db.commit()
     _audit(db, admin, f"roundup.{action}", "roundup", listing_id)
     return {"ok": True, "status": r.status, "flagged": r.flagged}
+
+
+@router.get("/removal-requests")
+def removal_requests(status: str = "pending", limit: int = 100, db: Session = Depends(get_db)):
+    """Roundup takedown requests. Domain-verified ones self-action via the emailed
+    link; the ones listed here (domain_matched=False, still pending) need a human."""
+    q = db.query(RemovalRequest)
+    if status:
+        q = q.filter(RemovalRequest.status == status)
+    rows = q.order_by(RemovalRequest.created_at.desc()).limit(limit).all()
+    return [{"id": r.id, "listing_id": r.listing_id, "source_site": r.source_site,
+             "requester_email": r.requester_email, "domain_matched": r.domain_matched,
+             "status": r.status, "created_at": r.created_at.isoformat() if r.created_at else None}
+            for r in rows]
+
+
+@router.post("/removal-requests/{req_id}/action")
+def removal_request_action(req_id: int, action: str = Body(..., embed=True),
+                           admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """Approve (hide all of that source's listings) or reject an unverified request."""
+    rr = db.get(RemovalRequest, req_id)
+    if not rr:
+        raise HTTPException(404, "Not found")
+    if action == "approve":
+        rows = db.query(AggregatedListing).filter(
+            AggregatedListing.source_site == rr.source_site,
+            AggregatedListing.status != "hidden",
+        ).all()
+        for r in rows:
+            r.status = "hidden"; r.flagged = True
+        rr.status = "actioned"
+        rr.verified_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        db.commit()
+        _audit(db, admin, "roundup.removal_approve", "removal_request", req_id)
+        return {"ok": True, "hidden": len(rows)}
+    elif action == "reject":
+        rr.status = "rejected"
+        db.commit()
+        _audit(db, admin, "roundup.removal_reject", "removal_request", req_id)
+        return {"ok": True, "rejected": True}
+    raise HTTPException(400, "Unknown action")
 
 
 @router.post("/roundup/run")

@@ -26,8 +26,11 @@ from urllib.robotparser import RobotFileParser
 
 MAX_PAGES_PER_SITE = 6   # follow pagination up to this many pages per catalog
 DEFAULT_PAGE_BUDGET = 220  # global cap on total page fetches per run (politeness + runtime)
-DELIST_AFTER_DAYS = 5    # grace period — LLM extraction varies run-to-run, so only
-                         # age out listings genuinely unseen for this many days
+DELIST_AFTER_DAYS = 10   # grace period — must exceed the WEEKLY JS-render crawl
+                         # cycle (7d), or JS-only listings get aged out Fri/Sat and
+                         # resurrected each Sunday (a sawtooth). 10d gives a full
+                         # cycle plus slack. The reaper (jobs.reap_links) handles
+                         # genuinely-dead links faster via direct HTTP checks.
 
 import httpx
 
@@ -658,12 +661,20 @@ def run(db, sources: list[str] | None = None, delist: bool = True,
         except Exception:
             pass
     delisted = 0
-    if delist:
+    if delist and ok_sites:
+        # Only age out listings from sources we SUCCESSFULLY fetched this run. A
+        # site we couldn't reach (JS-only site on the static daily run, or one
+        # that was simply down) must never have its listings delisted — otherwise
+        # every source this crawler can't see would vanish. Scoping to ok_sites
+        # is what makes "delisted = the listing genuinely disappeared from a live
+        # source" true, and is the other half (with the 10d cutoff) of the
+        # sawtooth fix.
         from datetime import timedelta
         cutoff = started - timedelta(days=DELIST_AFTER_DAYS)
         stale = db.query(AggregatedListing).filter(
             AggregatedListing.last_seen_at < cutoff,
             AggregatedListing.status == "active",
+            AggregatedListing.source_site.in_(ok_sites),
         ).all()
         for row in stale:
             row.status = "delisted"

@@ -24,4 +24,9 @@ node "$BACKEND/scripts/crawl_listings.cjs" \
 echo "[$(date)] shipping rendered pages to $VPS and ingesting…"
 scp -q "$OUT" "$VPS:/root/wagyutank/backend/rendered_cron.json"
 ssh "$VPS" 'cd /root/wagyutank/backend && .venv/bin/python -m app.jobs.ingest_rendered rendered_cron.json'
+
+# Reap stale links: HTTP-check every active listing's source URL and delist dead
+# ones (removed listing pages the extraction crawl can't notice). No LLM cost.
+echo "[$(date)] reaping stale Roundup links…"
+ssh "$VPS" 'cd /root/wagyutank/backend && .venv/bin/python -m app.jobs.reap_links'
 echo "[$(date)] done."

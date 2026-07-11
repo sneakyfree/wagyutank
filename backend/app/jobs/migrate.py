@@ -31,6 +31,7 @@ _MIGRATIONS = {
         "region": "VARCHAR(24)",
         "source_updated_at": "DATETIME",
         "source_date_type": "VARCHAR(16)",
+        "dead_streak": "INTEGER DEFAULT 0",
     },
     "wagyu_videos": {
         "editorial": "TEXT",

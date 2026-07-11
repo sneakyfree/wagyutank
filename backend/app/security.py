@@ -52,6 +52,25 @@ def create_unsubscribe_token(user_id: int) -> str:
                       algorithm=settings.jwt_algorithm)
 
 
+def create_takedown_token(source_site: str, email: str) -> str:
+    """7-day signed token emailed to a domain-verified requester. Confirming the
+    link takes down all Roundup listings from `source_site`."""
+    expire = datetime.now(timezone.utc) + timedelta(days=7)
+    return jwt.encode({"site": source_site, "email": email, "scope": "roundup_takedown",
+                       "exp": expire}, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def takedown_from_token(token: str) -> dict | None:
+    """Return {'site', 'email'} for a valid takedown token, else None."""
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        if payload.get("scope") != "roundup_takedown":
+            return None
+        return {"site": payload.get("site"), "email": payload.get("email")}
+    except (JWTError, TypeError, ValueError):
+        return None
+
+
 def user_id_from_unsubscribe(token: str) -> int | None:
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])

@@ -1,16 +1,62 @@
 """The Roundup — public, attributed aggregation of Wagyu-genetics listings found
 elsewhere on the web. These are NOT WagyuTank vendor listings; every response
 links back to the original source, and there is no on-site checkout."""
-from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from pydantic import BaseModel
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
+from ..config import settings
 from ..db import get_db
-from ..models import AggregatedListing, ProductType
+from ..models import AggregatedListing, ProductType, RemovalRequest
 from ..schemas import AggregatedOut
+from ..security import create_takedown_token, takedown_from_token
+from ..services import email as email_service
+from ..services import ratelimit
 
 router = APIRouter(prefix="/api/roundup", tags=["roundup"])
+
+# Registrable-domain suffixes that are two labels deep (so a sub.example.co.uk
+# email is matched against example.co.uk, not co.uk). Not exhaustive — on any
+# ambiguity the match simply fails and the request falls to admin review, which
+# is the safe default.
+_MULTI_TLD = {
+    "co.uk", "org.uk", "me.uk", "com.au", "net.au", "org.au", "co.nz", "com.br",
+    "com.mx", "co.za", "com.ar", "com.co", "com.py", "com.uy", "com.pe", "co.jp",
+    "or.jp", "ne.jp", "com.tr", "co.il", "com.sg", "co.id", "com.ph", "co.th",
+}
+
+
+def _registrable(host: str) -> str:
+    """Reduce a hostname to its registrable domain (strip www, port, subdomains)."""
+    host = (host or "").strip().lower().rstrip(".").split(":")[0]
+    if host.startswith("www."):
+        host = host[4:]
+    parts = [p for p in host.split(".") if p]
+    if len(parts) <= 2:
+        return ".".join(parts)
+    return ".".join(parts[-3:]) if ".".join(parts[-2:]) in _MULTI_TLD else ".".join(parts[-2:])
+
+
+def _domain_matches(email: str, source_site: str) -> bool:
+    """True only when the email's domain is the same registrable domain as the
+    listing's source website — i.e. the requester can receive mail at the seller's
+    own domain. This is what stops one bad actor from wiping a rival's listings."""
+    if "@" not in email:
+        return False
+    edom = _registrable(email.rsplit("@", 1)[1])
+    return bool(edom) and edom == _registrable(source_site)
+
+
+def _client_ip(request: Request) -> str:
+    return (request.headers.get("cf-connecting-ip")
+            or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+            or (request.client.host if request.client else "?"))
+
+
+class FlagBody(BaseModel):
+    email: str
 
 
 @router.get("", response_model=list[AggregatedOut])
@@ -111,14 +157,87 @@ def go(listing_id: int, db: Session = Depends(get_db)):
     return RedirectResponse(row.source_url, status_code=302)
 
 
+def _takedown_page(msg: str) -> str:
+    return (f"<div style='font-family:sans-serif;max-width:520px;margin:60px auto;"
+            f"text-align:center;line-height:1.6'>"
+            f"<h2 style='color:#8a6d2b'>WagyuTank Roundup</h2><p>{msg}</p>"
+            f"<p style='color:#888;font-size:13px'>The Roundup only ever links to public "
+            f"listings on their original sites — it never hosts your photos or ad copy.</p></div>")
+
+
 @router.post("/{listing_id}/flag")
-def flag(listing_id: int, db: Session = Depends(get_db)):
-    """Opt-out / removal request — a seller (or anyone) can flag a Roundup listing
-    to have it hidden pending review."""
+def flag(listing_id: int, payload: FlagBody, request: Request, db: Session = Depends(get_db)):
+    """Request removal of a Roundup listing. Requesting NEVER hides anything on its
+    own (that would let one bad actor wipe a competitor's listings). Instead:
+
+      - If the email is on the listing's OWN source domain, we email a one-click
+        confirmation link there; clicking it removes all of that seller's listings.
+      - Otherwise the request goes to the admin review queue and nothing changes.
+
+    Rate-limited per IP so the review queue can't be flooded."""
+    if not ratelimit.allow(f"roundup_flag:ip:{_client_ip(request)}", 5, 3600):
+        raise HTTPException(429, "Too many requests — please try again later.")
     row = db.get(AggregatedListing, listing_id)
     if not row:
         raise HTTPException(404, "Listing not found")
-    row.flagged = True
-    row.status = "hidden"
+    email = (payload.email or "").strip().lower()
+    if "@" not in email or "." not in email.rsplit("@", 1)[-1]:
+        raise HTTPException(400, "Please provide a valid email address.")
+
+    matched = _domain_matches(email, row.source_site)
+    db.add(RemovalRequest(listing_id=listing_id, source_site=row.source_site,
+                          requester_email=email, domain_matched=matched, status="pending"))
     db.commit()
-    return {"status": "flagged", "message": "Listing hidden pending review. Thank you."}
+
+    if matched:
+        token = create_takedown_token(row.source_site, email)
+        host = request.headers.get("host", "api.wagyutank.com")
+        scheme = "http" if ("localhost" in host or "127.0.0.1" in host) else "https"
+        link = f"{scheme}://{host}/api/roundup/takedown?token={token}"
+        html = (f"<div style='font-family:sans-serif;max-width:520px;margin:0 auto;line-height:1.6'>"
+                f"<h2 style='color:#8a6d2b'>Confirm removal from the WagyuTank Roundup</h2>"
+                f"<p>We received a request to remove the Wagyu-genetics listings from "
+                f"<strong>{row.source_site}</strong> from the WagyuTank Roundup (a free index that "
+                f"links back to your own site).</p>"
+                f"<p>If that was you, click below to remove them. If not, ignore this email — nothing "
+                f"will change.</p>"
+                f"<p style='margin:24px 0'><a href='{link}' style='background:#8a6d2b;color:#fff;"
+                f"padding:12px 22px;border-radius:6px;text-decoration:none'>Remove my listings</a></p>"
+                f"<p style='color:#888;font-size:13px'>This link expires in 7 days.</p></div>")
+        email_service.send(email, "Confirm removal from the WagyuTank Roundup", html)
+        return {"status": "verify",
+                "message": f"We've emailed a confirmation link to {email}. Click it to remove your listings."}
+
+    return {"status": "review",
+            "message": ("Thanks — your removal request has been received and our team will review it. "
+                        "To remove listings instantly, send the request from an email address on the "
+                        "listing's own website (e.g. name@" + _registrable(row.source_site) + ").")}
+
+
+@router.get("/takedown", response_class=HTMLResponse)
+def takedown_confirm(token: str, db: Session = Depends(get_db)):
+    """One-click confirmation (from the emailed link) — removes every active Roundup
+    listing from the verified source domain."""
+    data = takedown_from_token(token)
+    site = (data or {}).get("site")
+    if not site:
+        return HTMLResponse(_takedown_page("This removal link is invalid or has expired."),
+                            status_code=400)
+    rows = db.query(AggregatedListing).filter(
+        AggregatedListing.source_site == site,
+        AggregatedListing.status != "hidden",
+    ).all()
+    n = 0
+    for r in rows:
+        r.status = "hidden"
+        r.flagged = True
+        n += 1
+    from datetime import datetime, timezone
+    db.query(RemovalRequest).filter(
+        RemovalRequest.source_site == site, RemovalRequest.status == "pending"
+    ).update({"status": "actioned", "verified_at": datetime.now(timezone.utc).replace(tzinfo=None)},
+             synchronize_session=False)
+    db.commit()
+    return HTMLResponse(_takedown_page(
+        f"Done — {n} listing(s) from <strong>{site}</strong> have been removed from the "
+        f"WagyuTank Roundup. Thank you."))

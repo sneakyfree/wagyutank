@@ -746,6 +746,29 @@ class AggregatedListing(Base):
     status: Mapped[str] = mapped_column(String(12), default="active", index=True)  # active | delisted | hidden
     outbound_clicks: Mapped[int] = mapped_column(Integer, default=0)
     flagged: Mapped[bool] = mapped_column(Boolean, default=False)  # opt-out / removal requested
+    # Consecutive weekly reaper checks where the source URL came back dead. The
+    # reaper delists after two soft-dead checks (or immediately on a hard 404/410).
+    dead_streak: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class RemovalRequest(Base):
+    """A request to take a Roundup listing (and its seller's other listings) down.
+
+    Anyone can ASK, but nothing is hidden on request alone — that would let one
+    bad actor wipe a competitor's listings. A request is only auto-actioned when
+    the requester proves control of an email address on the listing's own source
+    domain (a confirmation link is emailed there). Domain-mismatch requests go to
+    the admin review queue instead of hiding anything."""
+    __tablename__ = "removal_requests"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    listing_id: Mapped[int] = mapped_column(Integer, index=True)
+    source_site: Mapped[str] = mapped_column(String(120), index=True)  # snapshot of the listing's domain
+    requester_email: Mapped[str] = mapped_column(String(255))
+    domain_matched: Mapped[bool] = mapped_column(Boolean, default=False)  # email domain == source domain
+    status: Mapped[str] = mapped_column(String(16), default="pending", index=True)  # pending | actioned | rejected
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime)  # when the email link was confirmed
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
