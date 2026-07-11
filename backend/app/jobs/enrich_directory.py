@@ -55,19 +55,29 @@ def _fetch(url: str) -> str | None:
 
 
 def _classify(site: str, text: str) -> dict | None:
-    try:
-        out = chat(_SYSTEM, f"Website: {site}\n\nHomepage text:\n{text}", max_tokens=300)
-        m = re.search(r"\{.*\}", out or "", re.S)
-        if not m:
-            return None
-        d = json.loads(m.group(0))
-        cats = [c for c in (d.get("categories") or []) if c in _CATS]
-        breeds = [b for b in (d.get("breeds") or []) if b in _BREEDS]
-        name = (d.get("name") or "").strip()[:160]
-        blurb = (d.get("blurb") or "").strip()[:300]
-        return {"name": name, "categories": cats, "breeds": breeds, "blurb": blurb}
-    except Exception:
-        return None
+    # The free WindyMind/Groq lane rate-limits under burst and returns empty —
+    # retry with backoff so a throttled call isn't mistaken for "nothing to say".
+    for attempt in range(3):
+        try:
+            out = chat(_SYSTEM, f"Website: {site}\n\nHomepage text:\n{text}", max_tokens=300)
+        except Exception:
+            out = None
+        if out:
+            m = re.search(r"\{.*\}", out, re.S)
+            if m:
+                try:
+                    d = json.loads(m.group(0))
+                    return {
+                        "name": (d.get("name") or "").strip()[:160],
+                        "categories": [c for c in (d.get("categories") or []) if c in _CATS],
+                        "breeds": [b for b in (d.get("breeds") or []) if b in _BREEDS],
+                        "blurb": (d.get("blurb") or "").strip()[:300],
+                    }
+                except Exception:
+                    return None   # genuine parse failure — don't burn retries
+        if attempt < 2:
+            time.sleep(9 + attempt * 8)   # 9s, 17s — let the free lane recover
+    return None
 
 
 def _reg(host: str) -> str:
@@ -92,6 +102,8 @@ def from_rendered(path: str):
             text = (pg.get("text") or "").strip()
             if not row or len(text) < 120:
                 continue
+            if row.categories or row.blurb:
+                continue   # already enriched — don't re-spend LLM calls on a re-run
             d = _classify(dom, text[:6000])
             done += 1
             if d:
