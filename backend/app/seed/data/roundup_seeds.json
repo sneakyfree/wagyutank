@@ -2123,5 +2123,25 @@
   "url": "https://www.bectivestationwagyu.com.au",
   "site": "bectivestationwagyu.com.au",
   "country": "AU"
+ },
+ {
+  "url": "https://showmegen.myshopify.com/collections/wagyu-aukaushi",
+  "site": "showmegen.myshopify.com",
+  "country": "US"
+ },
+ {
+  "url": "https://genex.erural.net/search?categories[]=S%C3%AAmen&categories[]=Touro+de+Corte&categories[]=Wagyu",
+  "site": "genex.erural.net",
+  "country": "BR"
+ },
+ {
+  "url": "https://genex.erural.net/search?categories[]=Akaushi&categories[]=S%C3%AAmen&categories[]=Touro+de+Corte",
+  "site": "genex.erural.net",
+  "country": "BR"
+ },
+ {
+  "url": "http://www.fazenda-angelica.com.br/",
+  "site": "fazenda-angelica.com.br",
+  "country": "BR"
  }
 ]
