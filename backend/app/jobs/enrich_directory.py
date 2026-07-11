@@ -70,7 +70,51 @@ def _classify(site: str, text: str) -> dict | None:
         return None
 
 
+def _reg(host: str) -> str:
+    host = (host or "").lower().split(":")[0]
+    return host[4:] if host.startswith("www.") else host
+
+
+def from_rendered(path: str):
+    """Classify from pages already rendered by the Windy-0 Playwright crawler
+    (JS + residential IP), which reaches the JS-SPA / bot-blocking sites a static
+    VPS fetch can't. Input: [{source_url, source_site, text}, ...]."""
+    import json as _json
+    pages = _json.loads(open(path).read())
+    db = SessionLocal()
+    now = lambda: datetime.now(timezone.utc).replace(tzinfo=None)  # noqa: E731
+    try:
+        by_dom = {r.site: r for r in db.query(DirectorySeller).all()}
+        done = ok = 0
+        for pg in pages:
+            dom = _reg((pg.get("source_site") or "").strip())
+            row = by_dom.get(dom)
+            text = (pg.get("text") or "").strip()
+            if not row or len(text) < 120:
+                continue
+            d = _classify(dom, text[:6000])
+            done += 1
+            if d:
+                if d["name"]:
+                    row.name = d["name"]
+                row.categories = d["categories"]
+                row.breeds = d["breeds"]
+                row.blurb = d["blurb"] or None
+                row.enriched_at = now()
+                ok += 1
+            time.sleep(2.0)
+            if done % 25 == 0:
+                db.commit(); print(f"  {done} classified (enriched {ok})")
+        db.commit()
+        print(f"from-rendered done: {done} pages classified, {ok} enriched.")
+    finally:
+        db.close()
+
+
 def main():
+    if "--from-rendered" in sys.argv:
+        from_rendered(sys.argv[sys.argv.index("--from-rendered") + 1])
+        return
     limit = None
     if "--limit" in sys.argv:
         limit = int(sys.argv[sys.argv.index("--limit") + 1])
