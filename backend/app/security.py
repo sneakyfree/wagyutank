@@ -52,6 +52,24 @@ def create_unsubscribe_token(user_id: int) -> str:
                       algorithm=settings.jwt_algorithm)
 
 
+def create_email_verify_token(user_id: int) -> str:
+    """7-day signed token emailed to a user to confirm they control their address.
+    Verification gates domain-based features (e.g. claiming Roundup listings)."""
+    expire = datetime.now(timezone.utc) + timedelta(days=7)
+    return jwt.encode({"sub": str(user_id), "scope": "verify_email", "exp": expire},
+                      settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def user_id_from_email_verify(token: str) -> int | None:
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        if payload.get("scope") != "verify_email":
+            return None
+        return int(payload.get("sub"))
+    except (JWTError, TypeError, ValueError):
+        return None
+
+
 def create_takedown_token(source_site: str, email: str) -> str:
     """7-day signed token emailed to a domain-verified requester. Confirming the
     link takes down all Roundup listings from `source_site`."""

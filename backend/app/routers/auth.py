@@ -13,8 +13,8 @@ from ..db import get_db
 from ..models import PasswordReset, User
 from ..schemas import Token, UserCreate, UserPrivate
 from ..security import (
-    create_access_token, get_current_user, hash_password,
-    user_id_from_unsubscribe, verify_password,
+    create_access_token, create_email_verify_token, get_current_user, hash_password,
+    user_id_from_email_verify, user_id_from_unsubscribe, verify_password,
 )
 from ..services import email as mail
 from ..services import ratelimit
@@ -204,6 +204,50 @@ def reset_password(token: str = Body(...), new_password: str = Body(..., min_len
     row.used = True
     db.commit()
     return {"ok": True, "message": "Password updated — you can sign in now."}
+
+
+@router.post("/send-verify")
+def send_verify(request: Request, user: User = Depends(get_current_user),
+                db: Session = Depends(get_db)):
+    """Email the signed-in user a link to confirm they control their address.
+    Verification gates domain-based features like claiming Roundup listings."""
+    if user.is_email_verified:
+        return {"ok": True, "message": "Your email is already verified."}
+    if not ratelimit.allow(f"send_verify:user:{user.id}", 3, 3600):
+        raise HTTPException(429, "Verification email already sent — check your inbox (and spam).")
+    token = create_email_verify_token(user.id)
+    host = request.headers.get("host", "api.wagyutank.com")
+    scheme = "http" if ("localhost" in host or "127.0.0.1" in host) else "https"
+    link = f"{scheme}://{host}/api/auth/verify-email?token={token}"
+    html = (f"<div style='font-family:sans-serif;max-width:520px;margin:0 auto;line-height:1.6'>"
+            f"<h2 style='color:#8a6d2b'>Verify your WagyuTank email</h2>"
+            f"<p>Click below to confirm you own <strong>{user.email}</strong>. This unlocks "
+            f"features tied to your email's domain, like importing your existing listings.</p>"
+            f"<p style='margin:24px 0'><a href='{link}' style='background:#8a6d2b;color:#fff;"
+            f"padding:12px 22px;border-radius:6px;text-decoration:none'>Verify my email</a></p>"
+            f"<p style='color:#888;font-size:13px'>This link expires in 7 days. If you didn't "
+            f"request it, you can ignore this email.</p></div>")
+    ok = mail.send(user.email, "Verify your WagyuTank email", html)
+    return {"ok": bool(ok), "message": f"Verification link sent to {user.email}."
+            if ok else "Couldn't send the email right now — please try again later."}
+
+
+@router.get("/verify-email", response_class=HTMLResponse)
+def verify_email(token: str, db: Session = Depends(get_db)):
+    """One-click email confirmation from the emailed link."""
+    uid = user_id_from_email_verify(token)
+    user = db.get(User, uid) if uid else None
+    if user and not user.is_email_verified:
+        user.is_email_verified = True
+        db.commit()
+    msg = (f"Your email <strong>{user.email}</strong> is verified — you're all set. "
+           f"Head back to your <a href='https://www.wagyutank.com/dashboard' "
+           f"style='color:#8a6d2b'>dashboard</a>."
+           if user else "This verification link is invalid or has expired.")
+    return HTMLResponse(
+        f"<div style='font-family:sans-serif;max-width:480px;margin:60px auto;text-align:center'>"
+        f"<h2 style='color:#8a6d2b'>WagyuTank</h2><p>{msg}</p></div>",
+        status_code=200 if user else 400)
 
 
 @router.get("/unsubscribe", response_class=HTMLResponse)
