@@ -66,23 +66,39 @@ def send(to: str, subject: str, html: str, *, text: str | None = None,
     return False
 
 
+def _brand_bits() -> tuple[str, str, str, str]:
+    """(name, gold, footerBlurb, breed) from the tank's brand — so every clone's
+    emails carry its own name/colors/breed instead of hardcoded WagyuTank."""
+    try:
+        b = tank.brand()
+        name = (b.get("name") or "WagyuTank").strip()
+        gold = ((b.get("colors") or {}).get("gold") or "#8a6d2b").strip()
+        footer = (b.get("footerBlurb") or b.get("tagline") or "the world's genetics marketplace").strip()
+        breed = (b.get("breed") or "livestock").strip()
+        return name, gold, footer, breed
+    except Exception:
+        return "WagyuTank", "#8a6d2b", "the world's marketplace for frozen Wagyu genetics", "Wagyu"
+
+
 def _shell(body_html: str) -> str:
+    name, gold, footer, _ = _brand_bits()
     return f"""<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#1a1a1a">
-      <div style="font-size:1.4rem;font-weight:800;color:#8a6d2b;padding:8px 0">WagyuTank</div>
-      <div style="border-top:2px solid #d9a441;padding-top:16px;font-size:15px;line-height:1.6">{body_html}</div>
-      <p style="color:#999;font-size:12px;margin-top:28px">WagyuTank — the world's marketplace for frozen Wagyu genetics.<br>
+      <div style="font-size:1.4rem;font-weight:800;color:{gold};padding:8px 0">{name}</div>
+      <div style="border-top:2px solid {gold};padding-top:16px;font-size:15px;line-height:1.6">{body_html}</div>
+      <p style="color:#999;font-size:12px;margin-top:28px">{name} — {footer}.<br>
       If you didn't expect this email, you can ignore it.</p></div>"""
 
 
 def send_password_reset(to: str, reset_url: str) -> bool:
+    name, gold, _, _ = _brand_bits()
     html = _shell(
-        f"<p>We received a request to reset your WagyuTank password.</p>"
-        f"<p><a href='{reset_url}' style='background:#d9a441;color:#1a1a1a;padding:11px 20px;"
+        f"<p>We received a request to reset your {name} password.</p>"
+        f"<p><a href='{reset_url}' style='background:{gold};color:#1a1a1a;padding:11px 20px;"
         f"border-radius:8px;text-decoration:none;font-weight:700;display:inline-block'>Reset my password</a></p>"
         f"<p style='color:#666;font-size:13px'>This link expires in 45 minutes and can be used once. "
         f"If you didn't ask to reset your password, nothing has changed.</p>")
-    return send(to, "Reset your WagyuTank password", html,
-                text=f"Reset your WagyuTank password: {reset_url} (expires in 45 minutes)")
+    return send(to, f"Reset your {name} password", html,
+                text=f"Reset your {name} password: {reset_url} (expires in 45 minutes)")
 
 
 def send_bulk(messages: list[dict]) -> int:
@@ -123,9 +139,10 @@ def campaign_html(body_html: str, unsubscribe_url: str) -> str:
 
 
 def send_welcome(to: str, name: str) -> bool:
+    brand_name, gold, _, breed = _brand_bits()
     html = _shell(
-        f"<p>Welcome to WagyuTank, {name}!</p>"
-        f"<p>You can list semen, embryos, and cloning rights in under a minute, browse genetics "
-        f"from around the world, and dig into the deepest Wagyu breed history anywhere.</p>"
-        f"<p><a href='{settings.app_base_url}/sell' style='color:#8a6d2b;font-weight:700'>List your first genetics →</a></p>")
-    return send(to, "Welcome to WagyuTank", html)
+        f"<p>Welcome to {brand_name}, {name}!</p>"
+        f"<p>You can list genetics in under a minute, browse offerings from around the world, "
+        f"and dig into the deepest {breed} breed history anywhere.</p>"
+        f"<p><a href='{settings.app_base_url}/sell' style='color:{gold};font-weight:700'>List your first genetics →</a></p>")
+    return send(to, f"Welcome to {brand_name}", html)
