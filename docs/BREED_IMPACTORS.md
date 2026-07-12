@@ -1,6 +1,16 @@
 # WagyuTank — Breed Impactors, the Impact Ranking & the Hall of Fame
 ### Vision & build plan · crystallized 2026-07-12
 
+> **STATUS — ON HOLD (2026-07-12).** The whole branch gates on one thing: a
+> *trustworthy* data source. The registries that hold real progeny counts are closed
+> to crawlers (Helical + ABRI); the only open source is editorial (Wagyu
+> International); and self-reported numbers can't be trusted at scale — a breeder can
+> claim "500 progeny in Chile" and nobody can verify it, so proof-required submission
+> stops obvious lies but doesn't make a *credible* ranking. **Do not build §16 yet.**
+> Reopen when a concrete source lands: (a) an AWA/Helical public-data partnership, or
+> (b) a Steve Bennett / Wagyu International collaboration. Outreach drafts are in
+> `docs/outreach/` (NOT sent). Everything below is preserved and ready to resume.
+
 > This is a canonical vision doc. It is deliberately verbose so the whole idea
 > survives even if we don't build it for months. Names here are the agreed names.
 
