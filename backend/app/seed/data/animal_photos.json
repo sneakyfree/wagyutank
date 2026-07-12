@@ -10,5 +10,13 @@
  "TF151": "/foundation/TF151.jpg",
  "FB4697": "/foundation/FB4697.jpg",
  "FB2892": "/foundation/FB2892.jpg",
- "FB103": "/foundation/FB103.jpg"
+ "FB103": "/foundation/FB103.jpg",
+ "FB104": "/foundation/FB104.jpg",
+ "EAF97014": "/foundation/EAF97014.jpg",
+ "AF6808": {
+  "primary": "/foundation/AF6808.jpg",
+  "gallery": [
+   {"src": "/foundation/AF6808-reeves.jpg", "caption": "Rare alternate photograph — from the wall of Washington-state Wagyu breeder Mr. Reeves"}
+  ]
+ }
 }

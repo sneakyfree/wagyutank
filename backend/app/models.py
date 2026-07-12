@@ -233,6 +233,12 @@ class Animal(Base):
         s = re.sub(r"[^a-z0-9]+", "-", (self.name or "").lower()).strip("-")
         return s or f"animal-{self.id}"
 
+    @property
+    def public_photos(self) -> "list[AnimalPhoto]":
+        """Gallery photos safe to display — approved curation or a seller's own
+        upload. Candidate (harvested, unlicensed) photos are never surfaced."""
+        return [p for p in self.photos if p.status in ("approved", "seller_upload")]
+
 
 class AnimalPhoto(Base):
     """Photo candidate index (Content Engine §10) — harvested photos are NEVER

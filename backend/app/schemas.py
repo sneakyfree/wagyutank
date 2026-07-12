@@ -89,6 +89,13 @@ class FacilityCreate(BaseModel):
 
 
 # ---- Animal (canonical) ----
+class PhotoOut(BaseModel):
+    """An additional (gallery) photo of an animal beyond its primary photo_url."""
+    model_config = ConfigDict(from_attributes=True)
+    url: str
+    attribution: str | None = None
+
+
 class AnimalOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -116,6 +123,9 @@ class AnimalOut(BaseModel):
     photo_note: str | None = None
     au_progeny: int | None
     photo_url: str | None
+    # Gallery — extra photographs (e.g. rare alternate angles). Read from the
+    # model's `public_photos` property so only approved/uploaded photos surface.
+    photos: list[PhotoOut] = Field(default_factory=list, validation_alias="public_photos")
     source: str
 
 
