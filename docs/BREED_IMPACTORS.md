@@ -328,3 +328,81 @@ Net: launch the medal/Hall-of-Fame/certificate system as a **submission-first**
 product (seeded with foundation + notable animals), and pursue partnership for the
 full dataset. It starts smaller than "the whole breed on day one," but it's clean,
 legal, and grows the way the Atlas grows.
+
+## 16. Build spec — the verified-submission medal & certificate flow (buildable NOW, no data source required)
+
+This is the part we can build regardless of what any registry or partner says. It
+turns the medal/ranking/Hall-of-Fame/certificate vision into a submission-and-
+verification product.
+
+### 16.1 Entry points
+- On every animal page (`/animal/[reg]`): *"Own this animal? Claim it and submit its
+  registered-progeny record →"* (ties to the existing claim-your-profile + verified-
+  email system).
+- A dedicated **`/submit-impactor`** page.
+- On the Impact Ranking / Hall of Fame pages: *"Don't see your bull? Submit it."*
+
+### 16.2 Submission form (breeder supplies)
+- Animal registration number + name (auto-filled from our registry if known).
+- Registry + country/continent (which association).
+- Registered progeny count (and animal sex → sire vs dam thresholds).
+- **Proof (required, one of):** screenshot of the breeder's own registry account
+  showing the progeny count/list; a public registry link (e.g. an AU Helical public
+  animal URL); or the registry's progeny-report PDF.
+- Optional extras: EPD/EBV data, birth year, sire/dam, photo.
+- Submitter must be an authenticated, email-verified user (ideally the claimed owner).
+
+### 16.3 Verification (anti-gaming — medals ONLY on verified records)
+- **Admin review** in the dashboard: a moderator checks the proof, approves/rejects.
+- **Public-link check:** if a public registry URL is given, a *single human-triggered*
+  fetch to confirm the number is acceptable (one-off verification of a user's own
+  claim ≠ bulk crawling — respect this distinction; never enumerate).
+- Full audit trail: who submitted, what proof, who verified, when.
+- Disputes: any user can flag a record; flagged records go back to review.
+
+### 16.4 Medal + honor computation
+- On approval, compute the **per-continent medal** from the verified count against the
+  tank's tier thresholds (§4).
+- **Combination Honors** (Double/Triple Platinum, etc.) = derived across an animal's
+  verified continental medals.
+- Everything carries an **`as_of` date** (progeny grows; medals are dated snapshots).
+
+### 16.5 Certificate generation
+- On a new tier, auto-generate a high-res **digital E-certificate (PDF)** — WagyuTank
+  seal, animal name + reg, continent(s), tier(s), verified progeny count, date.
+- Email to the verified owner; render public medal badges on the animal page.
+- Generated on our side (WeasyPrint/HTML→PDF), **zero cost**.
+- Later: **paid physical** gold-leaf version (~$10, print-on-demand, on order only).
+
+### 16.6 Data model (backend)
+- New table **`ImpactRecord`**: `animal_id`, `registry`, `continent`, `progeny_count`,
+  `as_of`, `tier`, `proof_url` / `proof_file`, `submitted_by`, `status`
+  (pending / verified / rejected), `verified_by`, `verified_at`, `notes`.
+- An animal's medal row = aggregate of its **verified** ImpactRecords (mirrors the
+  `public_photos` pattern — only verified records surface).
+- Reuse the existing `Animal` rows + `bred_outside_japan` origin dimension.
+
+### 16.7 Pages
+- **`/impactors`** — the Impact Ranking leaderboard (sortable by continent / bloodline
+  / tier / modern-only). Seeded with foundation + notable animals, grown by submissions.
+- **`/hall-of-fame`** — the curated elite (multi-continental platinum + top ranks).
+- Medal badges + "Pedigree Pride" panel on **`/animal/[reg]`**.
+- **`/submit-impactor`** — the submission form.
+
+### 16.8 Seeding (day-one content so it's not empty)
+- Pre-load the **foundation animals' known progeny** (we already hold `au_progeny`) as
+  the initial ranking + medals.
+- Enrich **notable modern sires** from Wagyu International (respectfully) where numbers
+  exist in the narrative — a curated starter set of well-known names.
+
+### 16.9 Template integration
+- Feature flag **`breed_impactors`** (on for breeds with registries; off otherwise).
+- Per-tank `tank.json`: tier thresholds (sire/dam per metal), `registries` list,
+  certificate seal/template. Engine + medal logic are breed-agnostic; only config changes.
+
+### 16.10 Build order
+1. `ImpactRecord` model + admin review + medal computation (backend).
+2. Seed foundation/notable → `/impactors` ranking + medal badges on animal pages.
+3. `/submit-impactor` form + verified-owner submission + certificate generator.
+4. `/hall-of-fame` + Pedigree Pride panel.
+5. Templatize + wire per-tank config.
