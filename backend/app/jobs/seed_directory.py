@@ -16,7 +16,9 @@ from ..db import Base, SessionLocal, engine
 from ..models import DirectorySeller
 from ..services.aggregator import _REGION_BY_COUNTRY
 
-SEEDS = Path(__file__).resolve().parent.parent / "seed" / "data" / "roundup_seeds.json"
+from .. import tank as _tank
+def _seeds_path():
+    return _tank.seed_path("roundup_seeds.json")
 
 # General livestock/classifieds PLATFORMS in the crawl seed list — useful crawl
 # targets, but they're not Wagyu operations, so they don't belong on the Atlas.
@@ -37,7 +39,7 @@ def _registrable(host: str) -> str:
 
 def main():
     Base.metadata.create_all(bind=engine)
-    seeds = json.loads(SEEDS.read_text())
+    seeds = json.loads(_seeds_path().read_text())
     db = SessionLocal()
     added = updated = 0
     seen: set[str] = set()   # the seed list holds multiple URLs per host
