@@ -18,5 +18,12 @@
   "gallery": [
    {"src": "/foundation/AF6808-reeves.jpg", "caption": "Rare alternate photograph — from the wall of Washington-state Wagyu breeder Mr. Reeves"}
   ]
+ },
+ "FB16684": {
+  "primary": "/foundation/FB16684.jpg",
+  "gallery": [
+   {"src": "/foundation/FB16684-2.jpg", "caption": "TAJIMAX on pasture — Whitmer Cattle Co."},
+   {"src": "/foundation/FB16684-3.jpg", "caption": "TAJIMAX working cows at collection"}
+  ]
  }
 }
