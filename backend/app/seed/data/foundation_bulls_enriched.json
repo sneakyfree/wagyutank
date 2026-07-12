@@ -930,6 +930,7 @@
  {
   "registration_no": "FB2501",
   "name": "World K's Sanjirou",
+  "bred_outside_japan": true,
   "aliases": [
    "Sanjirou",
    "JVP Sanjirou",
@@ -957,6 +958,7 @@
  {
   "registration_no": "FB2907",
   "name": "World K's Shigeshigetani",
+  "bred_outside_japan": true,
   "aliases": [
    "Shigeshigetani",
    "WK's Shigeshigetani 1593",
@@ -983,6 +985,7 @@
  {
   "registration_no": "FB2289",
   "name": "World K's Beijirou",
+  "bred_outside_japan": true,
   "aliases": [
    "Beijirou",
    "World K's Beijiro"
@@ -1008,6 +1011,7 @@
  {
   "registration_no": "FB5200",
   "name": "Genjiro",
+  "bred_outside_japan": true,
   "aliases": [
    "Genjirou",
    "World K's Genjiro"

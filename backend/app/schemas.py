@@ -123,6 +123,7 @@ class AnimalOut(BaseModel):
     photo_note: str | None = None
     au_progeny: int | None
     photo_url: str | None
+    bred_outside_japan: bool = False
     # Gallery — extra photographs (e.g. rare alternate angles). Read from the
     # model's `public_photos` property so only approved/uploaded photos surface.
     photos: list[PhotoOut] = Field(default_factory=list, validation_alias="public_photos")

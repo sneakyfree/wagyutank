@@ -20,6 +20,7 @@ _NEW_COLUMNS = {
     "bio": "TEXT",
     "marbling_note": "TEXT",
     "photo_note": "VARCHAR(300)",
+    "bred_outside_japan": "BOOLEAN DEFAULT 0",
 }
 
 
@@ -82,6 +83,7 @@ def main():
                 au_progeny=b.get("au_progeny"),
                 photo_url=photos[0] if photos else None,
                 photo_note=b.get("photo_note") or None,
+                bred_outside_japan=bool(b.get("bred_outside_japan")),
                 source=AnimalSource.FOUNDATION,
                 confidence=b.get("confidence"),
             ))

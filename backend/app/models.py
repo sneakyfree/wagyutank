@@ -212,6 +212,10 @@ class Animal(Base):
     ebv_data: Mapped[dict | None] = mapped_column(JSON)            # AU EBVs
 
     photo_url: Mapped[str | None] = mapped_column(String(500))
+    # True for foundation sires bred OUTSIDE Japan from imported parents (e.g. the
+    # World K's / Haruki 2 sons) — vs the original Japan imports. Drives the
+    # foundation page's "bred outside Japan" grouping.
+    bred_outside_japan: Mapped[bool] = mapped_column(Boolean, default=False)
     source: Mapped[AnimalSource] = mapped_column(_enum(AnimalSource), default=AnimalSource.SELLER)
     confidence: Mapped[str | None] = mapped_column(String(12))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
