@@ -13,7 +13,14 @@
  *        [--per-site 8] [--concurrency 4] [--max-pages 600]
  */
 const fs = require("fs");
-const { chromium } = require("/home/grantwhitmer/Desktop/Grant's Folder/windy-pro/node_modules/playwright");
+// Resolve Playwright portably so the crawler runs on ANY node (Veron, Windy 0, VPS):
+// PLAYWRIGHT_PATH env → local `playwright` (npm i playwright) → Windy 0 legacy path.
+const { chromium } = (() => {
+  const tries = [process.env.PLAYWRIGHT_PATH, "playwright",
+    "/home/grantwhitmer/Desktop/Grant's Folder/windy-pro/node_modules/playwright"].filter(Boolean);
+  for (const p of tries) { try { return require(p); } catch (_) {} }
+  throw new Error("Playwright not found — set PLAYWRIGHT_PATH or `npm i playwright` in backend/");
+})();
 
 function arg(name, def) {
   const i = process.argv.indexOf(`--${name}`);
