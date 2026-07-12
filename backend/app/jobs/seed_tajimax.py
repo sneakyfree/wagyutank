@@ -2,8 +2,8 @@
 listing on WagyuTank: a seller account (Whitmer Cattle Co. / WagyuRanch.com), the
 canonical Animal profile (pedigree + bio + marbling), and one live semen Listing.
 
-Sources: Grant's 2019 WagyuRanch.com Semen Catalog + the recovered wagyuranch.com
-site + his current Great Lakes Sire Service sales. Idempotent — safe to re-run.
+Copy is Grant's own 2026 Spring Semen Offering writeup + the recovered
+WagyuRanch.com catalog. Idempotent — safe to re-run.
 
   TANK=wagyu python -m app.jobs.seed_tajimax
 """
@@ -19,6 +19,35 @@ SELLER_HANDLE = "wagyuranch"
 SELLER_PASSWORD = "WagyuRanch2012!"   # Grant can reset from the account page
 
 REG = "FB16684"
+VIDEO = "https://www.youtube.com/embed/oDRh--vpJHY"   # TAJIMAX on cows
+
+BIO = """I've spent months of my life riding through the largest fullblood herds on three continents, and to this day I've never seen a frame-score-9 bull at 2,400 lb on cows like TAJIMAX. He stands 64" at the hip with a freakish, plane-straight backline you can't believe until you see it in person — after a lifetime of looking over buffalo-backed high Tajimas. In the video on his page those are 1,200 lb mature cows with calves, and TAJ makes them look like yearlings.
+
+What makes him mind-blowing is that he is OVER 60% Tajima. Historically, increasing marbling and growth was a mutually exclusive decision — you could only gain one at the expense of the other. TAJIMAX is that rare caliber of freak bull that lets you spike frame, Tajima, milk and marbling in your fullblood calf crop all in one shot. We fed out and froze many a TAJIMAX steer over the years, and TAJ ribeyes are as beautiful as any Michifuku or Sanjirou you will ever see — only with an extra 200–400 lb of red meat hanging on the hook.
+
+He follows a legendary line. Z278 outperformed his sire 001 in nearly every statistical category, and TAJIMAX has continued the tradition by outperforming his reference sire Z278 — highlighted by a staggering 111 yearling weight ratio — and has now become a reference sire himself, with more registered progeny than his famous daddy Z278.
+
+I spent hours riding around with the great Bruce Hemmingsen, who personally picked the original Wagyu cattle in Japan, got them through quarantine, rode over on the plane next to MICHIFUKU and 068, and maintained the largest fullblood herd in the world outside Japan for years. Having sent tens of thousands of feeders to the slaughterhouse, he told me the "flat bone" and feed efficiency of the Tajimas was mind-blowing — their yield coefficient often 5–7% higher than the rounder-boned Shimanes, Kedakas and continental breeds, and they eat a lot less per pound gained. As feed-efficiency selection becomes more common, he said, high-Tajima blood will be sought after more and more. TAJIMAX has that flat Tajima bone with a straight topline that just doesn't add up.
+
+We calved out hundreds of TAJIMAX calves over the years and never had to pull a calf — even the year he bred half a dozen 8–9 month heifers that were left in a little too late; every one calved out under 800 lb with no issues whatsoever. After all these years I would breed TAJIMAX to any set of heifers, any breed, and sleep like a baby with zero dystocia anxiety.
+
+TAJIMAX was registered before herd brands were required, so anyone can use him in their program and not be advertising for someone else — he is listed in the herd book simply as "TAJIMAX," with no herd brand in front of his name. TAJIMAX is his own adjective."""
+
+LISTING_DESC = """2026 TAJIMAX Seedstock Spring Semen Offering — 1,901 straws, collected and stored at Great Lakes Sire Service in Bronson, MI.
+
+TAJIMAX (FB16684) is the new-age reference sire: a frame-score-9, 2,400 lb, OVER 60% Tajima freak with a 111 yearling weight ratio and a straight, show-Angus topline — the rare bull that spikes frame, Tajima, milk and marbling all in one shot, without trading marbling for growth. He now has more registered progeny than his reference sire Z278. Buying TAJIMAX right now is like buying 001 straws in the late '90s or Z278 straws in the 2010's — only TAJIMAX outperforms them both.
+
+He's been heavily used in the dairy industry; now that we've realized how few straws are left, we want as much of it as possible in the hands of seedstock programs so this abominable freak's genetics can influence the breed for decades. Zero dystocia — we calved out hundreds and never pulled one.
+
+Volume pricing (per straw):
+• 1–10: $17   • 11–20: $16   • 21–50: $15   • 51–100: $14   • 101–200: $13
+• 201–300: $12   • 301–500: $11   • 501–1,000: $10   • 1,001+: $8.50
+
+If someone wants to be the evil dark lord of the TAJIMAX franchise, one call and $8.50 a straw buys it all.
+
+To order: PayPal/Venmo @GrantWhitmer · CashApp $TheWindstorm · Cell 801-259-9358. Text how much you sent, where you sent it, and your email, and I'll cc you the semen-release email to Great Lakes.
+
+— Grant"""
 
 ANIMAL = dict(
     registration_no=REG,
@@ -26,8 +55,8 @@ ANIMAL = dict(
     animal_type=AnimalType.BULL,
     breed="Fullblood Black",
     bloodline="Tajima",
-    bloodline_detail="≥62.5% Tajima · Westholme Hirashigetayasu Z278 × GAW Sanshiga",
-    blood_percentage="100% Fullblood (≥62.5% Tajima)",
+    bloodline_detail=">60% Tajima · Westholme Hirashigetayasu Z278 × GAW Sanshiga",
+    blood_percentage="100% Fullblood (>60% Tajima)",
     birth_year=2012,
     sire_reg="FB8376",
     sire_name="Westholme Hirashigetayasu Z278",
@@ -35,64 +64,39 @@ ANIMAL = dict(
     registry="AWA",
     is_foundation=False,
     source=AnimalSource.SELLER,
-    notable=("Whitmer Cattle Co.'s flagship high-Tajima herd sire — very possibly the "
-             "largest-framed fullblood Wagyu bred outside Japan."),
-    marbling_note=("SCD AA-6 · Carrier Free · Frame Score 9 · 2,200+ lb · ≥62.5% Tajima. "
-                   "Tested by breeders against the original import bulls, he is repeatedly "
-                   "called the largest-framed high-Tajima fullblood they have ever seen."),
-    bio=(
-        "TAJIMAX (FB16684) is the bull WagyuRanch.com was built around — a true freak of "
-        "nature weighing 2,000+ lb before turning three and 2,200+ lb greyhound-lean off "
-        "cows at four. He is a 100% fullblood and at least 62.5% Tajima, and may be the "
-        "largest-framed high-Tajima bull in the world outside Japan.\n\n"
-        "The ancient Wagyu quest has always been to add frame and growth without losing "
-        "Tajima percentage. Tajimax is the answer: he lets a breeder inject extreme frame, "
-        "growth and high-marbling Tajima blood in a single straw and skip years of slowly "
-        "grinding growth up in a high-Tajima herd. His calves are standouts from day one "
-        "and mature into the biggest, thickest steers in the feedlot, and he has been used "
-        "heavily in fullblood and commercial herds worldwide.\n\n"
-        "Sire: Westholme Hirashigetayasu Z278 (FB8376), of the Hirashigekatsu line that "
-        "reshaped growth in Japan. Dam: GAW Sanshiga. Despite hundreds of calves out of "
-        "fullblood and commercial cows worldwide, we have never heard of a calving-ease "
-        "problem attributed to Tajimax — a couple of 700 lb fullblood heifers even bred "
-        "back accidentally before 10 months of age and dropped healthy DNA-confirmed "
-        "Tajimax calves with no issues.\n\n"
-        "Tired of the fugly black-jersey look in your fullblood herd? Tajimax is the antidote."
-    ),
+    notable=("The new-age reference sire — a frame-score-9, 2,400 lb, >60% Tajima freak "
+             "with a 111 yearling weight ratio and a straight backline you won't believe "
+             "until you see it."),
+    marbling_note=("Frame score 9 · 2,400 lb on cows · 64\" at the hip · >60% Tajima · SCD AA-6, "
+                   "carrier free. 111 yearling weight ratio — outperforms his reference sire Z278 "
+                   "in nearly every category and now has more registered progeny than Z278. The "
+                   "flat Tajima bone gives a 5–7% higher yield coefficient and superior feed "
+                   "efficiency (per Bruce Hemmingsen). TAJ ribeyes rival any Michifuku or Sanjirou "
+                   "with 200–400 lb more red meat on the hook."),
+    bio=BIO,
     photo_url="/foundation/FB16684.jpg",
-    photo_note="TAJIMAX at 4 years, 2,200+ lb — Whitmer Cattle Co. / WagyuRanch.com",
+    photo_note="TAJIMAX at 4 years, 2,400 lb on cows — Whitmer Cattle Co. / WagyuRanch.com",
 )
 
 LISTING = dict(
     product_type=ProductType.SEMEN,
-    title="Wagyu Semen — TAJIMAX (FB16684) · high-Tajima, carrier-free",
+    title="Wagyu Semen — TAJIMAX (FB16684): 2,400 lb, >60% Tajima reference sire",
     animal_reg=REG,
     semen_type=SemenType.CONVENTIONAL,
     straws_per_unit=1,
-    unit_price=15.0,
+    unit_price=17.0,
     currency="USD",
     sale_type=SaleType.FIXED,
-    quantity_available=100,
-    quantity_visibility=QuantityVisibility.IN_STOCK_ONLY,
+    quantity_available=1901,
+    quantity_visibility=QuantityVisibility.EXACT,
     css_status="css",
     export_eligibility=["AUS"],
     who_pays_shipping=WhoPaysShipping.BUYER,
     facility_handles_shipping=True,
     photo_url="/foundation/FB16684.jpg",
+    video_embed_url=VIDEO,
     status=ListingStatus.ACTIVE,
-    description=(
-        "TAJIMAX (FB16684) — Whitmer Cattle Co.'s flagship herd sire and the bull "
-        "WagyuRanch.com was built around. 100% fullblood, at least 62.5% Tajima, "
-        "SCD AA-6 carrier-free, frame score 9, and 2,200+ lb — very possibly the "
-        "largest-framed high-Tajima fullblood bred outside Japan.\n\n"
-        "Tajimax injects extreme frame, growth and high-marbling Tajima blood in a "
-        "single straw without sacrificing Tajima percentage. His calves are standouts "
-        "from day one and mature into the biggest, thickest steers in the feedlot, with "
-        "no reported calving-ease issues across hundreds of fullblood and commercial calves.\n\n"
-        "Sire: Westholme Hirashigetayasu Z278 (FB8376) · Dam: GAW Sanshiga.\n\n"
-        "Conventional semen, currently collected and stored at Great Lakes Sire Service. "
-        "CSS conventional exportable available on request. Message for volume pricing."
-    ),
+    description=LISTING_DESC,
 )
 
 
@@ -110,7 +114,6 @@ def _get_or_create_seller(db) -> User:
             country="US",
         )
         db.add(u)
-    # Make/keep it a real seller storefront (idempotent field fills)
     if not u.stripe_account_id:
         u.stripe_account_id = "acct_dev_grant"
     if not u.handle:
@@ -156,7 +159,8 @@ def main():
         listing = _upsert_listing(db, seller)
         print(f"Seller @{seller.handle} (id={seller.id}, seller={seller.is_seller})")
         print(f"Animal {animal.registration_no} '{animal.name}' (id={animal.id})")
-        print(f"Listing #{listing.id} — {listing.title} @ ${listing.unit_price}/straw [{listing.status.value}]")
+        print(f"Listing #{listing.id} — {listing.title} @ ${listing.unit_price}/straw "
+              f"[{listing.status.value}] video={'yes' if listing.video_embed_url else 'no'}")
         print("Now run:  python -m app.jobs.apply_photos   (sets primary + gallery)")
     finally:
         db.close()
