@@ -7,8 +7,28 @@ import logging
 import httpx
 
 from ..config import settings
+from .. import tank
 
 log = logging.getLogger("wagyutank.email")
+
+
+def _mail_from() -> str:
+    """The From address. An explicit MAIL_FROM env wins (e.g. a tank whose own
+    domain isn't a verified Resend sender yet); otherwise derive it from the tank's
+    brand as "Name <office@its-domain>", so every clone sends from its own real,
+    replyable address instead of a noreply@. Never returns a noreply@ default."""
+    override = (settings.mail_from or "").strip()
+    if override:
+        return override
+    try:
+        b = tank.brand()
+        addr = (b.get("contactEmail") or "").strip()
+        name = (b.get("name") or "").strip()
+        if addr:
+            return f"{name} <{addr}>" if name else addr
+    except Exception:
+        pass
+    return "WagyuTank <office@wagyutank.com>"
 
 
 def _api_key() -> str:
@@ -30,7 +50,7 @@ def send(to: str, subject: str, html: str, *, text: str | None = None,
     if not key:
         log.warning("EMAIL (no key — not sent) to=%s subject=%s", to, subject)
         return False
-    payload = {"from": settings.mail_from, "to": [to], "subject": subject, "html": html}
+    payload = {"from": _mail_from(), "to": [to], "subject": subject, "html": html}
     if text:
         payload["text"] = text
     if reply_to:
@@ -78,7 +98,7 @@ def send_bulk(messages: list[dict]) -> int:
         chunk = messages[i:i + 100]
         payload = []
         for m in chunk:
-            obj = {"from": settings.mail_from, "to": [m["to"]], "subject": m["subject"],
+            obj = {"from": _mail_from(), "to": [m["to"]], "subject": m["subject"],
                    "html": m["html"]}
             if m.get("unsubscribe_url"):
                 obj["headers"] = {"List-Unsubscribe": f"<{m['unsubscribe_url']}>",

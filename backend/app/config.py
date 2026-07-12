@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     # Email (Resend) — wagyutank.com is a verified sending domain.
     resend_api_key: str = ""
-    mail_from: str = "WagyuTank <noreply@wagyutank.com>"
+    mail_from: str = ""  # empty → derive office@<tank-domain> from tank.brand()
     app_base_url: str = "https://www.wagyutank.com"
 
     # ---- AI providers (swappable via AI_PROVIDER; template fallback if unconfigured) ----
