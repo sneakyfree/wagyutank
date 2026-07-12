@@ -1,0 +1,205 @@
+# WagyuTank — Breed Impactors, the Impact Ranking & the Hall of Fame
+### Vision & build plan · crystallized 2026-07-12
+
+> This is a canonical vision doc. It is deliberately verbose so the whole idea
+> survives even if we don't build it for months. Names here are the agreed names.
+
+---
+
+## 0. The one-sentence version
+
+Recreate the breed's **entire parentage graph** from publicly-available registry
+data, and off that single asset build a self-marketing scoreboard — continental
+medals, an all-time impact ranking, a Hall of Fame, and shareable certificates —
+that gives every breeder a number to chase and a reason to come to WagyuTank.
+
+## 1. The core insight — the asset is the *graph*, not the numbers
+
+Every registered fullblood/purebred Wagyu descends from ~26 foundation bulls and
+~180 foundation cows. Each animal's registry record links to its sire and dam, so
+the whole population is **one connected tree**. If a residential-IP browser walks
+that tree, we reconstruct the **complete parentage graph** on our own server.
+
+Once we own the graph, everything else falls out of it for free:
+
+- **Progeny counts** = count inbound sire/dam edges. No estimation.
+- **The all-time ranking** = sort by that count.
+- **Medals** = threshold that count, per registry.
+- **"Hall-of-Famers in this animal's pedigree"** = walk its ancestors and tally.
+- **Better everything-else:** instant pedigree auto-fill on listings, animal
+  verification, bloodline price indexes — all sharpen once the graph exists.
+
+No competitor has a WagyuTank-computed, continent-by-continent impact ranking
+built from cold registration data. That uniqueness is the "check out WagyuTank" hook.
+
+## 2. Two orthogonal dimensions (this resolves "Michifuku is a foundation bull AND a platinum")
+
+Every animal sits on **two independent axes**:
+
+- **Origin** — where it sits in history. *Fixed forever.*
+  `Foundation → Influential (bred outside Japan) → Modern`.
+- **Impact** — medals from registered progeny, *per continent*. *Grows over time.*
+
+Medals decorate **every** animal, foundation included. The **Breed Impactors**
+page is the leaderboard of *modern* (non-foundation) animals that earned medals —
+the aspirational arena — but the badges themselves also appear on foundation and
+influential animals. Michifuku: Foundation origin, global-platinum impact.
+
+## 3. The system — one name, five surfaces
+
+Pillar name: **Breed Impactors.** Core metric: **Impact Score** = registered progeny.
+
+1. **The Impact Ranking** — every animal, #1 to last, all-time. Sortable by
+   continent, bloodline, and modern-only. The cold-hard-numbers spine.
+2. **Continental Medals** — 🥉 Bronze / 🥈 Silver / 🥇 Gold / 💠 Platinum, awarded
+   **per registry**. An animal wears a row: 🇺🇸 Platinum · 🇦🇺 Platinum · 🇪🇺 Gold · 🇨🇳 Bronze.
+   *Per-continent is deliberate:* it means we never reconcile a global number —
+   each registry's own count becomes that continent's medal. The data limitation
+   becomes the design.
+3. **Combination Honors** — Double/Triple Platinum, Quad Gold, Double-Platinum-
+   Double-Gold, etc. These define the Hall-of-Fame strata. The first triple-
+   platinum bull is a title someone will chase (Asia/EU populations are young, so
+   triple-platinum probably doesn't exist yet — a land-grab).
+4. **The Hall of Fame** — the curated elite (top ranks + multi-continental
+   platinum). Auto-generated after Veron's first deep pass.
+5. **Pedigree Pride** — on any animal page: *"3 Hall-of-Famers and 5 Platinums in
+   this pedigree."* Every breeder checks their own herd. The retention loop.
+
+## 4. Tier thresholds — SET FROM DATA, not from vibes
+
+Bulls and cows need different physics: a bull can sire thousands; a cow produces
+~8–15 calves naturally (more via ET/IVF), so cow thresholds sit far lower.
+
+**Draft starting point (final numbers set after the scout sees the distribution):**
+
+| Tier | Sire (bull) progeny | Dam (cow) progeny |
+|------|--------------------:|------------------:|
+| 🥉 Bronze   | 10  | 5  |
+| 🥈 Silver   | 50  | 10 |
+| 🥇 Gold     | 100 | 20 |
+| 💠 Platinum | 500 *(TBD — see note)* | 30 |
+
+**Open calibration question:** "100 progeny" is Grant's emotional milestone and
+should always earn a certificate — but 100+ AU progeny is more common than it
+feels, so a flat "100 = platinum everywhere" would mint too many platinums in the
+mature Australian registry. Leaning: keep **Gold = 100** (the milestone + cert),
+push **Platinum higher (≈500)** so it stays elite; let the per-continent overlay
+carry the prestige. The scout's sample distribution decides the exact cutoffs.
+Thresholds are flat across registries for legibility (a young registry being
+"harder" tells a true breed-development story), and are per-tank configurable.
+
+## 5. Certificates — free digital first, physical as the upsell
+
+- **Digital E-certificate (free):** a beautiful, high-res, printable PDF —
+  *"WagyuTank congratulates [Bull] on achieving American Platinum + Australian
+  Gold — 250 registered progeny, verified [date]"* with the WagyuTank seal.
+  Auto-emailed to the **verified owner** (plugs into claim-your-profile +
+  verified-email, already built). They print/frame/post it → free marketing, zero cost.
+- **Physical gold-leaf laminated version ($10, later):** print-on-demand + mail;
+  costs nothing until ordered. Digital ships first; physical is a switch we flip.
+
+Why it's the flywheel: the medal makes them **proud**, claiming the certificate
+makes them a **user**, the paper copy makes them a **customer**.
+
+## 6. The data doctrine (legal / ethical — READ BEFORE CRAWLING)
+
+The registry search pages are publicly available. Our posture is **good-actor
+index, not leech**:
+
+- **Respect robots.txt and Terms of Service.** Check them before crawling at
+  scale. If a source disallows it, that continent's medals come from
+  verified-submission instead, and nothing else breaks.
+- **Rate-limit and crawl in the overnight window.** Politeness over speed.
+- **Store facts only** — reg number, name, sex, birth year, sire, dam, progeny,
+  EPDs, registry. Facts aren't copyrightable.
+- **Never re-serve their raw database dynamically.** We compute our **own**
+  analysis (rankings, charts, medals) from the facts — which anyone could produce
+  by hand and which every site does. We do **not** offer a live mirror of their
+  data for others to pull.
+- **Link every animal back** to its source registry record; credit the
+  associations as sources. We drive attention *to* the breed and *to* them.
+
+## 7. Capture EVERYTHING (don't pre-decide what's interesting)
+
+While Veron walks the tree, record the **entire** animal record, raw — we present
+later. At minimum, per animal: registration number, name, **sex**, **birth year**,
+sire (+reg), dam (+reg), **progeny list/count**, breed/bloodline, registry/country,
+**EPD/EBV data** (breeders love EPDs), owner/breeder if shown, colour, and any
+performance/carcass data on the page. Store the raw extracted record; curate the
+presentation afterward.
+
+This unlocks fascinating derived data, e.g.:
+- The **complete list of the original foundation cows** and each one's offspring
+  count (currently we only have ~180 as a number — we could name them all).
+- Same for every foundation bull.
+- Sex ratios, birth-year cohorts, line growth over time, EPD distributions —
+  endless charts and rankings, none of which require re-serving raw data.
+
+## 8. The engine
+
+- **Veron 1** (24-core i9 285K, 251 GB RAM, RTX 5090, residential fiber) runs the
+  crawl **nightly midnight–~7am** (idle window; residential IP that registries
+  don't block). Same Playwright→extract→VPS pipeline as the Roundup crawler.
+  We do **not** need Browserbase or any paid cloud browser — Veron is our browser
+  farm, free, and residential.
+- **VPS** stores the parentage graph + computes progeny, medals, rankings.
+- **WindyMind free lane** for any LLM extraction — no metered cost.
+- **Cadence:** progeny grows slowly, so a full refresh monthly/quarterly with
+  incremental top-ups. Recoverable: all crawler code lives in the git repo so it
+  survives any single machine dying.
+
+## 9. Sources (registries), by continent
+
+Start with the two richest, architect for all:
+
+- 🇺🇸 **American Wagyu Association** — `wagyu.org` → **Digital Beef** platform
+  (public animal search by name/reg; pedigree drill-back to foundations).
+- 🇦🇺 **Australian Wagyu Association** — BREEDPLAN / ABRI (rich, public).
+- 🇨🇦 Canada, 🇪🇺 UK/EU bodies, 🇯🇵 Japan (mostly closed), emerging 🇨🇳 Asia,
+  🇳🇿 NZ, 🇿🇦 South Africa, + assorted national mini-registries.
+
+## 10. Crawl architecture — the one fork the scout settles
+
+Depends on whether a Digital Beef animal page shows **progeny (descendants)** or
+only **ancestry (sire/dam)**:
+
+- **Progeny visible →** start at the 26 founders, walk *downward*; every animal is
+  reachable. Lighter.
+- **Ancestry only →** enumerate animals another way (registration-number sweep or
+  search), visit each once, record sire/dam, then compute progeny by **inverting**
+  the edges. Heavier (touch every animal) but this literally *recreates the entire
+  database*. Likely path.
+
+Either way the durable asset is the same: the full parentage graph on our VPS.
+
+## 11. Build plan — staged so nothing is a cliff
+
+1. **Scout (1 Veron night):** confirm Digital Beef public surface + robots.txt/ToS;
+   whether progeny is visible or must be reconstructed; the reg-number scheme for
+   enumeration; the full field set on an animal page. Pull a ~200-animal sample →
+   real progeny distribution → **set the tier numbers from data.**
+2. **Graph engine:** Veron nightly sweep → VPS parentage graph → compute progeny,
+   medals, rankings. AWA-US first, then Australia.
+3. **Surfaces:** Impact Ranking page → medal badges on every animal page → Hall of
+   Fame → "in your pedigree" pride.
+4. **Certificates:** E-cert generator + verified-owner claim hook.
+5. **Expand + templatize:** add Canada / UK-EU / Japan / mini-registries; per-tank
+   config so every clone inherits it.
+
+## 12. Template integration (all clones)
+
+- Feature flag `breed_impactors` (on for breeds with real registries; off for
+  niches without formal progeny records).
+- Per-tank in `tank.json`: tier thresholds (sire/dam per metal), `registries`
+  list ({continent, name, url, access: public|gated}), certificate seal/template.
+- The graph engine + medal logic are breed-agnostic; only config changes per tank.
+
+## 13. Naming glossary (agreed)
+
+- **Breed Impactors** — the pillar / the leaderboard page.
+- **Impact Score** — an animal's registered-progeny count (per continent + total).
+- **Impact Ranking** — the #1-to-last all-time list.
+- **Medals** — Bronze / Silver / Gold / Platinum, per continent.
+- **Combination Honors** — Double/Triple Platinum, Quad Gold, etc.
+- **Hall of Fame** — the curated elite subset.
+- **Pedigree Pride** — the "Hall-of-Famers in this pedigree" panel.
