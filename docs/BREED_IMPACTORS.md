@@ -203,3 +203,53 @@ Either way the durable asset is the same: the full parentage graph on our VPS.
 - **Combination Honors** — Double/Triple Platinum, Quad Gold, etc.
 - **Hall of Fame** — the curated elite subset.
 - **Pedigree Pride** — the "Hall-of-Famers in this pedigree" panel.
+
+---
+
+## 14. SCOUT FINDINGS (2026-07-12) — the sourcing landscape changed; DO NOT crawl the registries
+
+A Veron scout of the actual registry sites found the crawl-the-registries plan is
+**blocked at the platform level.** The key facts:
+
+- **AWA (USA) has migrated OFF Digital Beef.** `wagyu.digitalbeef.com` is now just
+  a contact placeholder ("Please contact the American Wagyu Association…").
+- **Both AWA (USA) and AWA-AU (Australia) now run on Helical** (`app.helicalco.com`).
+  A single SaaS platform now hosts both registries' data.
+- **Helical's robots.txt is `User-agent: * / Disallow: /`** — it forbids *all*
+  automated crawling of the entire platform, public paths included.
+- **USA** (`americanwagyu.helicalco.com`) is **login-gated** — every animal page
+  redirects to "Continue with Google / passkey / email."
+- **Australia** (`app.helicalco.com/public/au-wagyu/animals`) is **human-viewable
+  without login**, but still under the same `Disallow: /` robots policy.
+- The associations' *marketing* sites (`wagyu.org.au` robots = allow) are fine, but
+  the animal *data* lives on Helical.
+
+**Decision: we will not crawl Helical.** Respecting robots.txt and not breaching a
+members' login is both the ethical line and the way to stay off the hook legally
+(a core WagyuTank value). The "spider every registry and recreate the whole tree"
+acquisition model is off the table as long as the data lives behind Helical.
+
+### 14a. The pivot — legitimate data acquisition (vision UNCHANGED)
+
+The medals / Impact Ranking / Hall of Fame / Pedigree Pride / certificate system
+is **fully intact** — only the *data pipeline* changes, from bulk-crawl to:
+
+1. **Verified breeder submission (primary):** breeders add their own animals'
+   progeny/EPD data with proof (a public link or screenshot we verify). Pull, not
+   scrape. Legal, clean, self-marketing — the person *wants* their bull ranked.
+   This is the same "pull, don't push" model already chosen for the Atlas directory.
+2. **Association public reports** where robots allow — AWA-PTP progeny-test sire
+   results, trait-leader / sire-summary pages on the assoc's own site. Limited to
+   tested/notable sires, but legitimate and crawlable.
+3. **Independent public aggregators** (e.g. the Wagyu International encyclopedia,
+   robots-open) for foundation + notable animals — needs a closer scout to confirm
+   it's genuinely independent and not a Helical mirror.
+4. **Official route:** request a Helical/AWA **public-data API or partnership**.
+   They deliberately built a "public database" view, so a sanctioned integration is
+   plausible and is the *right* way to get comprehensive data.
+5. **On-demand single-animal verification** (human-triggered when a breeder submits
+   a claim) rather than bulk enumeration — far more defensible than mass-harvest.
+
+Net: build the whole medal/ranking/Hall-of-Fame/certificate system on a
+**seed + submit + partner** pipeline. Start the ranking from what breeders submit
+and what public reports list; let it grow the way the Atlas grows.
