@@ -7,36 +7,104 @@
     "species": "cattle",
     "breed": "Wagyu & Akaushi",
     "logoText": "WT",
-    "wordmark": ["WAGYU", "TANK"],
-    "colors": { "gold": "#8a6d2b" },
+    "wordmark": [
+      "WAGYU",
+      "TANK"
+    ],
+    "colors": {
+      "gold": "#d9a441",
+      "goldBright": "#f0bd57",
+      "goldSoft": "rgba(217,164,65,0.12)"
+    },
     "contactEmail": "office@wagyutank.com",
     "location": "Salt Lake City, Utah, USA",
-    "legal": "Salt Lake City, Utah, USA · a Utah company",
-    "titleLong": "WagyuTank — The Global Marketplace & Knowledge Hub for Wagyu Genetics",
+    "legal": "Salt Lake City, Utah, USA \u00b7 a Utah company",
+    "titleLong": "WagyuTank \u2014 The Global Marketplace & Knowledge Hub for Wagyu Genetics",
     "footerBlurb": "the world's marketplace for frozen Wagyu genetics",
-    "description": "Buy and sell frozen Wagyu genetics — semen, embryos, and cloning rights — and explore the world's deepest Wagyu breed history, a live genetics price index, translated global news, and market data. Free to list.",
-    "keywords": ["Wagyu", "Akaushi", "Wagyu semen", "Wagyu embryos", "Wagyu genetics", "fullblood Wagyu", "Tajima", "Michifuku", "Wagyu marketplace", "Wagyu bloodlines"]
+    "description": "Buy and sell frozen Wagyu genetics \u2014 semen, embryos, and cloning rights \u2014 and explore the world's deepest Wagyu breed history, a live genetics price index, translated global news, and market data. Free to list.",
+    "keywords": [
+      "Wagyu",
+      "Akaushi",
+      "Wagyu semen",
+      "Wagyu embryos",
+      "Wagyu genetics",
+      "fullblood Wagyu",
+      "Tajima",
+      "Michifuku",
+      "Wagyu marketplace",
+      "Wagyu bloodlines"
+    ]
   },
   "products": [
-    { "key": "semen",        "label": "Semen",          "unit": "straw",  "icon": "sperm",  "fresh_chilled": false },
-    { "key": "embryo",       "label": "Embryos",        "unit": "embryo", "icon": "morula", "fresh_chilled": false },
-    { "key": "clone_rights", "label": "Cloning Rights", "unit": "right",  "icon": "helix",  "fresh_chilled": false }
+    {
+      "key": "semen",
+      "label": "Semen",
+      "unit": "straw",
+      "icon": "sperm",
+      "fresh_chilled": false
+    },
+    {
+      "key": "embryo",
+      "label": "Embryos",
+      "unit": "embryo",
+      "icon": "morula",
+      "fresh_chilled": false
+    },
+    {
+      "key": "clone_rights",
+      "label": "Cloning Rights",
+      "unit": "right",
+      "icon": "helix",
+      "fresh_chilled": false
+    }
   ],
   "features": {
-    "roundup": true, "directory": true, "help": true, "ads": true,
-    "foundation": true, "history": true, "news": true, "videos": true,
-    "price_index": true, "sale_reports": true, "catalog": true, "market_data": true,
-    "japan_hub": true, "zenkyo": true, "feeding": true, "great_sires": true
+    "roundup": true,
+    "directory": true,
+    "help": true,
+    "ads": true,
+    "foundation": true,
+    "history": true,
+    "news": true,
+    "videos": true,
+    "price_index": true,
+    "sale_reports": true,
+    "catalog": true,
+    "market_data": true,
+    "japan_hub": true,
+    "zenkyo": true,
+    "feeding": true,
+    "great_sires": true
   },
   "vocab": {
     "animal_singular": "sire",
     "animal_plural": "cattle",
-    "registry_names": ["American Wagyu Association", "American Akaushi Association"],
+    "registry_names": [
+      "American Wagyu Association",
+      "American Akaushi Association"
+    ],
     "export_program": "CSS",
-    "news_search_terms": ["Wagyu", "Akaushi", "Kobe beef"],
-    "video_search_terms": ["Wagyu cattle", "Wagyu bull", "Akaushi"],
+    "news_search_terms": [
+      "Wagyu",
+      "Akaushi",
+      "Kobe beef"
+    ],
+    "video_search_terms": [
+      "Wagyu cattle",
+      "Wagyu bull",
+      "Akaushi"
+    ],
     "help_nuance": "Use 'Akaushi' rather than 'Red Wagyu'. Wagyu = 'Japanese cattle' (an umbrella); Japanese Black and Akaushi are distinct breeds."
   },
-  "langs": ["en", "es", "pt", "de", "ja", "zh"],
-  "crawl": { "cron_offset_min": 0 }
+  "langs": [
+    "en",
+    "es",
+    "pt",
+    "de",
+    "ja",
+    "zh"
+  ],
+  "crawl": {
+    "cron_offset_min": 0
+  }
 }
