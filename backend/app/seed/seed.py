@@ -6,6 +6,7 @@ Idempotent — safe to run repeatedly.
 import json
 from pathlib import Path
 
+from .. import tank
 from ..db import Base, SessionLocal, engine
 from ..models import Animal, AnimalSource, AnimalType, Facility
 
@@ -20,7 +21,6 @@ def _animal_type(v: str) -> AnimalType:
 
 
 def seed_facilities(db) -> int:
-    from .. import tank
     rows = json.loads(tank.seed_path("facilities.json").read_text())
     added = 0
     for r in rows:
