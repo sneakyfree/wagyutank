@@ -17,6 +17,28 @@ UA = "WagyuTankBot/1.0 (+https://www.wagyutank.com/news; news aggregator)"
 # region, query, hl (ui lang), gl (country), lang (original content language).
 # English geo-feeds cost nothing (no translation); non-English are throttle-translated.
 # Regions: US=N.America SA=S.America EU=Europe AS=Asia JP=Japan AU=Oceania ME=MiddleEast AF=Africa
+def _feeds() -> list[dict]:
+    """WagyuTank uses its curated 38-feed set. Any other tank builds Google-News
+    feeds from its config's news_search_terms across the key cattle regions — so a
+    Murray Grey tank pulls Murray Grey news (heartland Australia first), and the
+    on-read translation makes those Australian stories readable worldwide."""
+    from .. import tank
+    if tank.key() == "wagyu":
+        return FEEDS
+    terms = tank.vocab().get("news_search_terms") or [tank.brand().get("breed", "cattle")]
+    q = " OR ".join(f'"{t}"' for t in terms)
+    regions = [("AU", "en-AU", "AU", "en"), ("US", "en-US", "US", "en"),
+               ("AU", "en-NZ", "NZ", "en"), ("EU", "en-GB", "GB", "en"),
+               ("US", "en-CA", "CA", "en")]
+    feeds, seen = [], set()
+    for region, hl, gl, lang in regions:
+        if gl in seen:
+            continue
+        seen.add(gl)
+        feeds.append({"region": region, "q": q, "hl": hl, "gl": gl, "lang": lang})
+    return feeds
+
+
 FEEDS = [
     # --- North America (English, free) ---
     {"region": "US", "q": "wagyu OR akaushi", "hl": "en-US", "gl": "US", "lang": "en"},
@@ -127,7 +149,7 @@ def _translate(title: str, lang: str) -> str | None:
     if gap > 0:
         _t.sleep(gap)
     try:
-        out = chat(f"You translate {src} news headlines about Wagyu/beef cattle into natural, "
+        out = chat(f"You translate {src} news headlines about beef cattle into natural, "
                    f"concise English. Return ONLY the English translation, no quotes, no notes.",
                    title, max_tokens=120)
     except Exception:
@@ -182,7 +204,9 @@ _OFFTOPIC = ("bieber", "super bowl", "halftime", "fifa", "world cup final",
 
 def _relevant(item: dict) -> bool:
     hay = f"{item.get('title','')} {item.get('original_title','') or ''} {item.get('summary','') or ''}".lower()
-    if not any(k in hay for k in _RELEVANT):
+    from .. import tank as _tk
+    breed_terms = tuple(t.lower() for t in (_tk.vocab().get("news_search_terms") or []))
+    if not any(k in hay for k in _RELEVANT) and not any(k in hay for k in breed_terms):
         return False
     if any(k in hay for k in _OFFTOPIC) and not any(
             k in hay for k in ("cattle", "beef cattle", "wagyu beef", "genetic", "semen", "embryo", "ranch", "herd")):
@@ -301,7 +325,7 @@ def run(db) -> dict:
     from . import health
     _TR_BUDGET[0] = 60  # reset per-run translation spike budget
     added = seen = 0
-    for f in FEEDS:
+    for f in _feeds():
         fa = 0
         for item in _fetch_feed(f):
             seen += 1
@@ -311,7 +335,9 @@ def run(db) -> dict:
                              f"Google News {f['gl']} ({f['lang']}) · {f['region']}", fa)
         db.commit()
         _t.sleep(2.5)  # pace to avoid Google News throttling the server IP
-    for bq in BING_QUERIES:
+    from .. import tank as _tk
+    _wagyu = _tk.key() == "wagyu"
+    for bq in (BING_QUERIES if _wagyu else []):
         ba = 0
         for item in _fetch_bing(bq):
             seen += 1
@@ -319,7 +345,7 @@ def run(db) -> dict:
                 added += 1; ba += 1
         health.record_source(db, f"news:bing:{bq['q'][:20]}", "engine", f"Bing News · {bq['q']}", ba)
         db.commit()
-    for gq in GDELT_QUERIES:
+    for gq in (GDELT_QUERIES if _wagyu else []):
         _t.sleep(6)  # GDELT: one request / 5s
         ga = 0
         for item in _fetch_gdelt(gq):
@@ -335,7 +361,7 @@ def run(db) -> dict:
         db.query(NewsArticle).filter(NewsArticle.id.in_(ids)).update(
             {NewsArticle.status: "archived"}, synchronize_session=False)
         db.commit()
-    return {"feeds": len(FEEDS), "seen": seen, "added": added}
+    return {"feeds": len(_feeds()), "seen": seen, "added": added}
 
 
 HIGHLIGHTS_SYS = (
