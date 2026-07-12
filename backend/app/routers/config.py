@@ -18,5 +18,6 @@ def get_config():
         "products": c.get("products", []),
         "features": c.get("features", {}),
         "vocab": c.get("vocab", {}),
+        "copy": c.get("copy", {}),
         "langs": c.get("langs", ["en"]),
     }
