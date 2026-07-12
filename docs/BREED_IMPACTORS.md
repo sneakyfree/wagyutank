@@ -253,3 +253,47 @@ is **fully intact** — only the *data pipeline* changes, from bulk-crawl to:
 Net: build the whole medal/ranking/Hall-of-Fame/certificate system on a
 **seed + submit + partner** pipeline. Start the ranking from what breeders submit
 and what public reports list; let it grow the way the Atlas grows.
+
+## 15. World registry inventory (scout 2026-07-12)
+
+The whole Western Wagyu world funnels its animal data through **two crawler-hostile
+platforms**, and there is exactly **one** genuinely open source.
+
+**The two walls:**
+- **Helical** (`app.helicalco.com`) — `Disallow: /`; USA login-gated, AU public-in-
+  browser but bot-403. Hosts USA + Australia (+ downstream: UK, Spain, Denmark,
+  Ireland, China all register via AWA).
+- **ABRI / BREEDPLAN** (`abri.une.edu.au`, `i4.abri.au`) — `Disallow: /`, actively
+  blocks ClaudeBot, 403s bots. Hosts NZ, South Africa, Namibia, legacy Australia.
+
+**The one open source:**
+- **Wagyu International — `wagyuinternational.co`** (NB: the `.international` TLD is
+  parked/dead). robots.txt fully open (`Disallow:` empty). Independent global Wagyu
+  encyclopedia run by **Steve Bennett (ex-AWA Executive Officer)** since 2013 — not
+  an association arm. Already organizes **sire/animal/bloodline pages by country**
+  with EBVs, recessive-condition results, and a semen/embryo directory. It's a
+  *derived/secondary* source (not a primary registry), but it's the only
+  crawl-permissive Wagyu data host on earth — and it already does the
+  country-by-country aggregation we want. **This is our legitimate seed + a natural
+  partnership target** (credible, aligned, ex-AWA insider).
+
+**Marginal / dead ends:**
+- 🇨🇦 Canada **CLRC** (`clrc.ca`, breed code WC) — real public pedigree lookup,
+  Google-indexed, but WAF 403s non-browser clients; small/stale herd. Possible with
+  a real browser, low ROI.
+- 🇯🇵 Japan **NLBC** (`id.nlbc.go.jp`) — no robots.txt, but only ID-verifies
+  registration; no browsable pedigree/progeny tree. Permissive but useless for ranking.
+- No open herdbook at all: Germany, Netherlands (CRV login-only), Brazil, France,
+  Argentina (cert expired), Chile (DNS down), Spain. No "European Wagyu Association"
+  herdbook exists; World Wagyu Council = coordination only, no DB.
+
+**DNA-chain note (why AWA was uniquely valuable):** only the AWA holds DNA samples
+on the original foundation imports, so only an AWA pedigree can assert an unbroken
+DNA-verified chain to the founders. Other registries "picked up where they left
+off" — less rigorous, but still a real *popularity/impact* signal per country.
+
+**Conclusion:** "spider every registry" is dead — the data consolidated behind
+Helical + ABRI, both closed to crawlers. Path forward = **(1) index Wagyu
+International (`wagyuinternational.co`) respectfully as the seed, (2) grow by
+verified breeder submission, (3) pursue official partnerships (Steve Bennett /
+Helical / AWA).**
