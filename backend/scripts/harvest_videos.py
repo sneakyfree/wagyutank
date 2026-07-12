@@ -20,7 +20,8 @@ import sys
 import time
 import urllib.request
 
-API = "https://api.wagyutank.com"
+import os
+API = os.environ.get("HARVEST_API", "https://api.wagyutank.com")
 
 CATEGORY_QUERIES = [
     # sales / auctions
