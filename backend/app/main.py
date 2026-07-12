@@ -76,7 +76,8 @@ def health():
 
 @app.get("/api/content/breed-history", tags=["content"])
 def breed_history(lang: str = "en", db: Session = Depends(get_db)):
-    path = Path(__file__).parent / "seed" / "data" / "breed_history.md"
+    from . import tank
+    path = tank.seed_path("breed_history.md")
     md = path.read_text() if path.exists() else ""
     if lang and lang != "en" and md:
         from .services import translate

@@ -89,3 +89,17 @@ def feature_on(name: str) -> bool:
 
 def vocab() -> dict:
     return config().get("vocab", {})
+
+
+_APP_DIR = Path(__file__).resolve().parent  # .../backend/app
+
+
+def seed_path(filename: str) -> Path:
+    """Resolve a seed-content file for THIS tank. Prefers tanks/<key>/seed/<file>
+    (per-tank breed content); falls back to app/seed/data/<file> (WagyuTank's
+    legacy location) so Wagyu is unchanged and a clone missing a file degrades
+    gracefully rather than crashing."""
+    p = _REPO_ROOT / "tanks" / _TANK_KEY / "seed" / filename
+    if p.exists():
+        return p
+    return _APP_DIR / "seed" / "data" / filename

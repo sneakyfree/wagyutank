@@ -17,14 +17,15 @@ from ..services import translate as translate_service
 
 router = APIRouter(prefix="/api/help", tags=["help"])
 
-DATA = Path(__file__).resolve().parent.parent / "seed" / "data" / "faq.json"
+from .. import tank
+def _data(): return tank.seed_path("faq.json")
 _cache: dict = {}
 
 
 def _load() -> dict:
     if not _cache:
         try:
-            _cache.update(json.loads(DATA.read_text()))
+            _cache.update(json.loads(_data().read_text()))
         except Exception:
             _cache.update({"intro": "", "categories": []})
     return _cache

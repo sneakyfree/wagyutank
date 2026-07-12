@@ -20,7 +20,8 @@ def _animal_type(v: str) -> AnimalType:
 
 
 def seed_facilities(db) -> int:
-    rows = json.loads((DATA / "facilities.json").read_text())
+    from .. import tank
+    rows = json.loads(tank.seed_path("facilities.json").read_text())
     added = 0
     for r in rows:
         exists = db.query(Facility).filter(Facility.name == r["name"]).first()
@@ -38,7 +39,7 @@ def seed_facilities(db) -> int:
 
 
 def seed_foundation_animals(db) -> int:
-    rows = json.loads((DATA / "foundation_animals.json").read_text())
+    rows = json.loads(tank.seed_path("foundation_animals.json").read_text())
     added = 0
     for r in rows:
         reg = r.get("registration_no")

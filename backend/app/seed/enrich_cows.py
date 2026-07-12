@@ -11,7 +11,8 @@ from .enrich_bulls import _ensure_columns  # reuse the column-ensure helper
 from ..db import Base, SessionLocal, engine
 from ..models import Animal, AnimalSource, AnimalType
 
-DATA = Path(__file__).parent / "data" / "foundation_cows_enriched.json"
+from .. import tank
+DATA = tank.seed_path("foundation_cows_enriched.json")
 
 
 def _tagline(c: dict) -> str:

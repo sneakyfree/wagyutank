@@ -1,0 +1,41 @@
+{
+  "key": "murraygrey",
+  "brand": {
+    "name": "MurrayGreyTank",
+    "domain": "murraygreytank.com",
+    "tagline": "The world's marketplace & knowledge hub for Murray Grey cattle genetics",
+    "species": "cattle",
+    "breed": "Murray Grey",
+    "logoText": "MG",
+    "wordmark": ["MURRAY GREY", "TANK"],
+    "colors": { "gold": "#98a0ab", "goldSoft": "#c3c9d1" },
+    "contactEmail": "office@murraygreytank.com",
+    "location": "Salt Lake City, Utah, USA",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "MurrayGreyTank — The Global Marketplace & Knowledge Hub for Murray Grey Genetics",
+    "footerBlurb": "the world's marketplace for Murray Grey cattle genetics",
+    "description": "Buy and sell Murray Grey cattle genetics — semen and embryos — and explore the breed's Australian origin story, foundation bloodlines, a live genetics price index, and translated global news. The central hub for the world's Murray Grey community. Free to list.",
+    "keywords": ["Murray Grey", "Murray Grey cattle", "Murray Grey semen", "Murray Grey embryos", "Murray Grey genetics", "Murray Grey bull", "Murray Grey stud", "Australian cattle breed", "polled cattle", "silver cattle"]
+  },
+  "products": [
+    { "key": "semen", "label": "Semen", "unit": "straw", "icon": "sperm", "fresh_chilled": false },
+    { "key": "embryo", "label": "Embryos", "unit": "embryo", "icon": "morula", "fresh_chilled": false }
+  ],
+  "features": {
+    "roundup": true, "directory": true, "help": true, "ads": true,
+    "foundation": true, "history": true, "news": true, "videos": true,
+    "price_index": true, "sale_reports": true, "catalog": false, "market_data": false,
+    "japan_hub": false, "zenkyo": false, "feeding": false, "great_sires": false
+  },
+  "vocab": {
+    "animal_singular": "sire",
+    "animal_plural": "cattle",
+    "registry_names": ["Murray Grey Beef Cattle Society of Australia", "American Murray Grey Association"],
+    "export_program": "CSS",
+    "news_search_terms": ["Murray Grey cattle", "Murray Grey beef", "Murray Grey stud"],
+    "video_search_terms": ["Murray Grey cattle", "Murray Grey bull", "Murray Grey stud"],
+    "help_nuance": "Murray Greys are naturally polled cattle whose coat ranges from silver to dun to chocolate; they were developed in Australia's upper Murray River valley. Don't confuse them with other grey breeds (e.g. Grey Brahman or Charolais)."
+  },
+  "langs": ["en", "es", "pt", "de", "fr"],
+  "crawl": { "cron_offset_min": 30 }
+}

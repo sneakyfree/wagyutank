@@ -11,7 +11,8 @@ from pathlib import Path
 from ..db import Base, SessionLocal, engine
 from ..models import Animal, AnimalSource, AnimalType
 
-DATA = Path(__file__).parent / "data" / "foundation_bulls_enriched.json"
+from .. import tank
+DATA = tank.seed_path("foundation_bulls_enriched.json")
 
 # Columns added after the initial schema — ensure they exist (SQLite ALTER ADD).
 _NEW_COLUMNS = {
