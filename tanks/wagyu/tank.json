@@ -41,21 +41,30 @@
       "label": "Semen",
       "unit": "straw",
       "icon": "sperm",
-      "fresh_chilled": false
+      "fresh_chilled": false,
+      "glyph": "\ud83e\uddec",
+      "cardTitle": "Semen Straws",
+      "blurb": "Conventional & sexed, from proven Wagyu sires worldwide."
     },
     {
       "key": "embryo",
       "label": "Embryos",
       "unit": "embryo",
       "icon": "morula",
-      "fresh_chilled": false
+      "fresh_chilled": false,
+      "glyph": "\ud83e\udd5a",
+      "cardTitle": "Embryos",
+      "blurb": "Full-blood IVF & in-vivo embryos, sire \u00d7 dam pedigrees."
     },
     {
       "key": "clone_rights",
       "label": "Cloning Rights",
       "unit": "right",
       "icon": "helix",
-      "fresh_chilled": false
+      "fresh_chilled": false,
+      "glyph": "\ud83d\udc02",
+      "cardTitle": "Cloning Rights",
+      "blurb": "License the right to clone a banked cell line. Ours alone."
     }
   ],
   "features": {
