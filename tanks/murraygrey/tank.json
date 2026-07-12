@@ -116,5 +116,39 @@
     "theaterIntro": "The world's Murray Grey video library \u2014 bulls on film, sale recordings, and how-to. Searchable by registration number.",
     "foundationTitle": "The foundation animals",
     "foundationIntro": "Nearly all Murray Greys trace back to the silver calves born at Thologolong on the upper Murray River \u2014 and to Helen Sutherland, who made a breed from them. Meet the animals behind the breed."
-  }
+  },
+  "substitutions": [
+    [
+      "Japanese and Chinese reporting translated, found nowhere else",
+      "Australian reporting translated into your language"
+    ],
+    [
+      "Foundation bulls and their sons on film. Auction recordings. Japanese farms and technique. Ranch tours and how-to.",
+      "Foundation sires and their sons on film. Sale recordings, stud tours, and how-to."
+    ],
+    [
+      "the US, Australia, Japan, Asia, Europe, and South America",
+      "Australia, New Zealand, North America, the UK, and beyond"
+    ],
+    [
+      "Every full-blood Wagyu in the West descends",
+      "Nearly every Murray Grey descends"
+    ],
+    [
+      "that left Japan before the 1997 export ban. They're all here.",
+      "from the founding animals at Thologolong. Meet them here."
+    ],
+    [
+      "Michifuku, Tajima, Itoshigenami",
+      "Willalooka, Monterey, Cadfor"
+    ],
+    [
+      " Japan,",
+      ""
+    ],
+    [
+      "Kobe beef",
+      "premium beef"
+    ]
+  ]
 }

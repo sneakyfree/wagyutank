@@ -18,17 +18,21 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# CORS origins are derived from THIS tank's own domain, so every clone allows its
+# own frontend (and any Cloudflare Pages preview) with no per-tank code change.
+from . import tank as _tank
+_tank_domain = _tank.brand().get("domain", "wagyutank.com")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         settings.frontend_origin,
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://www.wagyutank.com",
-        "https://wagyutank.com",
+        f"https://www.{_tank_domain}",
+        f"https://{_tank_domain}",
     ],
-    # Cloudflare Pages production + preview deploys (wagyutank.pages.dev, <hash>.wagyutank.pages.dev)
-    allow_origin_regex=r"https://([a-z0-9-]+\.)?wagyutank\.pages\.dev",
+    # Any Cloudflare Pages production/preview subdomain (this tank's project).
+    allow_origin_regex=r"https://[a-z0-9-]+(\.[a-z0-9-]+)?\.pages\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
