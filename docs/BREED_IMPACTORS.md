@@ -297,3 +297,34 @@ Helical + ABRI, both closed to crawlers. Path forward = **(1) index Wagyu
 International (`wagyuinternational.co`) respectfully as the seed, (2) grow by
 verified breeder submission, (3) pursue official partnerships (Steve Bennett /
 Helical / AWA).**
+
+### 15a. Wagyu International structure scout (2026-07-12) — it's an encyclopedia, not a dataset
+
+Scouted the one open source directly. It is **server-rendered PHP, robots-open, but
+only ~37 pages** (its own sitemap): ~15 per-country narrative pages
+(`global_usa.php`, `global_australia.php`, `global_japan.php`, …), `foundation.php`,
+`genetics.php`/`recessives.php`, and a handful of individual `semen_*.php` sire
+pages. `foundation.php` mentions progeny ~28 times but all **narrative** ("51
+progeny", "progeny that graded Marble Score 9") — prose about a few dozen founders,
+not a structured per-animal table. Country pages carry **no** sire rankings or
+progeny counts.
+
+**Hard truth:** there is **no legitimately-crawlable source for comprehensive
+per-animal registered-progeny counts** anywhere. The registries that have it
+(Helical, ABRI) are closed; the one open aggregator is editorial. So the
+"auto-rank every bull #1-to-last from cold numbers" version **cannot be crawled
+into existence.** What's realistic:
+
+- **Wagyu International** = great for foundation/notable-animal *enrichment* and
+  per-country breed *narrative* — dozens of animals, sparse numbers. A seed for the
+  Foundation/Influential tiers, not the modern ranking.
+- **Verified breeder submission = the actual engine.** Breeders supply their own
+  animal's progeny count + registry proof; we verify → medal + certificate. This is
+  the ONLY route to comprehensive, current data, and it's self-marketing.
+- **Official Helical/AWA partnership = the only route to the authoritative complete
+  dataset** (and the DNA-verified US tree). The swing-for-the-fences upside.
+
+Net: launch the medal/Hall-of-Fame/certificate system as a **submission-first**
+product (seeded with foundation + notable animals), and pursue partnership for the
+full dataset. It starts smaller than "the whole breed on day one," but it's clean,
+legal, and grows the way the Atlas grows.
