@@ -1,0 +1,43 @@
+{
+  "intro": "Answers to the questions we hear most — about MurrayGreyTank, about buying and selling Murray Grey genetics, and about the breed itself. New to Murray Greys? Start anywhere; the help assistant at the bottom can answer anything not covered here.",
+  "categories": [
+    {
+      "name": "About MurrayGreyTank",
+      "items": [
+        {"q": "What is MurrayGreyTank?", "a": "MurrayGreyTank is a global marketplace and knowledge hub for Murray Grey cattle genetics — semen and embryos — plus a free, worldwide index of genetics listings found elsewhere on the web (the Roundup), a browsable directory of Murray Grey studs (the Atlas), translated global breed news, a genetics price index, and the breed's history and foundation bloodlines. The central gathering place for the world's Murray Grey community."},
+        {"q": "Is MurrayGreyTank free to use?", "a": "Browsing the marketplace, the Roundup, the Atlas directory, news, price data, and all educational content is free. Sellers list for free during launch; there is a small platform fee only when a sale is completed on-site."},
+        {"q": "What is 'the Roundup'?", "a": "The Roundup is our free, attributed index of Murray Grey genetics listings found on studs' own websites around the world. Each entry shows the facts — the sire, what's for sale, the price when stated — plus a link straight back to the seller's original page. We never rehost a stud's photos or ad copy; the Roundup points you to the source."},
+        {"q": "What is 'the Atlas'?", "a": "The Atlas is a free international directory of Murray Grey studs and sellers — by country and region, with a link to each one's own website. It's the consolidated map of who's raising and selling Murray Greys worldwide, from the Australian heartland to North America, New Zealand, and the UK."},
+        {"q": "I'm a breeder — how do I get my stud listed (or removed)?", "a": "To be listed as a MurrayGreyTank seller, create a free account and post your genetics. If you find your own public listings in the Roundup and want them removed, click 'This is my listing — remove it' on any card and enter an email address on your own website's domain; we'll send a one-click removal link there. Requests from other addresses go to manual review, so no one but you can remove your listings."}
+      ]
+    },
+    {
+      "name": "Buying genetics",
+      "items": [
+        {"q": "How do I buy Murray Grey semen or embryos?", "a": "For MurrayGreyTank seller listings, you can purchase or bid directly on the listing page. For Roundup entries (third-party listings from around the web), click through to the stud's own site to buy — those aren't MurrayGreyTank vendors, and we link you to the source. Semen is sold per straw and embryos per embryo; prices are set by each seller."},
+        {"q": "What does semen typically cost?", "a": "Murray Grey semen commonly sells in the range of roughly US$15–$60 per straw depending on the sire, with embryos typically a few hundred dollars each. Always confirm current pricing and availability with the specific seller — listings and prices change."},
+        {"q": "Can Murray Grey genetics ship internationally?", "a": "Often, yes — Murray Greys have been exported between Australia, New Zealand, North America, the UK and beyond for decades. International bull-semen trade generally runs through Certified Semen Services (CSS), a program of the U.S. National Association of Animal Breeders that sets internationally recognised health-testing standards. Requirements vary by destination country, so always confirm import rules with the seller and your own animal-health authority before purchasing."},
+        {"q": "Semen or embryos — which should I start with?", "a": "Semen lets you breed your own cows to a chosen Murray Grey sire — the lowest-cost way to add the breed's traits (and because the grey and polled genes are dominant, even first-cross calves show them clearly). Embryos are a complete genetic package, both sire and dam, implanted into a recipient cow — the fastest way to build a purebred herd from proven parents."}
+      ]
+    },
+    {
+      "name": "Selling genetics",
+      "items": [
+        {"q": "How do I sell on MurrayGreyTank?", "a": "Create a free account, then post a listing with the sire/animal, product type (semen or embryos), price, quantity, and export details. Listing is free during launch. Getting paid on-site uses Stripe Connect — a short one-time onboarding so funds reach your account."},
+        {"q": "What does it cost to sell?", "a": "Listing is free during launch. MurrayGreyTank takes a small platform fee only on completed on-site sales. You keep full control of your listings and can edit or remove them any time."}
+      ]
+    },
+    {
+      "name": "Understanding Murray Greys",
+      "items": [
+        {"q": "What is a Murray Grey?", "a": "A Murray Grey is an Australian beef breed that began around 1905 (some records say 1914) at Thologolong station on the upper Murray River, when a roan Shorthorn cow bred to Aberdeen Angus bulls produced a run of silver-grey calves that bred true. It's one of only two beef breeds developed entirely in Australia. Murray Greys are naturally polled, silver-to-chocolate in colour, and known for docility, calving ease, grass efficiency, and marbling."},
+        {"q": "What colour are Murray Greys, and are they always grey?", "a": "Their coat ranges from bright silver through grey and dun to milk-chocolate, over dark, pigmented skin. Silver-grey is the most typical. The colour gene is strongly dominant, so crossbred calves usually come out grey too — which makes Murray Grey influence easy to spot in a commercial herd. Don't confuse them with other grey breeds like the Grey Brahman or Charolais — Murray Greys are a distinct, naturally-polled British-derived breed."},
+        {"q": "Are Murray Greys polled?", "a": "Yes — Murray Greys are naturally polled (hornless), and because the polled gene is dominant, bulls sire mostly polled calves even over horned cows. That's a real practical advantage: no dehorning."},
+        {"q": "Why choose Murray Greys?", "a": "The breed's headline strengths are docility (they're among the quietest beef cattle to handle), calving ease and good mothering, efficient finishing on grass without a feedlot, marbling and carcase quality, and climate hardiness — the light coat sheds heat while the dark skin beneath resists eye cancer and sunburn. That combination suits both large operations and smaller grass-fed and hobby producers."},
+        {"q": "How do Murray Greys compare to Angus?", "a": "They're related — Aberdeen Angus is a foundation breed of the Murray Grey — and share much of the Angus carcase and marbling reputation, but the Murray Grey's lighter coat gives markedly better heat tolerance. They do best in temperate and warm-temperate climates. F1 Murray Grey × Angus (or over other breeds) is a common, low-risk way for commercial producers to bring in Murray Grey docility, calving ease and marbling."},
+        {"q": "Where are Murray Greys raised?", "a": "Australia is the breed's global heartland — country of origin, home of the founding herd book, and the largest breeder base. Active registries and breeders also operate in the United States, New Zealand, Canada, and the United Kingdom, with smaller footholds elsewhere. The Atlas directory on this site maps studs worldwide."},
+        {"q": "I'm new to the breed — where should I start?", "a": "Read the Murray Grey story and the foundation-animal pages to learn where the breed came from, browse the Atlas to see studs worldwide and the Roundup to see genetics for sale, and follow the translated news feed for what's happening across the global community. The help assistant below can point you to the right page for any question."}
+      ]
+    }
+  ]
+}
