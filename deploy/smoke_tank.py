@@ -134,14 +134,19 @@ def main():
     record("seed data loaded (foundation animals)",
            PASS if n > 0 else FAILED, f"{n} animals")
 
-    # 5 + 6. mailbox login + send/receive loop
-    creds = _load_creds(args.key)
-    if not creds:
-        record("office@ IMAP login", SKIP, "no saved mailbox password (.mail-credentials)")
-        record("outbound send lands + From correct", SKIP, "needs mailbox password")
+    # 5 + 6. founder-mailbox consolidation + send/receive loop.
+    #   office@<domain> is an alias on the ONE founder mailbox (not a separate
+    #   login), so we log in as the founder and prove office@<domain> mail lands
+    #   in that shared inbox with the right From address.
+    founder = os.environ.get("STALWART_FOUNDER_EMAIL", "gwhitmer@windstorminstitute.org")
+    fpw = os.environ.get("STALWART_FOUNDER_PASSWORD", "")
+    if not fpw:
+        record("founder mailbox login", SKIP, "STALWART_FOUNDER_PASSWORD not set")
+        record("office@ mail lands in founder inbox + From correct", SKIP, "needs founder password")
     else:
-        ok_login, imap, detail = _imap_login(mail_host, office, creds["password"])
-        record("office@ IMAP login", PASS if ok_login else FAILED, detail)
+        ok_login, imap, detail = _imap_login(mail_host, founder, fpw)
+        record("founder mailbox login", PASS if ok_login else FAILED,
+               f"{founder}" if ok_login else detail)
         if ok_login:
             _mail_loopback(imap, office, domain)
             try:
@@ -163,16 +168,6 @@ def main():
     if fails:
         print("  FAILED: " + ", ".join(r[0] for r in fails))
     sys.exit(1 if fails else 0)
-
-
-def _load_creds(key: str) -> dict | None:
-    p = REPO / "tanks" / key / ".mail-credentials"
-    if p.exists():
-        try:
-            return json.loads(p.read_text())
-        except json.JSONDecodeError:
-            return None
-    return None
 
 
 def _imap_login(host: str, email: str, pw: str):
@@ -223,10 +218,10 @@ def _mail_loopback(imap: imaplib.IMAP4_SSL, office: str, domain: str):
         except Exception:  # noqa: BLE001
             continue
     if not found_from:
-        record("outbound send lands in office@ inbox", FAILED,
+        record("office@ mail lands in founder inbox", FAILED,
                "message not received within ~60s")
         return
-    record("outbound send lands in office@ inbox", PASS, "received")
+    record("office@ mail lands in founder inbox", PASS, "received in shared inbox")
     from_ok = office in found_from
     record("From address = office@<domain>", PASS if from_ok else FAILED,
            f"From: {found_from}")

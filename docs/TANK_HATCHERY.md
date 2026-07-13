@@ -59,6 +59,7 @@ step 0/1 and run step 2 — it fixes only what's missing.
   | `CF_ACCOUNT_ID` | `193b347aedeaafe35de0b5a534b2d9aa` (all zones live here) | — |
   | `RESEND_API_KEY` | shared ecosystem key (YOLOTOKEN) | §mail |
   | `STALWART_PASSWORD` | Stalwart admin secret | `STALWART_ADMIN_SECRET` |
+  | `STALWART_FOUNDER_ACCOUNT` / `_EMAIL` / `_PASSWORD` | the one founder mailbox every tank's `office@` consolidates into (`c3` / `gwhitmer@windstorminstitute.org`) | §Founder Unified Mailbox |
 
 ---
 
@@ -74,19 +75,26 @@ Run in this order (default). Each is independently runnable with `--only`.
 | `pages` | CF Pages project + custom-domain attach (apex+www) | project GET + domains list |
 | `resend` | Resend domain add → pulls its DNS records → creates them in CF → verify + poll | Resend domain status |
 | `mail-dns` | **receive + policy** records: MX apex→`mail.windymail.ai`, apex SPF, DMARC, autoconfig/autodiscover | record match |
-| `stalwart` | mail **domain** + `office@<d>` **mailbox** (password saved to `tanks/<key>/.mail-credentials`) + domain **catch-all** → office | `query Domain` / `query Account` |
+| `stalwart` | mail **domain** + `office@<d>` as an **alias on the one founder mailbox** (the `gwhitmer` principal — NOT a separate login) + domain **catch-all** → office | `query Domain` / founder alias map |
 | `seed` | runs the tank's content seeders on its DB (feature-gated) | seeders are idempotent-replace |
 | `frontend` | `TANK_API=… npm run build` + `wrangler pages deploy` (off by default — `--with-frontend`) | — |
 | `smoke` | `deploy/smoke_tank.py` end-to-end verification | — |
 
-### Why send **and** receive both matter
+### Why send **and** receive both matter — and the one-mailbox model
 
 Resend gives a domain **outbound** (DKIM/SPF via `send.<d>` + `resend._domainkey`).
 That alone does **not** let `office@<domain>` receive anything. The `mail-dns` +
 `stalwart` phases add the **inbound** half — MX at the apex pointing to the shared
-Stalwart, the mailbox itself, and a catch-all so `info@`/`grant@`/anything@ lands
-in one place. This is the email doctrine: `office@<domain>` = the property's
-machine channel, FROM and TO.
+Stalwart, and a catch-all so `info@`/`sales@`/anything@ has somewhere to land.
+
+**One founder mailbox, not one login per tank.** Every tank's `office@<domain>` is
+added as an **alias on the single `gwhitmer` principal** — the same mailbox Grant
+reads in Roundcube for all ~19 domains. So a new tank's mail just shows up in the
+one inbox (sendable-as via the client's From: dropdown), with **no new password and
+no separate login**. `office@<domain>` is the property's machine channel (what the
+app sends as and the site shows); the founder mailbox is where a human reads and
+replies. If you ever want a tank's mail to go to a dedicated employee login instead,
+that's a deliberate later step — the default is consolidation.
 
 ---
 
@@ -102,15 +110,15 @@ Verifies, end to end:
 2. the API is up and `/api/config` reports the right brand (name + colours + `office@` contact)
 3. the brand name appears in the site HTML
 4. seed data is loaded (foundation animals present)
-5. `office@<domain>` logs in over IMAP (the mailbox exists)
-6. an email **from** `office@<domain>` **lands in** that same inbox with **From =
-   office@<domain>** — send + receive + From, proven in one loop
+5. the **founder mailbox** logs in over IMAP
+6. an email **from** `office@<domain>` **lands in the founder inbox** with **From =
+   office@<domain>** — proving the alias/catch-all consolidation + From, in one loop
 7. a listing can actually be created via the API (then cleaned up)
 
-`--no-mutate` skips the listing-create write. Checks that can't run (e.g. no saved
-mailbox password) are reported `SKIP`, not `FAIL`. The mailbox password for the
-loopback/IMAP checks is read from `tanks/<key>/.mail-credentials` (written by the
-`stalwart` phase on first creation).
+`--no-mutate` skips the listing-create write. Checks that can't run (e.g. no
+`STALWART_FOUNDER_PASSWORD` set) are reported `SKIP`, not `FAIL`. The mail checks
+log in as the shared founder mailbox (from the secrets file), not a per-tank
+account — there is no per-tank mailbox password.
 
 ---
 
@@ -119,9 +127,10 @@ loopback/IMAP checks is read from `tanks/<key>/.mail-credentials` (written by th
 - **Proven** against `murraygrey`: a second full run reported `unchanged` on every
   DNS record, Pages domain, Resend record, and Stalwart object, and `exists` on the
   mailbox — zero mutations.
-- The `stalwart` phase never rewrites an existing mailbox password (it can't read
-  it back), so re-running won't lock you out. If you lost the password, delete the
-  account in Stalwart and re-run to mint a fresh one.
+- The `stalwart` phase appends `office@<domain>` to the founder principal's alias
+  map **preserving every existing alias**, and no-ops if it's already there — so
+  re-running can't disturb the other domains' mail. (A leftover standalone
+  `office@` account from the older per-tank pattern is auto-retired into the alias.)
 - DNS convergence matches on `(type, name)` (+ SPF/DMARC/DKIM category for TXT), so
   it updates the intended record and never clobbers a sibling.
 

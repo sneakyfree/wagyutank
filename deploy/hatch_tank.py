@@ -67,6 +67,11 @@ class Ctx:
         self.pages_token = h.env("CF_PAGES_TOKEN")
         self.resend_key = h.env("RESEND_API_KEY")
         self.mail_host = h.env("HATCH_MAIL_HOST", MAIL_HOST_DEFAULT)
+        # the one founder mailbox every tank's mail consolidates into (Stalwart
+        # account id). Grant reads all domains under this single Roundcube login.
+        self.founder_account_id = h.env("STALWART_FOUNDER_ACCOUNT", "c3")
+        self.founder_email = h.env("STALWART_FOUNDER_EMAIL",
+                                   "gwhitmer@windstorminstitute.org")
         self._zone_id = None
 
     def _load_cfg(self) -> dict:
@@ -75,6 +80,9 @@ class Ctx:
             raise h.HatchError(f"tanks/{self.key}/tank.json not found — scaffold "
                                f"content from tanks/_template first (see runbook)")
         return json.loads(p.read_text())
+
+    # (mail no longer generates a per-tank password — office@ is an alias on the
+    #  shared founder mailbox, so there's nothing tank-specific to store.)
 
     def zone_id(self) -> str:
         if self._zone_id:
@@ -85,9 +93,6 @@ class Ctx:
                                f"(run the 'zone' phase first)")
         self._zone_id = zid
         return zid
-
-    def creds_file(self) -> Path:
-        return REPO / "tanks" / self.key / ".mail-credentials"
 
 
 # ============================================================ phase: scaffold
@@ -367,9 +372,19 @@ def phase_mail_dns(ctx: Ctx):
 
 # ============================================================ phase: stalwart
 def phase_stalwart(ctx: Ctx):
-    h.step(f"stalwart — inbound mailbox office@{ctx.domain} + catch-all")
+    """Wire the tank's mail INTO the one founder mailbox — NOT a separate login.
+
+    Grant runs every domain under a single Roundcube login (the `gwhitmer`
+    principal), each address just an alias landing in that one inbox. So a tank
+    gets: (1) its domain in Stalwart, (2) office@<domain> as an alias on the
+    founder principal (so it lands in the shared inbox AND can be sent-as), and
+    (3) a catch-all → office@<domain> so info@/sales@/anything@ lands there too.
+    No new account, no extra password."""
+    fid = ctx.founder_account_id
+    h.step(f"stalwart — office@{ctx.domain} → founder inbox (alias, not a new login)")
     if ctx.dry:
-        h.info(f"[dry] would ensure Stalwart domain + office@{ctx.domain} + catch-all")
+        h.info(f"[dry] would ensure Stalwart domain + office@{ctx.domain} alias on "
+               f"founder account {fid} + catch-all")
         return
     # 1. domain
     dom_id = _stalwart_domain_id(ctx.domain)
@@ -378,32 +393,32 @@ def phase_stalwart(ctx: Ctx):
     else:
         rc, out, err = h.stalwart(["create", "Domain",
                                    "--field", f"name={ctx.domain}",
-                                   "--field", f"description={ctx.name} founder mailbox"])
+                                   "--field", f"description={ctx.name}"])
         if rc != 0:
             raise h.HatchError(f"Stalwart domain create failed: {(err or out)[:200]}")
         dom_id = _stalwart_domain_id(ctx.domain)
         h.ok(f"Stalwart domain created (id {dom_id})")
 
-    # 2. office@ mailbox
-    email = f"office@{ctx.domain}"
-    acct_id = _stalwart_account_id(email)
-    if acct_id:
-        h.ok(f"mailbox {email} exists (id {acct_id}) — password unchanged")
-    else:
-        pw = _gen_password()
-        creds = json.dumps({"0": {"@type": "Password", "secret": pw}})
-        rc, out, err = h.stalwart(["create", "Account/User",
-                                   "--field", "name=office",
-                                   "--field", f"domainId={dom_id}",
-                                   "--field", f"description={ctx.name}",
-                                   "--field", f"credentials={creds}"])
-        if rc != 0:
-            raise h.HatchError(f"Stalwart mailbox create failed: {(err or out)[:200]}")
-        acct_id = _stalwart_account_id(email)
-        _save_mail_creds(ctx, email, pw)
-        h.ok(f"mailbox {email} created (id {acct_id}); credentials → {ctx.creds_file().name}")
+    # 1a. a leftover STANDALONE office@ account from the old pattern would collide
+    #     with the alias — retire it (its mail was never read separately).
+    stray = _stalwart_account_id(f"office@{ctx.domain}")
+    if stray:
+        h.stalwart(["delete", "Account", "--ids", stray])
+        h.warn(f"removed stray standalone office@ account (id {stray}) — "
+               f"consolidating into the founder mailbox")
 
-    # 3. catch-all → office
+    # 2. office@<domain> as an alias on the founder principal
+    r = _ensure_founder_alias(fid, "office", dom_id)
+    email = f"office@{ctx.domain}"
+    if r == "exists":
+        h.ok(f"{email} already an alias on founder account {fid}")
+    elif r == "added":
+        h.ok(f"{email} added as an alias on founder account {fid} "
+             f"(lands in the one shared inbox; sendable-as)")
+    else:
+        h.warn(f"could not add founder alias for {email}: {r}")
+
+    # 3. catch-all → office@<domain>
     rc, out, _ = h.stalwart(["get", "Domain", dom_id])
     if f"Catch-All Address: {email}" in out:
         h.ok(f"catch-all → {email} already set")
@@ -413,7 +428,32 @@ def phase_stalwart(ctx: Ctx):
         if rc != 0:
             h.warn(f"catch-all update rc={rc}: {(err or out)[:160]}")
         else:
-            h.ok(f"catch-all → {email} set (info@/grant@/anything@ lands here)")
+            h.ok(f"catch-all → {email} set (info@/sales@/anything@ lands here)")
+
+
+def _ensure_founder_alias(founder_id: str, localpart: str, domain_id: str) -> str:
+    """Append {localpart}@<domain> to the founder principal's alias map, preserving
+    every existing alias. Returns 'exists' | 'added' | error string."""
+    rc, out, err = h.stalwart(["get", "Account", founder_id, "--json"])
+    if rc != 0:
+        return f"get founder failed: {(err or out)[:120]}"
+    try:
+        acct = json.loads(out)
+    except json.JSONDecodeError:
+        return "founder account JSON parse failed"
+    aliases = acct.get("aliases") or {}
+    if any(v.get("name") == localpart and v.get("domainId") == domain_id
+           for v in aliases.values()):
+        return "exists"
+    next_key = str(max((int(k) for k in aliases.keys()), default=-1) + 1)
+    aliases[next_key] = {"enabled": True, "name": localpart,
+                         "domainId": domain_id, "description": None}
+    payload = json.dumps(aliases, separators=(",", ":"))
+    rc, out, err = h.stalwart(["update", "Account", founder_id,
+                               "--field", f"aliases={payload}"])
+    if rc != 0:
+        return f"update failed: {(err or out)[:120]}"
+    return "added"
 
 
 def _stalwart_domain_id(domain: str) -> str | None:
@@ -432,22 +472,6 @@ def _stalwart_account_id(email: str) -> str | None:
         if len(p) >= 2 and p[1] == email:
             return p[0]
     return None
-
-
-def _gen_password() -> str:
-    # Stalwart's zxcvbn rejects weak patterns; mixed 24-char is comfortably strong.
-    alpha = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789"
-    return "".join(secrets.choice(alpha) for _ in range(24))
-
-
-def _save_mail_creds(ctx: Ctx, email: str, pw: str):
-    ctx.creds_file().write_text(json.dumps(
-        {"email": email, "password": pw, "imap": f"{ctx.mail_host}:993",
-         "smtp": f"{ctx.mail_host}:465", "created_by": "hatch_tank.py"}, indent=2))
-    try:
-        os.chmod(ctx.creds_file(), 0o600)
-    except OSError:
-        pass
 
 
 # ============================================================ phase: seed
