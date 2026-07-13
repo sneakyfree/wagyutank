@@ -1,0 +1,176 @@
+{
+  "key": "gir",
+  "brand": {
+    "name": "GirTank",
+    "domain": "girtank.com",
+    "tagline": "The global marketplace for Gir & Girolando dairy genetics — built for the tropics",
+    "species": "cattle",
+    "breed": "Gir",
+    "logoText": "GT",
+    "wordmark": [
+      "GIR",
+      "TANK"
+    ],
+    "colors": {
+      "gold": "#b5561f",
+      "goldBright": "#db7a3a",
+      "goldSoft": "rgba(181,86,31,0.14)"
+    },
+    "contactEmail": "office@girtank.com",
+    "location": "Salt Lake City, Utah, USA",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "GirTank — The Global Export Marketplace for Gir & Girolando Dairy Genetics",
+    "footerBlurb": "the world's export marketplace for Gir dairy genetics",
+    "description": "Buy and sell Gir and Girolando dairy genetics for the tropics — semen and embryos exported to Africa, Southeast Asia, and Latin America. Explore the breed's journey from the Gir forest of India to Brazil's dairy revolution, foundation bloodlines, record milk cows, and translated global news. Free to list.",
+    "keywords": [
+      "Gir cattle",
+      "Gir dairy genetics",
+      "Girolando",
+      "Gir semen",
+      "Gir embryos",
+      "tropical dairy cattle",
+      "zebu dairy genetics",
+      "Bos indicus dairy",
+      "Gir semen export",
+      "heat tolerant dairy cattle",
+      "leite Gir",
+      "sêmen Gir"
+    ]
+  },
+  "products": [
+    {
+      "key": "semen",
+      "label": "Semen",
+      "unit": "straw",
+      "icon": "sperm",
+      "fresh_chilled": false,
+      "glyph": "🧬",
+      "cardTitle": "Semen Straws",
+      "blurb": "Export-ready straws from proven Gir & Girolando dairy sires."
+    },
+    {
+      "key": "embryo",
+      "label": "Embryos",
+      "unit": "embryo",
+      "icon": "morula",
+      "fresh_chilled": false,
+      "glyph": "🥚",
+      "cardTitle": "Embryos",
+      "blurb": "IVF & in-vivo embryos — a complete tropical-dairy genetic package."
+    }
+  ],
+  "features": {
+    "roundup": true,
+    "directory": true,
+    "help": true,
+    "ads": true,
+    "foundation": true,
+    "history": true,
+    "news": true,
+    "videos": true,
+    "price_index": true,
+    "sale_reports": true,
+    "catalog": false,
+    "market_data": false,
+    "japan_hub": false,
+    "zenkyo": false,
+    "feeding": false,
+    "great_sires": false
+  },
+  "vocab": {
+    "animal_singular": "sire",
+    "animal_plural": "cattle",
+    "registry_names": [
+      "ABCZ (Associação Brasileira dos Criadores de Zebu)",
+      "NDDB / ICAR-NBAGR (India)"
+    ],
+    "export_program": null,
+    "news_search_terms": [
+      "Gir Leiteiro semen export",
+      "Girolando embryo export",
+      "Brazil tropical dairy genetics export",
+      "gado Gir leiteiro",
+      "sumário touros Gir leiteiro",
+      "Girolando embryos Africa",
+      "Gir semen Colombia Ecuador",
+      "leilão Gir leiteiro"
+    ],
+    "video_search_terms": [
+      "Gir leiteiro",
+      "Girolando cattle Brazil",
+      "vaca Gir recordista de leite",
+      "coleta de sêmen touro Gir",
+      "FIV embrião Gir leiteiro",
+      "ExpoZebu Gir leiteiro Uberaba",
+      "touro Gir PO à venda"
+    ],
+    "help_nuance": "Gir (Gyr) is an ancient Bos indicus DAIRY zebu from the Gir forest of Gujarat, India — domed forehead, long pendulous ears, and exceptional heat, humidity, and tick tolerance. In Brazil it was transformed into a high-yielding tropical dairy breed and is the foundation of Girolando (Gir × Holstein). This marketplace is scoped to the EXPORT window — Brazilian and Indian dairy genetics flowing to Africa, Southeast Asia, and Latin America — and does not try to replace Brazil's domestic platforms. Export always depends on the importing country's health protocol (FMD status, bluetongue, TB/brucellosis testing), so eligibility is disclosed per listing, not assumed."
+  },
+  "langs": [
+    "en",
+    "pt",
+    "es",
+    "fr"
+  ],
+  "crawl": {
+    "cron_offset_min": 90
+  },
+  "copy": {
+    "heroEyebrow": "🐂 THE GLOBAL TROPICAL-DAIRY CROSSROADS",
+    "heroTitle": "Gir & Girolando dairy genetics — built for the tropics",
+    "heroSub": "Buy and sell Gir and Girolando semen and embryos for export to Africa, Southeast Asia, and Latin America. Explore the breed's journey from India's Gir forest to Brazil's dairy revolution, foundation bloodlines, and record milk cows. List in under a minute. Free.",
+    "searchPlaceholder": "Search a herd, sire, or bloodline…",
+    "roundupTitle": "Every exportable Gir genetics listing, one feed",
+    "roundupIntro": "The Roundup brings the world's Gir and Girolando dairy-genetics market together: listings posted on GirTank plus semen and embryo offerings we track from breeders' and exporters' public pages (marked 📡 — those link straight back to the original seller's page; web sellers pay nothing and can remove a listing anytime).",
+    "theaterTitle": "🎬 The Gir Theater",
+    "theaterIntro": "The world's Gir and Girolando video library — dairy sires on film, milking records, expo footage, and farm tours. Searchable by registration number.",
+    "foundationTitle": "The foundation animals",
+    "foundationIntro": "The dairy Gir of the tropics traces from the sacred cattle of India's Gir forest through the Brazilian herds that turned them into a milk breed. Meet the animals behind the genetics."
+  },
+  "substitutions": [
+    [
+      "Japanese and Chinese reporting translated, found nowhere else",
+      "Brazilian and global dairy reporting translated into your language"
+    ],
+    [
+      "Foundation bulls and their sons on film. Auction recordings. Japanese farms and technique. Ranch tours and how-to.",
+      "Foundation dairy sires and record cows on film. Expo and auction recordings, farm tours, and tropical-dairy how-to."
+    ],
+    [
+      "the US, Australia, Japan, Asia, Europe, and South America",
+      "Brazil, India, Africa, Southeast Asia, and Latin America"
+    ],
+    [
+      "Every full-blood Wagyu in the West descends",
+      "The dairy Gir of the tropics traces"
+    ],
+    [
+      "that left Japan before the 1997 export ban. They're all here.",
+      "from the sacred cattle of India's Gir forest. Meet them here."
+    ],
+    [
+      "Michifuku, Tajima, Itoshigenami",
+      "Gir, Girolando, leiteiro"
+    ],
+    [
+      "Kobe beef",
+      "tropical dairy"
+    ],
+    [
+      "Translated Japanese Reporting",
+      "Translated Global Dairy Reporting"
+    ],
+    [
+      "Global Headlines & Translated Japanese",
+      "Global Headlines, Translated"
+    ],
+    [
+      "Japanese and Chinese",
+      "Portuguese and global"
+    ],
+    [
+      "Japanese farms",
+      "Brazilian dairies"
+    ]
+  ]
+}

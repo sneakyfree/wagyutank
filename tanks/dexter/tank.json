@@ -1,0 +1,169 @@
+{
+  "key": "dexter",
+  "brand": {
+    "name": "DexterTank",
+    "domain": "dextertank.com",
+    "tagline": "The world's marketplace & knowledge hub for Dexter cattle genetics",
+    "species": "cattle",
+    "breed": "Dexter",
+    "logoText": "DT",
+    "wordmark": [
+      "DEXTER",
+      "TANK"
+    ],
+    "colors": {
+      "gold": "#8a6a3c",
+      "goldBright": "#c39a5e",
+      "goldSoft": "rgba(138,106,60,0.14)"
+    },
+    "contactEmail": "office@dextertank.com",
+    "location": "Salt Lake City, Utah, USA",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "DexterTank — The Global Marketplace & Knowledge Hub for Dexter Cattle Genetics",
+    "footerBlurb": "the world's marketplace for Dexter cattle genetics",
+    "description": "Buy and sell Dexter cattle genetics — semen and embryos — and explore the breed's Irish origin story, foundation bloodlines, a live genetics price index, and news from the global Dexter community. The homestead breed's central hub. Free to list.",
+    "keywords": [
+      "Dexter cattle",
+      "Dexter cattle semen",
+      "Dexter cattle embryos",
+      "Dexter genetics",
+      "Dexter bull",
+      "Dexter cattle for sale",
+      "miniature cattle",
+      "homestead cattle",
+      "heritage cattle breed",
+      "A2 milk cattle",
+      "small acreage cattle",
+      "Irish Dexter"
+    ]
+  },
+  "products": [
+    {
+      "key": "semen",
+      "label": "Semen",
+      "unit": "straw",
+      "icon": "sperm",
+      "fresh_chilled": false,
+      "glyph": "🧬",
+      "cardTitle": "Semen Straws",
+      "blurb": "Conventional & sexed straws from proven Dexter sires."
+    },
+    {
+      "key": "embryo",
+      "label": "Embryos",
+      "unit": "embryo",
+      "icon": "morula",
+      "fresh_chilled": false,
+      "glyph": "🥚",
+      "cardTitle": "Embryos",
+      "blurb": "Purebred IVF & flush embryos, sire × dam pedigrees."
+    }
+  ],
+  "features": {
+    "roundup": true,
+    "directory": true,
+    "help": true,
+    "ads": true,
+    "foundation": true,
+    "history": true,
+    "news": true,
+    "videos": true,
+    "price_index": true,
+    "sale_reports": true,
+    "catalog": false,
+    "market_data": false,
+    "japan_hub": false,
+    "zenkyo": false,
+    "feeding": false,
+    "great_sires": false
+  },
+  "vocab": {
+    "animal_singular": "sire",
+    "animal_plural": "cattle",
+    "registry_names": [
+      "American Dexter Cattle Association",
+      "Dexter Cattle Society"
+    ],
+    "export_program": "CSS",
+    "news_search_terms": [
+      "Dexter cattle",
+      "Dexter cattle breed",
+      "Dexter cattle homestead"
+    ],
+    "video_search_terms": [
+      "Dexter cattle",
+      "Dexter bull",
+      "Dexter cattle homestead"
+    ],
+    "help_nuance": "Dexters are a small, dual-purpose heritage breed from Ireland — real registered cattle, NOT the same thing as unregistered 'miniature' novelty cattle. They come in three colours (black, red, dun) and two body types: the short-legged (chondrodysplasia-carrying) type and the non-short ('long-legged'/proportionate) type. Two chondro carriers bred together risk the lethal 'bulldog' (PHA) calf, so responsible sellers disclose chondro and PHA status. Many Dexters are prized as A2/A2 milk and small-acreage cattle."
+  },
+  "langs": [
+    "en",
+    "es"
+  ],
+  "crawl": {
+    "cron_offset_min": 60
+  },
+  "copy": {
+    "heroEyebrow": "🐂 THE GLOBAL DEXTER CROSSROADS",
+    "heroTitle": "The world's marketplace & knowledge hub for Dexter genetics",
+    "heroSub": "Buy and sell Dexter semen and embryos — and explore the breed's Irish origin story, foundation bloodlines, a live genetics price index, and news from the global homestead community. List in under a minute. Free.",
+    "searchPlaceholder": "Search a herd, sire, or bloodline…",
+    "roundupTitle": "Every Dexter genetics listing, one feed",
+    "roundupIntro": "The Roundup brings the whole Dexter genetics market together: listings posted on DexterTank plus semen and embryo listings we track from breeders' public pages across the web (marked 📡 — those link straight back to the original seller's page; web sellers pay nothing and can remove a listing anytime).",
+    "theaterTitle": "🎬 The Dexter Theater",
+    "theaterIntro": "The world's Dexter video library — bulls on film, sale recordings, and homestead how-to. Searchable by registration number.",
+    "foundationTitle": "The foundation animals",
+    "foundationIntro": "Every Dexter traces back to the small hardy cattle of southwest Ireland — and to the breeders who carried them to Britain, America, and beyond. Meet the animals behind the breed."
+  },
+  "substitutions": [
+    [
+      "Japanese and Chinese reporting translated, found nowhere else",
+      "News from the global Dexter community, in one place"
+    ],
+    [
+      "Foundation bulls and their sons on film. Auction recordings. Japanese farms and technique. Ranch tours and how-to.",
+      "Foundation sires and their sons on film. Sale recordings, herd tours, and homestead how-to."
+    ],
+    [
+      "the US, Australia, Japan, Asia, Europe, and South America",
+      "the US, Ireland, the UK, Australia, New Zealand, and Canada"
+    ],
+    [
+      "Every full-blood Wagyu in the West descends",
+      "Every Dexter descends"
+    ],
+    [
+      "that left Japan before the 1997 export ban. They're all here.",
+      "from the small cattle of southwest Ireland. Meet them here."
+    ],
+    [
+      "Michifuku, Tajima, Itoshigenami",
+      "Woodmagic, Saltaire, Parndon"
+    ],
+    [
+      " Japan,",
+      ""
+    ],
+    [
+      "Kobe beef",
+      "grass-fed beef and rich A2 milk"
+    ],
+    [
+      "Translated Japanese Reporting",
+      "Global Dexter Reporting"
+    ],
+    [
+      "Global Headlines & Translated Japanese",
+      "Dexter Headlines Worldwide"
+    ],
+    [
+      "Japanese and Chinese",
+      "global"
+    ],
+    [
+      "Japanese farms",
+      "heritage herds"
+    ]
+  ]
+}
