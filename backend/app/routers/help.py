@@ -117,7 +117,8 @@ def ask(payload: AskBody, request: Request, db=Depends(get_db)):
     except Exception:
         answer = None
     if not answer:
+        contact = tank.brand().get("contactEmail", "office@wagyutank.com")
         return {"answer": "I'm having trouble reaching the assistant right now — please check the "
-                          "FAQ above, or contact us at office@wagyutank.com.",
+                          f"FAQ above, or contact us at {contact}.",
                 "provider": ai.active_provider_label(), "fallback": True}
     return {"answer": answer.strip(), "provider": ai.active_provider_label()}

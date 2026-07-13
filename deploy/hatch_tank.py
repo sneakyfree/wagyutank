@@ -138,7 +138,14 @@ def phase_scaffold(ctx: Ctx):
             jwt = base64.b64encode(secrets.token_bytes(36)).decode().replace("+", "").replace("/", "")[:48]
             envtxt = (f"TANK={ctx.key}\nPORT={ctx.port}\n"
                       f"DATABASE_URL=sqlite:///./data/{ctx.key}.db\n"
-                      f"JWT_SECRET={jwt}\nFRONTEND_ORIGIN=https://www.{ctx.domain}\n")
+                      f"JWT_SECRET={jwt}\nFRONTEND_ORIGIN=https://www.{ctx.domain}\n"
+                      # per-tank overrides of wagyu-defaulted shared settings:
+                      # no inherited admin list (super_admin stays Grant via code
+                      # default); R2 names scoped to this tank so a future video
+                      # rollout can't cross-write into the wagyu bucket.
+                      f"ADMIN_EMAILS=\n"
+                      f"R2_BUCKET={ctx.key}-tank-videos\n"
+                      f"R2_PUBLIC_BASE=https://videos.{ctx.domain}\n")
         # write atomically via a heredoc
         h.ssh_run(vps, f"mkdir -p {tank_dir} && cat > {tank_dir}/tank.env <<'HATCHENV'\n{envtxt}HATCHENV")
         h.ok(f"wrote {tank_dir}/tank.env")
@@ -617,6 +624,13 @@ def phase_frontend(ctx: Ctx):
     if p.returncode != 0:
         raise h.HatchError(f"frontend build failed: {p.stderr[-300:]}")
     h.ok("built")
+    # Per-breed designer art (tanks/<key>/public/*) overrides the generated
+    # brand assets in out/ — og-image, favicon, foundation photos, etc.
+    art = REPO / "tanks" / ctx.key / "public"
+    if art.exists() and any(art.iterdir()):
+        p = h.run(["bash", "-lc", f'cp -r "{art}"/. "{site!s}/out/"'])
+        (h.ok if p.returncode == 0 else h.warn)(
+            f"per-breed art copied from tanks/{ctx.key}/public/ into the build")
     tok = ctx.pages_token or ctx.god
     p = h.run(["bash", "-lc",
                f"cd {site!s} && CLOUDFLARE_API_TOKEN={tok} CLOUDFLARE_ACCOUNT_ID={h.CF_ACCOUNT()} "

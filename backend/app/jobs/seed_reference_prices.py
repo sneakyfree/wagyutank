@@ -8,12 +8,22 @@ from pathlib import Path
 from ..db import Base, SessionLocal, engine
 from ..models import FoundationReferencePrice
 
-DATA = Path(__file__).resolve().parent.parent / "seed" / "data" / "foundation_reference_prices.json"
+def _data_path():
+    """Per-tank content, strictly: tanks/<key>/seed/foundation_reference_prices.json — the Wagyu file is
+    only a fallback for the wagyu tank itself. A clone without its own file
+    seeds NOTHING here (never another breed's data)."""
+    from .. import tank
+    return tank.seed_path_strict("foundation_reference_prices.json")
 
 
 def main():
+    _dp = _data_path()
+    if _dp is None:
+        from .. import tank
+        print(f"No foundation_reference_prices.json for tank '{tank.key()}' — skipping (per-tank content).")
+        return
     Base.metadata.create_all(bind=engine)
-    rows = json.loads(DATA.read_text())
+    rows = json.loads(_dp.read_text())
     db = SessionLocal()
     try:
         db.query(FoundationReferencePrice).delete()

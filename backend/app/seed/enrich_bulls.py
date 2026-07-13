@@ -12,7 +12,7 @@ from ..db import Base, SessionLocal, engine
 from ..models import Animal, AnimalSource, AnimalType
 
 from .. import tank
-DATA = tank.seed_path("foundation_bulls_enriched.json")
+DATA = tank.seed_path_strict("foundation_bulls_enriched.json")  # strict: clones never enrich from Wagyu data
 
 # Columns added after the initial schema — ensure they exist (SQLite ALTER ADD).
 _NEW_COLUMNS = {
@@ -49,6 +49,9 @@ def main():
     _ensure_columns()
     db = SessionLocal()
     try:
+        if DATA is None:
+            print(f"No foundation_bulls_enriched.json for tank '{{}}' — skipping.".format(tank.key()))
+            return
         rows = json.loads(DATA.read_text())
         # Remove existing foundation bulls (cows stay).
         removed = (

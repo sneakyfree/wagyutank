@@ -26,11 +26,15 @@ from ..schemas import AnimalUpsert
 
 _PRODUCT_NOUN = {"semen": "semen straws", "embryo": "embryos", "clone_rights": "cloning rights"}
 
-_AD_SYSTEM = (
-    "You write concise, accurate, persuasive marketplace listings for frozen Wagyu genetics "
-    "(semen, embryos, cloning rights). 2-4 sentences. Never invent facts, pedigree, or EPDs "
-    "not provided. No emojis, no hype clichés."
-)
+def _ad_system() -> str:
+    from .. import tank
+    breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+    kinds = ", ".join(p.get("label", "").lower() for p in tank.products() if p.get("label"))
+    return (
+        f"You write concise, accurate, persuasive marketplace listings for frozen {breed} genetics "
+        f"({kinds or 'semen, embryos'}). 2-4 sentences. Never invent facts, pedigree, or EPDs "
+        "not provided. No emojis, no hype clichés."
+    )
 
 _PEDIGREE_FIELDS = (
     "name, registration_no, animal_type (bull/cow/steer), breed, bloodline, bloodline_detail, "
@@ -39,7 +43,7 @@ _PEDIGREE_FIELDS = (
 
 _PEDIGREE_TOOL = {
     "name": "record_pedigree",
-    "description": "Record the Wagyu animal's registry details read from the screenshot.",
+    "description": "Record the animal's registry details read from the screenshot.",
     "input_schema": {
         "type": "object",
         "properties": {
@@ -166,7 +170,7 @@ def _complete(prov: dict, product_type: str, animal: AnimalUpsert, language: str
         client = anthropic.Anthropic(api_key=prov["key"])
         msg = client.messages.create(
             model=prov["adcopy_model"], max_tokens=400,
-            system=_AD_SYSTEM + lang,
+            system=_ad_system() + lang,
             messages=[{"role": "user", "content": user}],
         )
         return "".join(b.text for b in msg.content if getattr(b, "type", "") == "text").strip()
@@ -176,7 +180,7 @@ def _complete(prov: dict, product_type: str, animal: AnimalUpsert, language: str
             f"{prov['base_url'].rstrip('/')}/v1/chat",
             headers={"Authorization": f"Bearer {prov['key']}"},
             json={"model": prov["adcopy_model"], "max_tokens": 400,
-                  "messages": [{"role": "system", "content": _AD_SYSTEM + lang},
+                  "messages": [{"role": "system", "content": _ad_system() + lang},
                                {"role": "user", "content": user}]},
             timeout=45,
         )
@@ -188,7 +192,7 @@ def _complete(prov: dict, product_type: str, animal: AnimalUpsert, language: str
         f"{prov['base_url'].rstrip('/')}/chat/completions",
         headers={"Authorization": f"Bearer {prov['key']}"},
         json={"model": prov["adcopy_model"], "max_tokens": 400,
-              "messages": [{"role": "system", "content": _AD_SYSTEM + lang},
+              "messages": [{"role": "system", "content": _ad_system() + lang},
                            {"role": "user", "content": user}]},
         timeout=30,
     )
@@ -248,7 +252,9 @@ def _vision(prov: dict, image_bytes: bytes, filename: str) -> dict:
         raise NotImplementedError("windymind has no vision surface")
     media = _media_type(filename)
     b64 = base64.b64encode(image_bytes).decode()
-    prompt = ("This is a screenshot of a Wagyu animal's registry page. Extract the animal's "
+    from .. import tank
+    _breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+    prompt = (f"This is a screenshot of a {_breed} animal's registry page. Extract the animal's "
               "details. Only include fields you can actually read; omit anything uncertain.")
     if prov["kind"] == "anthropic":
         import anthropic

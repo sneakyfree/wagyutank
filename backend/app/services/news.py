@@ -364,13 +364,15 @@ def run(db) -> dict:
     return {"feeds": len(_feeds()), "seen": seen, "added": added}
 
 
-HIGHLIGHTS_SYS = (
-    "You are the editor of a global Wagyu news brief. From the list of recent Wagyu "
-    "headlines, write 4-6 punchy bullet points summarizing the biggest themes and stories "
-    "in world Wagyu right now — prices, records, exports, Japan, breeding, market trends. "
-    "Each bullet one sentence, factual, no hype, no preamble. Return ONLY the bullets, one "
-    "per line, each starting with '- '."
-)
+def _highlights_sys() -> str:
+    breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+    return (
+        f"You are the editor of a global {breed} news brief. From the list of recent {breed} "
+        "headlines, write 4-6 punchy bullet points summarizing the biggest themes and stories "
+        f"in world {breed} right now — prices, records, exports, breeding, market trends. "
+        "Each bullet one sentence, factual, no hype, no preamble. Return ONLY the bullets, one "
+        "per line, each starting with '- '."
+    )
 
 
 def generate_highlights(db) -> list[str]:
@@ -382,7 +384,7 @@ def generate_highlights(db) -> list[str]:
         return []
     headlines = "\n".join(f"[{a.region}] {a.title}" for a in rows)
     try:
-        out = chat(HIGHLIGHTS_SYS, headlines, max_tokens=400)
+        out = chat(_highlights_sys(), headlines, max_tokens=400)
     except Exception:
         out = None
     if not out:

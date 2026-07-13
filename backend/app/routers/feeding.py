@@ -14,7 +14,11 @@ from ..models import WagyuVideo
 
 router = APIRouter(prefix="/api/feeding", tags=["feeding"])
 
-DATA = Path(__file__).resolve().parent.parent / "seed" / "data" / "feeding.json"
+def _data():
+    """Strict per-tank content path — the Wagyu file serves only the wagyu tank;
+    a clone without its own feeding.json gets an empty payload, never Wagyu lore."""
+    from .. import tank
+    return tank.seed_path_strict("feeding.json")
 _cache: dict = {}
 
 # Title keywords that mark a video as feeding/finishing-related (EN + JP).
@@ -25,7 +29,7 @@ FEED_KEYS = ["feed", "feeding", "finish", "ration", "fatten", "marbl", "nutritio
 def _load() -> dict:
     if not _cache:
         try:
-            _cache.update(json.loads(DATA.read_text()))
+            _cache.update(json.loads(_data().read_text()))
         except Exception:
             _cache.update({"intro": "", "topics": [], "japanese_note": "", "video_search_terms": []})
     return _cache

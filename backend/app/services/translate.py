@@ -19,10 +19,14 @@ _CHUNK = 1400  # chars per translation chunk — keeps output well under token l
 
 def _system(target: str, is_markdown: bool) -> str:
     fmt = "Preserve all Markdown formatting (headings, bold, lists, links) exactly. " if is_markdown else ""
-    return (f"You are a professional translator specializing in cattle genetics and the Wagyu "
+    from .. import tank
+    b = tank.brand()
+    breed = b.get("breed") or "Wagyu"
+    species = b.get("species") or "cattle"
+    return (f"You are a professional translator specializing in {species} genetics and the {breed} "
             f"breed. Translate the user's text into natural, fluent {target}. {fmt}"
-            f"Keep proper nouns, cattle names, registration numbers, and breed terms "
-            f"(Wagyu, Akaushi, Tajima, etc.) unchanged. Return ONLY the translation, nothing else.")
+            f"Keep proper nouns, animal names, registration numbers, and breed terms "
+            f"({breed}, etc.) unchanged. Return ONLY the translation, nothing else.")
 
 
 def _chunks(text: str) -> list[str]:
@@ -113,9 +117,12 @@ def translate_batch(db, items: list[dict], lang: str) -> dict:
         else:
             pending.append({"id": _id, "text": text})
 
-    system = (f"You are a professional translator for the Wagyu cattle industry. Translate each "
+    from .. import tank
+    _b = tank.brand()
+    system = (f"You are a professional translator for the {_b.get('breed') or 'Wagyu'} "
+              f"{_b.get('species') or 'cattle'} industry. Translate each "
               f"numbered headline into natural {LANGS[lang]}. Keep breed terms and proper nouns "
-              f"(Wagyu, Akaushi, Tajima, Kobe, sire names, registration numbers) unchanged. "
+              f"(breed names, sire names, registration numbers) unchanged. "
               f"Return ONLY the same numbered list, one translation per line, no extra text.")
     for i in range(0, len(pending), 20):
         batch = pending[i:i + 20]

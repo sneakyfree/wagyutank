@@ -12,11 +12,15 @@ from ..models import Campaign, User
 from ..security import create_unsubscribe_token
 from ..services import digest, email as mail, settings_store
 
-SUBJECT = "The State of the Wagyu — this week from WagyuTank"
+def _subject() -> str:
+    from .. import tank
+    breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+    return f"The State of the {breed} — this week from {tank.brand().get('name', 'WagyuTank')}"
 
 
 def _unsub(uid: int) -> str:
-    api = settings.app_base_url.replace("www.", "api.")
+    from .. import tank
+    api = tank.api_base_url()
     return f"{api}/api/auth/unsubscribe?token={create_unsubscribe_token(uid)}"
 
 
@@ -28,7 +32,7 @@ def main():
 
         if len(sys.argv) > 2 and sys.argv[1] == "--test":
             to = sys.argv[2]
-            ok = mail.send(to, SUBJECT, mail.campaign_html(body, _unsub(0)))
+            ok = mail.send(to, _subject(), mail.campaign_html(body, _unsub(0)))
             print(f"Digest test to {to}: {'sent' if ok else 'FAILED'}")
             return
 
@@ -38,10 +42,10 @@ def main():
 
         users = db.query(User).filter(User.account_status == "active",
                                       User.marketing_opt_in == True).all()  # noqa: E712
-        camp = Campaign(subject=SUBJECT, body_html=body, segment="all",
+        camp = Campaign(subject=_subject(), body_html=body, segment="all",
                         recipients=len(users), status="sending")
         db.add(camp); db.commit()
-        messages = [{"to": u.email, "subject": SUBJECT,
+        messages = [{"to": u.email, "subject": _subject(),
                      "html": mail.campaign_html(body, _unsub(u.id)),
                      "unsubscribe_url": _unsub(u.id)} for u in users]
         from datetime import datetime, timezone

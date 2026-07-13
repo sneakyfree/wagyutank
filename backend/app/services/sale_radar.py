@@ -16,14 +16,18 @@ from .ai import chat
 _AUCTION = re.compile(r"\b(sale|auction|sells?|sold|tops?|topped|averaged?|gross(?:ed)?|record|fetch)", re.I)
 _PRICE = re.compile(r"[\$£¥€]|\bmillion\b|\b\d{1,3}[,\d]{3,}\b|\bcwt\b", re.I)
 
-_SYS = (
-    "Extract structured data about a WAGYU CATTLE/GENETICS AUCTION SALE from a news headline. "
+def _sys() -> str:
+    from .. import tank
+    breed = (tank.brand().get("breed") or "Wagyu").upper()
+    species = (tank.brand().get("species") or "cattle").upper()
+    return (
+    f"Extract structured data about a {breed} {species}/GENETICS AUCTION SALE from a news headline. "
     "Return ONLY JSON: {is_sale_result: bool, sale_name, year (int), country (ISO-2), "
     "currency (AUD/USD/JPY/EUR/GBP/BRL), top_price (number), top_price_item}. "
     "is_sale_result is true ONLY if the headline reports the OUTCOME of a specific auction "
     "(a price achieved, gross, or average) — not a preview, a beef/restaurant story, or general news. "
     "Use null for anything not stated. Never invent numbers."
-)
+    )
 
 
 def _now():
@@ -46,7 +50,7 @@ def scan(db) -> dict:
     for a in candidates[:20]:  # cap LLM calls per run
         checked += 1
         try:
-            out = chat(_SYS, a.title, max_tokens=200)
+            out = chat(_sys(), a.title, max_tokens=200)
         except Exception:
             continue
         if not out:

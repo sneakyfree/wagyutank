@@ -94,6 +94,23 @@ def vocab() -> dict:
 _APP_DIR = Path(__file__).resolve().parent  # .../backend/app
 
 
+def base_url() -> str:
+    """The tank's own public web base (https://www.<domain>) — for password-reset
+    links, welcome/digest links, unsubscribe URLs. Derived from the tank's brand
+    so every clone links to ITSELF; settings.app_base_url (shared backend/.env)
+    is only the last-ditch fallback when a tank has no domain configured."""
+    d = (brand().get("domain") or "").strip()
+    if d:
+        return f"https://www.{d}"
+    from .config import settings
+    return settings.app_base_url
+
+
+def api_base_url() -> str:
+    """The tank's own API base (https://api.<domain>)."""
+    return base_url().replace("://www.", "://api.")
+
+
 def seed_path(filename: str) -> Path:
     """Resolve a seed-content file for THIS tank. Prefers tanks/<key>/seed/<file>
     (per-tank breed content); falls back to app/seed/data/<file> (WagyuTank's
@@ -103,3 +120,17 @@ def seed_path(filename: str) -> Path:
     if p.exists():
         return p
     return _APP_DIR / "seed" / "data" / filename
+
+
+def seed_path_strict(filename: str) -> Path | None:
+    """Like seed_path, but the Wagyu fallback applies ONLY to the wagyu tank.
+    For a clone, a missing seed file means "this tank has no such content yet"
+    — the caller must SKIP, never seed another breed's data. Returns None when
+    there is nothing safe to load."""
+    p = _REPO_ROOT / "tanks" / _TANK_KEY / "seed" / filename
+    if p.exists():
+        return p
+    legacy = _APP_DIR / "seed" / "data" / filename
+    if _TANK_KEY == "wagyu" and legacy.exists():
+        return legacy
+    return None

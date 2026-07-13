@@ -13,7 +13,12 @@ from .. import models  # noqa: F401
 from ..db import Base, SessionLocal, engine
 from ..models import SaleEvent
 
-DATA = Path(__file__).parent.parent / "seed" / "data" / "sale_events.json"
+def _data_path():
+    """Per-tank content, strictly: tanks/<key>/seed/sale_events.json — the Wagyu file is
+    only a fallback for the wagyu tank itself. A clone without its own file
+    seeds NOTHING here (never another breed's data)."""
+    from .. import tank
+    return tank.seed_path_strict("sale_events.json")
 
 CONTINENT = {"AU": "OC", "NZ": "OC", "US": "NA", "CA": "NA", "MX": "NA",
              "GB": "EU", "DE": "EU", "FR": "EU", "IE": "EU", "NL": "EU",
@@ -36,8 +41,13 @@ def _event_type(r: dict) -> str:
 
 
 def main():
+    _dp = _data_path()
+    if _dp is None:
+        from .. import tank
+        print(f"No sale_events.json for tank '{tank.key()}' — skipping (per-tank content).")
+        return
     Base.metadata.create_all(bind=engine)
-    rows = json.loads(DATA.read_text())
+    rows = json.loads(_dp.read_text())
     db = SessionLocal()
     added = updated = 0
     try:

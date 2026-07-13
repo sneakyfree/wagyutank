@@ -12,7 +12,7 @@ from ..db import Base, SessionLocal, engine
 from ..models import Animal, AnimalSource, AnimalType
 
 from .. import tank
-DATA = tank.seed_path("foundation_cows_enriched.json")
+DATA = tank.seed_path_strict("foundation_cows_enriched.json")  # strict: clones never enrich from Wagyu data
 
 
 def _tagline(c: dict) -> str:
@@ -29,7 +29,7 @@ def _tagline(c: dict) -> str:
 
 
 def main():
-    if not DATA.exists():
+    if DATA is None or not DATA.exists():
         print(f"No {DATA.name} yet — run the cow research first.")
         return
     Base.metadata.create_all(bind=engine)

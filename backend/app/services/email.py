@@ -144,5 +144,5 @@ def send_welcome(to: str, name: str) -> bool:
         f"<p>Welcome to {brand_name}, {name}!</p>"
         f"<p>You can list genetics in under a minute, browse offerings from around the world, "
         f"and dig into the deepest {breed} breed history anywhere.</p>"
-        f"<p><a href='{settings.app_base_url}/sell' style='color:{gold};font-weight:700'>List your first genetics →</a></p>")
+        f"<p><a href='{tank.base_url()}/sell' style='color:{gold};font-weight:700'>List your first genetics →</a></p>")
     return send(to, f"Welcome to {brand_name}", html)

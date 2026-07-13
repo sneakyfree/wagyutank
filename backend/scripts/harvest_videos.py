@@ -23,6 +23,50 @@ import urllib.request
 import os
 API = os.environ.get("HARVEST_API", "https://api.wagyutank.com")
 
+# ---- tank identity (fetched from the target tank's own /api/config) ----------
+# The harvest is breed-agnostic: the breed word in every query, the relevance
+# words, and the category queries all come from the tank this run targets, so a
+# MurrayGreyTank harvest searches "<bull> murray grey", never "wagyu".
+_TANK_CFG = None
+
+def tank_cfg():
+    global _TANK_CFG
+    if _TANK_CFG is None:
+        try:
+            _TANK_CFG = get_json(f"{API}/api/config")
+        except Exception:
+            _TANK_CFG = {}
+    return _TANK_CFG
+
+def breed_word() -> str:
+    b = (tank_cfg().get("brand") or {}).get("breed") or "Wagyu"
+    return b.split(" & ")[0].strip().lower()
+
+def is_wagyu_tank() -> bool:
+    return (tank_cfg().get("key") or "wagyu") == "wagyu"
+
+def relevance_words() -> tuple:
+    if is_wagyu_tank():
+        return WAGYU_WORDS
+    v = tank_cfg().get("vocab") or {}
+    words = {breed_word()}
+    for term in (v.get("video_search_terms") or []) + (v.get("news_search_terms") or []):
+        words.add(term.strip().lower())
+    return tuple(sorted(w for w in words if w))
+
+def category_queries() -> list:
+    if is_wagyu_tank():
+        return CATEGORY_QUERIES
+    b = breed_word()
+    return [
+        (f"{b} bull sale auction", "sale"), (f"{b} auction results", "sale"),
+        (f"{b} genetics sale lot", "sale"), (f"{b} semen lot", "sale"),
+        (f"{b} embryo sale", "sale"),
+        (f"{b} artificial insemination", "education"), (f"{b} embryo transfer", "education"),
+        (f"raising {b} cattle", "education"), (f"starting a {b} herd", "education"),
+        (f"{b} stud", "ranch"), (f"{b} cattle farm tour", "ranch"),
+    ]
+
 CATEGORY_QUERIES = [
     # sales / auctions
     ("wagyu bull sale auction", "sale"), ("wagyu auction results", "sale"),
@@ -57,7 +101,8 @@ REG_NOISE = re.compile(r"^(HD|UHD|MP|FPS|4K|1080|720|2160)", re.I)
 
 
 def get_json(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "WagyuTankHarvest/1.0 (+https://www.wagyutank.com)"})
+    dom = API.split("://", 1)[-1].replace("api.", "", 1)
+    req = urllib.request.Request(url, headers={"User-Agent": f"TankHarvest/1.0 (+https://www.{dom})"})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read())
 
@@ -68,11 +113,11 @@ def build_query_pool(quick=False):
     bulls = [a for a in animals if a.get("animal_type") == "bull"]
     for a in bulls:
         name = a["name"].strip()
-        pool.append((f"{name} wagyu", "sire", {"animal_reg": a.get("registration_no"), "animal_name": name}))
+        pool.append((f"{name} {breed_word()}", "sire", {"animal_reg": a.get("registration_no"), "animal_name": name}))
     # notable cows (photo'd / marquee dams) — cow videos are rarer, sample a few
     cows = [a for a in animals if a.get("animal_type") == "cow"][: (0 if quick else 12)]
     for a in cows:
-        pool.append((f"{a['name']} wagyu cow", "sire", {"animal_reg": a.get("registration_no"), "animal_name": a["name"]}))
+        pool.append((f"{a['name']} {breed_word()} cow", "sire", {"animal_reg": a.get("registration_no"), "animal_name": a["name"]}))
     # sales from our own database
     try:
         evs = get_json(f"{API}/api/sale-events?limit=200")
@@ -83,10 +128,11 @@ def build_query_pool(quick=False):
             if base and base.lower() not in [x.lower() for x in names]:
                 names.append(base)
         for n in names[: (5 if quick else 25)]:
-            pool.append((f"{n} wagyu", "sale", {}))
+            pool.append((f"{n} {breed_word()}", "sale", {}))
     except Exception as e:
         print(f"  (sale-events fetch failed: {e})", file=sys.stderr)
-    for q, cat in (CATEGORY_QUERIES[:6] if quick else CATEGORY_QUERIES):
+    cqs = category_queries()
+    for q, cat in (cqs[:6] if quick else cqs):
         pool.append((q, cat, {}))
     return pool
 
@@ -132,7 +178,7 @@ def relevant(item, query_meta):
     hay = f"{item['title']} {item.get('channel') or ''} {item.get('description') or ''}".lower()
     if any(k in hay for k in OFFTOPIC):
         return False
-    if any(k in hay for k in WAGYU_WORDS):
+    if any(k in hay for k in relevance_words()):
         return True
     # Animal-name fallback: common-word names (Judo, Mt. Fuji, Mazda…) collide
     # with the wider world — require cattle context or a registration number too.

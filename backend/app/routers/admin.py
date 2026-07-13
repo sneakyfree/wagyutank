@@ -14,6 +14,7 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from .. import tank
 from ..config import settings as cfg
 from ..db import get_db
 from ..models import (
@@ -611,7 +612,7 @@ def _recipients(db: Session, segment: str) -> list[User]:
 def campaign_test(subject: str = Body(...), body_html: str = Body(...),
                   admin: User = Depends(require_admin)):
     """Send the draft only to the admin, to preview it."""
-    unsub = f"{cfg.app_base_url.replace('www.', 'api.')}/api/auth/unsubscribe?token={create_unsubscribe_token(admin.id)}"
+    unsub = f"{tank.api_base_url()}/api/auth/unsubscribe?token={create_unsubscribe_token(admin.id)}"
     ok = mail.send(admin.email, f"[TEST] {subject}", mail.campaign_html(body_html, unsub))
     return {"ok": ok, "sent_to": admin.email}
 
@@ -621,8 +622,8 @@ def digest_test(admin: User = Depends(require_admin), db: Session = Depends(get_
     from ..services import digest
     from ..security import create_unsubscribe_token
     body = digest.build_body(db)
-    unsub = f"{cfg.app_base_url.replace('www.', 'api.')}/api/auth/unsubscribe?token={create_unsubscribe_token(admin.id)}"
-    ok = mail.send(admin.email, "[TEST] The Wagyu Wire", mail.campaign_html(body, unsub))
+    unsub = f"{tank.api_base_url()}/api/auth/unsubscribe?token={create_unsubscribe_token(admin.id)}"
+    ok = mail.send(admin.email, f"[TEST] The {(tank.brand().get('breed') or 'Wagyu').split(' & ')[0]} Wire", mail.campaign_html(body, unsub))
     return {"ok": ok, "sent_to": admin.email}
 
 
@@ -647,7 +648,7 @@ def campaign_send(subject: str = Body(...), body_html: str = Body(...),
     camp = Campaign(subject=subject[:200], body_html=body_html, segment=segment,
                     recipients=len(users), status="sending", created_by=admin.id)
     db.add(camp); db.commit()
-    api_base = cfg.app_base_url.replace("www.", "api.")
+    api_base = tank.api_base_url()
     messages = [{
         "to": u.email, "subject": subject,
         "html": mail.campaign_html(body_html,

@@ -39,8 +39,20 @@ const MAX_PAGES = parseInt(arg("max-pages", "600"), 10);
 // hard-filters non-genetics commerce (dairy-breed catalogs, beef/meat, merch).
 const STRONG = /semen|embryo|straw|\bdose|sperma|genetik|genetic|for.?sale|nettbutikk/i;
 const COMMERCE = /product|collection|shop|store|katalog|catalog/i;
-const HINT = /wagyu|akaushi|semen|embryo|straw|sperma|genetik|genetic|\bsire\b|\bbull\b|\bdam\b|michifuku|itoshigenami|tajima|fukutsuru|shigeshigenami/i;
-const SKIP = /\b(login|cart|account|checkout|privacy|terms|contact|about|blog|news|faq|policy|cookie|newsletter|wishlist|compare)\b|beef|meat|fleisch|rindfleisch|carne|steak|holstein|jersey|angus|hereford|charolais|simmental|brahman|dairy|\bmilk\b|restaurant|recipe|cook|butcher|wholesale|gift|apparel|merch/i;
+// Per-tank breed terms: TANK_TERMS env = pipe-joined lowercase terms (set by
+// deploy/tank-crawl.sh from the tank's tank.json). Without it, defaults to the
+// Wagyu terms so the original wagyu crawl is unchanged. The breed terms feed
+// the HINT (what makes a commerce link worth following) and are STRIPPED from
+// SKIP (so e.g. an AngusTank crawl doesn't skip its own breed).
+const BREED_TERMS = (process.env.TANK_TERMS || "wagyu|akaushi|michifuku|itoshigenami|tajima|fukutsuru|shigeshigenami")
+  .toLowerCase().split("|").map(s => s.trim()).filter(Boolean);
+const HINT = new RegExp(BREED_TERMS.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") +
+  "|semen|embryo|straw|sperma|genetik|genetic|\\bsire\\b|\\bbull\\b|\\bdam\\b", "i");
+const SKIP_BREEDS = ["holstein", "jersey", "angus", "hereford", "charolais", "simmental", "brahman"]
+  .filter(b => !BREED_TERMS.some(t => t.includes(b)));
+const SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|about|blog|news|faq|policy|cookie|newsletter|wishlist|compare)\\b" +
+  "|beef|meat|fleisch|rindfleisch|carne|steak|" + SKIP_BREEDS.join("|") +
+  "|dairy|\\bmilk\\b|restaurant|recipe|cook|butcher|wholesale|gift|apparel|merch", "i");
 
 function follow(clean, t) {
   if (STRONG.test(clean) || STRONG.test(t)) return true;
@@ -90,7 +102,7 @@ async function crawlSite(browser, seed, budget, out) {
   const site = hostOf(seed.url);
   if (!site) return;
   const ctx = await browser.newContext({
-    userAgent: "Mozilla/5.0 (compatible; WagyuTankBot/1.0; +https://www.wagyutank.com/roundup)",
+    userAgent: `Mozilla/5.0 (compatible; ${process.env.TANK_BOT || "WagyuTankBot/1.0; +https://www.wagyutank.com/roundup"})`,
     viewport: { width: 1280, height: 1600 },
   });
   try {

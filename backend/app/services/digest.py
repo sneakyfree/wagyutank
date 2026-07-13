@@ -3,23 +3,37 @@ retention loop that pulls people back into the marketplace."""
 import time
 from datetime import timedelta
 
+from .. import tank
 from ..models import Listing, ListingStatus, MarketQuote, NewsArticle, NotableSale, utcnow
 from . import price_index
 from .ai import chat
 
-_EDITORIAL_SYS = (
-    "You are the editor of The Wagyu Wire, WagyuTank.com's weekly letter to Wagyu "
-    "breeders worldwide. Write this week's 'State of the Wagyu' — a short editor's "
-    "letter (2-3 paragraphs, 130-200 words total) synthesizing the week from the "
-    "data provided. Plain, confident, rancher-to-rancher voice. No hype, no "
-    "emojis, no greetings or sign-offs, no headings. CRITICAL: use ONLY facts "
-    "present in the data below — never invent numbers, names, or events. If a "
-    "theme spans several headlines, call out the trend. Output plain text "
-    "paragraphs separated by blank lines."
-)
 
-BASE = "https://www.wagyutank.com"
-GOLD = "#8a6d2b"
+def _breed() -> str:
+    return (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+
+
+def _editorial_sys() -> str:
+    breed, name = _breed(), tank.brand().get("name", "WagyuTank")
+    dom = tank.brand().get("domain", "wagyutank.com")
+    return (
+        f"You are the editor of The {breed} Wire, {dom}'s weekly letter to {breed} "
+        f"breeders worldwide. Write this week's 'State of the {breed}' — a short editor's "
+        "letter (2-3 paragraphs, 130-200 words total) synthesizing the week from the "
+        "data provided. Plain, confident, rancher-to-rancher voice. No hype, no "
+        "emojis, no greetings or sign-offs, no headings. CRITICAL: use ONLY facts "
+        "present in the data below — never invent numbers, names, or events. If a "
+        "theme spans several headlines, call out the trend. Output plain text "
+        "paragraphs separated by blank lines."
+    )
+
+
+def BASE() -> str:
+    return tank.base_url()
+
+
+def GOLD() -> str:
+    return (tank.brand().get("colors") or {}).get("gold") or "#8a6d2b"
 
 
 def _money(n):
@@ -32,7 +46,7 @@ def _money(n):
 def _section(title, inner):
     return (f"<div style='margin:26px 0 0'>"
             f"<div style='font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;"
-            f"color:{GOLD};margin-bottom:10px'>{title}</div>{inner}</div>")
+            f"color:{GOLD()};margin-bottom:10px'>{title}</div>{inner}</div>")
 
 
 def _news(db) -> str:
@@ -44,11 +58,11 @@ def _news(db) -> str:
     flag = {"US": "🇺🇸", "AU": "🇦🇺", "JP": "🇯🇵", "EU": "🇪🇺", "SA": "🌎"}
     items = "".join(
         f"<div style='margin-bottom:12px'>"
-        f"<a href='{BASE}/news/' style='color:#1a1a1a;text-decoration:none;font-weight:600;font-size:15px;line-height:1.4'>{a.title}</a>"
+        f"<a href='{BASE()}/news/' style='color:#1a1a1a;text-decoration:none;font-weight:600;font-size:15px;line-height:1.4'>{a.title}</a>"
         f"<div style='color:#999;font-size:12px'>{flag.get(a.region,'🌍')} {a.source_name}"
         f"{' · 🌐 translated' if a.is_translated else ''}</div></div>"
         for a in rows)
-    return _section("📰 This week in Wagyu", items)
+    return _section(f"📰 This week in {_breed()}", items)
 
 
 def _market(db) -> str:
@@ -62,11 +76,11 @@ def _market(db) -> str:
     sire_html = " · ".join(f"<b>{s['sire']}</b> {_money(s['avg'])}" for s in sires)
     inner = (
         f"<div style='background:#faf7f0;border-radius:10px;padding:14px 16px'>"
-        f"<div style='font-size:15px'>Wagyu semen index: <b style='color:{GOLD}'>{_money(m['semen_avg'])}/straw</b> "
+        f"<div style='font-size:15px'>{_breed()} semen index: <b style='color:{GOLD()}'>{_money(m['semen_avg'])}/straw</b> "
         f"avg across {m.get('semen_count',0)} listings</div>"
         + (f"<div style='color:#555;font-size:13px;margin-top:6px'>{sire_html}</div>" if sire_html else "")
         + (f"<div style='color:#555;font-size:13px;margin-top:6px'>Choice boxed beef cutout: <b>{_money(cut.value)}/cwt</b></div>" if cut and cut.value else "")
-        + f"<a href='{BASE}/market/' style='color:{GOLD};font-size:13px;font-weight:700'>See the data center →</a></div>")
+        + f"<a href='{BASE()}/market/' style='color:{GOLD()};font-size:13px;font-weight:700'>See the data center →</a></div>")
     return _section("📈 Market pulse", inner)
 
 
@@ -77,8 +91,8 @@ def _listings(db) -> str:
     if not rows:
         return ""
     def _row(li):
-        price = f" — <span style='color:{GOLD}'>{_money(li.unit_price)}</span>" if li.unit_price else ""
-        return (f"<a href='{BASE}/listing/?id={li.id}' style='display:block;color:#1a1a1a;"
+        price = f" — <span style='color:{GOLD()}'>{_money(li.unit_price)}</span>" if li.unit_price else ""
+        return (f"<a href='{BASE()}/listing/?id={li.id}' style='display:block;color:#1a1a1a;"
                 f"text-decoration:none;padding:8px 0;border-bottom:1px solid #eee'>"
                 f"<b style='font-size:14px'>{li.title}</b>{price}</a>")
     return _section("🧬 Fresh on the marketplace", "".join(_row(li) for li in rows))
@@ -91,8 +105,8 @@ def _record(db) -> str:
         return ""
     sym = {"JPY": "¥", "AUD": "A$"}.get(s.currency, "$")
     price = f"{sym}{s.price/1e6:.0f}M" if s.currency == "JPY" else f"{sym}{s.price:,.0f}"
-    inner = (f"<div style='font-size:15px'><b style='color:{GOLD}'>{price}</b> {s.unit or ''} — {s.headline}</div>"
-             f"<a href='{BASE}/sales/' style='color:{GOLD};font-size:13px;font-weight:700'>The Hall of Records →</a>")
+    inner = (f"<div style='font-size:15px'><b style='color:{GOLD()}'>{price}</b> {s.unit or ''} — {s.headline}</div>"
+             f"<a href='{BASE()}/sales/' style='color:{GOLD()};font-size:13px;font-weight:700'>The Hall of Records →</a>")
     return _section("🏆 From the record books", inner)
 
 
@@ -132,7 +146,7 @@ def _editorial(db) -> str:
         if attempt:
             time.sleep(45)
         try:
-            letter = chat(_EDITORIAL_SYS, "\n\n".join(facts), max_tokens=500)
+            letter = chat(_editorial_sys(), "\n\n".join(facts), max_tokens=500)
             break
         except Exception:
             continue
@@ -140,10 +154,10 @@ def _editorial(db) -> str:
         return ""
     paras = "".join(f"<p style='font-size:15px;color:#333;line-height:1.65;margin:0 0 14px'>{p.strip()}</p>"
                     for p in letter.split("\n\n") if p.strip())
-    return _section("🖋 The State of the Wagyu", paras)
+    return _section(f"🖋 The State of the {_breed()}", paras)
 
 
 def build_body(db) -> str:
-    intro = ("<p style='font-size:15px;color:#444'>Your weekly window into the world of Wagyu — "
+    intro = (f"<p style='font-size:15px;color:#444'>Your weekly window into the world of {_breed()} — "
              "the news, the market, and the genetics moving right now.</p>")
     return intro + _editorial(db) + _news(db) + _market(db) + _listings(db) + _record(db)

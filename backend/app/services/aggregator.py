@@ -36,8 +36,36 @@ import httpx
 
 from ..models import AggregatedListing, ProductType
 from .ai import chat
+from .. import tank
 
-USER_AGENT = "WagyuTankBot/1.0 (+https://www.wagyutank.com/roundup; aggregator)"
+
+def _breed_terms() -> list[str]:
+    """Lowercased relevance words for THIS tank's breed — the words a seller page
+    must mention to count as on-breed (wagyu: wagyu/akaushi; murray grey: murray
+    grey; …). Built from the brand breed + vocab search terms."""
+    b = tank.brand()
+    words = set()
+    breed = (b.get("breed") or "Wagyu")
+    for part in breed.replace("&", "/").split("/"):
+        part = part.strip().lower()
+        # drop parenthetical qualifiers: "Akaushi (Japanese Red)" → "akaushi"
+        part = part.split("(")[0].strip()
+        if part:
+            words.add(part)
+    for term in (tank.vocab().get("news_search_terms") or []):
+        term = term.strip().lower()
+        if term:
+            words.add(term)
+    return sorted(words)
+
+
+def _breed_short() -> str:
+    return (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+
+
+def USER_AGENT() -> str:
+    b = tank.brand()
+    return f"{b.get('name', 'WagyuTank')}Bot/1.0 (+https://www.{b.get('domain', 'wagyutank.com')}/roundup; aggregator)"
 # Search engines gate non-browser agents; use a browser UA only for the discovery query.
 SEARCH_UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
              "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
@@ -155,7 +183,7 @@ def _robots_ok(url: str) -> bool:
         rp = RobotFileParser()
         rp.set_url(f"{p.scheme}://{p.netloc}/robots.txt")
         rp.read()
-        return rp.can_fetch(USER_AGENT, url)
+        return rp.can_fetch(USER_AGENT(), url)
     except Exception:
         # If robots is unreadable, be conservative but not blocking: allow.
         return True
@@ -164,7 +192,7 @@ def _robots_ok(url: str) -> bool:
 def _fetch(url: str) -> tuple[str | None, datetime | None]:
     """Return (html, last_modified) — last_modified from the HTTP header if present."""
     try:
-        r = httpx.get(url, headers={"User-Agent": USER_AGENT},
+        r = httpx.get(url, headers={"User-Agent": USER_AGENT()},
                       timeout=25, follow_redirects=True)
         if r.status_code == 200 and "text/html" in r.headers.get("content-type", ""):
             return r.text, _parse_date(r.headers.get("last-modified"))
@@ -185,7 +213,8 @@ def _classify_product(text: str) -> str | None:
 
 
 def _clean_animal_name(title: str) -> str | None:
-    name = re.sub(r"(?i)\b(frozen|wagyu|akaushi|red|fullblood|full[- ]?blood|semen|straws?|"
+    breed_alt = "|".join(re.escape(w) for w in _breed_terms()) or "wagyu"
+    name = re.sub(r"(?i)\b(frozen|" + breed_alt + r"|red|fullblood|full[- ]?blood|semen|straws?|"
                   r"embryos?|ivf|for sale|genetics?|sexed|conventional|per|each|unit)\b", " ", title)
     name = re.sub(r"[\-–|•,/]+", " ", name)
     name = re.sub(r"\s+", " ", name).strip(" -–|")
@@ -203,7 +232,7 @@ def _shopify_products(base_url: str) -> list[dict] | None:
     for page in range(1, 6):
         try:
             r = httpx.get(f"{root}/products.json", params={"limit": 250, "page": page},
-                          headers={"User-Agent": USER_AGENT}, timeout=20, follow_redirects=True)
+                          headers={"User-Agent": USER_AGENT()}, timeout=20, follow_redirects=True)
             if r.status_code != 200 or "json" not in r.headers.get("content-type", ""):
                 return None if page == 1 else listings
             prods = r.json().get("products", [])
@@ -217,7 +246,7 @@ def _shopify_products(base_url: str) -> list[dict] | None:
             tags = " ".join(pr.get("tags", []) if isinstance(pr.get("tags"), list) else [str(pr.get("tags", ""))])
             body = re.sub(r"<[^>]+>", " ", pr.get("body_html") or "")
             # relevance can look at the body; classification must not (avoids false positives)
-            if not any(w in f"{title_l} {tags} {body}".lower() for w in ("wagyu", "akaushi")):
+            if not any(w in f"{title_l} {tags} {body}".lower() for w in _breed_terms()):
                 continue
             # hard-exclude live-animal listings even if the title also mentions embryo/semen
             if any(p in title_l for p in ("cows & heifers", "cows and heifers", "heifers for sale",
@@ -279,10 +308,14 @@ def _html_to_text(html: str) -> str:
     return text[:9000]
 
 
-_EXTRACT_SYSTEM = (
-    "You extract structured facts about FROZEN WAGYU/AKAUSHI GENETICS for sale (semen straws, "
-    "embryos, or cloning/cell-line rights) from a web page's text. Return ONLY a JSON array. "
-    "Each element: {product_type: 'semen'|'embryo'|'clone_rights', animal_name, registration_no, "
+def _extract_system() -> str:
+    breed_u = " / ".join(w.upper() for w in _breed_terms()) or "WAGYU"
+    pkeys = "|".join(f"'{k}'" for k in sorted(tank.product_keys())) or "'semen'|'embryo'"
+    plabels = ", ".join(p.get("label", "").lower() for p in tank.products() if p.get("label"))
+    return (
+    f"You extract structured facts about FROZEN {breed_u} GENETICS for sale ({plabels or 'semen straws, embryos'}) "
+    "from a web page's text. Return ONLY a JSON array. "
+    "Each element: {product_type: " + pkeys + ", animal_name, registration_no, "
     "bloodline, price (number or null), price_unit, currency, quantity, seller_name, location, "
     "country (ISO 2-letter), css_status ('css' if the page says CSS/Certified Semen Services or "
     "export-eligible; 'domestic' if it says domestic-only/non-CSS; else 'unknown'), "
@@ -290,10 +323,10 @@ _EXTRACT_SYSTEM = (
     "destinations the page explicitly says it's export-eligible to; [] if unstated), "
     "listing_date (if the ad states when it was posted/updated, as ISO 'YYYY-MM-DD' or "
     "'YYYY-MM'; else null — do NOT guess)}. "
-    "Include ONLY genuine for-sale Wagyu/Akaushi genetics listings — skip live cattle, beef "
-    "products, general info, and non-Wagyu. If the page has none, return []. "
+    f"Include ONLY genuine for-sale {_breed_short()} genetics listings — skip live animals, meat "
+    f"products, general info, and non-{_breed_short()} breeds. If the page has none, return []. "
     "Never invent data; use null/'unknown'/[] for anything not stated."
-)
+    )
 
 
 _LAST_LLM = [0.0]      # global throttle — free-tier LLMs cap tokens/minute
@@ -309,7 +342,7 @@ def _extract(text: str, source_url: str) -> list[dict]:
         if gap > 0:
             time.sleep(gap)
         try:
-            out = chat(_EXTRACT_SYSTEM, f"Page URL: {source_url}\n\nPage text:\n{text}", max_tokens=3200)
+            out = chat(_extract_system(), f"Page URL: {source_url}\n\nPage text:\n{text}", max_tokens=3200)
             _LAST_LLM[0] = time.monotonic()
             break
         except Exception:
@@ -364,7 +397,7 @@ def _dedup_key(source_url: str, product: str, animal: str, price) -> str:
 
 
 def _title(animal: str | None, product: ProductType, seller: str | None) -> str:
-    name = animal or "Wagyu"
+    name = animal or _breed_short()
     label = _PRODUCT_LABEL[product.value]
     return f"{name} {label}" + (f" — {seller}" if seller else "")
 
@@ -381,7 +414,7 @@ def _summary(li: dict, animal: str | None, product: ProductType) -> str:
     noun = singular if qn == 1 else plural
     lead = f"{qn} " if qn else ""
     reg = f" ({li['registration_no']})" if li.get("registration_no") else ""
-    bits.append(f"{lead}{noun} from {animal or 'a Wagyu sire'}{reg}.")
+    bits.append(f"{lead}{noun} from {animal or f'a {_breed_short()} sire'}{reg}.")
     if li.get("bloodline"):
         bits.append(f"{li['bloodline']} bloodline.")
     if li.get("seller_name"):

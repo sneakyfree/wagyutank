@@ -15,14 +15,18 @@ from ..services import ratelimit
 
 router = APIRouter(prefix="/api/zenkyo", tags=["zenkyo"])
 
-DATA = Path(__file__).resolve().parent.parent / "seed" / "data" / "zenkyo.json"
+def _data():
+    """Strict per-tank content path — the Wagyu file serves only the wagyu tank;
+    a clone without its own zenkyo.json gets an empty payload, never Wagyu lore."""
+    from .. import tank
+    return tank.seed_path_strict("zenkyo.json")
 _cache: dict = {}
 
 
 def _load() -> dict:
     if not _cache:
         try:
-            _cache.update(json.loads(DATA.read_text()))
+            _cache.update(json.loads(_data().read_text()))
         except Exception:
             _cache.update({"events": [], "champions": []})
     return _cache

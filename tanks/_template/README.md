@@ -35,6 +35,30 @@ knowledge, ~$30–80 of research per breed per TEMPLATE_SPEC §8):
 | `seed/facilities.json` | collection/embryo/storage facilities for this breed (optional; `[]` is fine) | Sonnet |
 | `tank.json` | finish `help_nuance`, registry names, founder substitutions, feature flags | judgment |
 
+**Optional deeper-content seed files** (each unlocks a section; **absent = that
+seeder safely SKIPS** — a clone never inherits Wagyu's data, per
+`tank.seed_path_strict`):
+
+| Optional file | Feeds | Shape reference (wagyu's copy) |
+|---|---|---|
+| `seed/sale_events.json` | Sale Reports history + charts | `backend/app/seed/data/sale_events.json` |
+| `seed/upcoming_sales.json` | sales calendar | `backend/app/seed/data/upcoming_sales.json` |
+| `seed/notable_sales.json` | Hall of Records | dict shape of `seed_notable_sales.SALES` |
+| `seed/foundation_reference_prices.json` | Price-Index reference prices | `backend/app/seed/data/foundation_reference_prices.json` |
+| `seed/animal_photos.json` | foundation photo galleries | `backend/app/seed/data/animal_photos.json` |
+| `seed/great_sires.json` / `zenkyo.json` / `feeding.json` | their feature pages (usually OFF for clones) | wagyu's copies |
+
+House ads need **no** file — `seed_ads` templates them from the brand. Curated
+discussion threads (`seed_comments`) are wagyu-only and skip on clones.
+
+**Brand art (binary assets tankify can't rewrite):** the frontend postbuild
+auto-generates a branded `og-image.png` (social card) + `favicon.svg` (medallion)
+from the tank's colors/wordmark, so a clone never ships WagyuTank's. Replace with
+designer art whenever ready by dropping files into `tanks/<key>/public/` and
+copying them into the site build. The `components/Logo.tsx` medallion SVG is the
+one remaining hand-crafted mark (wagyu's marbled ribeye) — swap it per tank when
+you want a real logo; until then the wordmark carries the brand.
+
 Leave `{{TOKENS}}` you don't have data for — they're visible and greppable, not
 silent gaps. Niche communities are unforgiving of wrong breed facts, so **fact-
 check before serving**.

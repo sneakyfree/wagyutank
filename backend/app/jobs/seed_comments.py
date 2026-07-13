@@ -91,6 +91,12 @@ def _find_reg(db, fragment: str) -> str | None:
 
 
 def main():
+    from .. import tank
+    if tank.key() != "wagyu":
+        # THREADS below are curated WAGYU discussions keyed by wagyu sire-name
+        # fragments — meaningless (or name-collision-dangerous) on another breed.
+        print(f"seed_comments is wagyu-curated content — skipping for tank '{tank.key()}'.")
+        return
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     inserted = 0

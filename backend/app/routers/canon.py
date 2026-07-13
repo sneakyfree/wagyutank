@@ -13,14 +13,18 @@ from ..db import get_db
 
 router = APIRouter(prefix="/api/canon", tags=["canon"])
 
-DATA = Path(__file__).resolve().parent.parent / "seed" / "data" / "great_sires.json"
+def _data():
+    """Strict per-tank content path — the Wagyu file serves only the wagyu tank;
+    a clone without its own great_sires.json gets an empty payload, never Wagyu lore."""
+    from .. import tank
+    return tank.seed_path_strict("great_sires.json")
 _cache: dict = {}
 
 
 def _load() -> dict:
     if not _cache:
         try:
-            _cache.update(json.loads(DATA.read_text()))
+            _cache.update(json.loads(_data().read_text()))
         except Exception:
             _cache.update({"attribution": "", "sires": [], "dams": []})
     return _cache

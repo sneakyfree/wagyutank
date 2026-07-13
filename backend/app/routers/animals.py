@@ -96,7 +96,10 @@ def animal_zenkyo(reg: str, db: Session = Depends(get_db)):
     from pathlib import Path as _Path
     a = find_animal(db, reg)
     key = (a.registration_no if a else reg) or reg
-    data_path = _Path(__file__).resolve().parent.parent / "seed" / "data" / "zenkyo.json"
+    from .. import tank as _tank
+    data_path = _tank.seed_path_strict("zenkyo.json")
+    if data_path is None:
+        return []
     try:
         champs = _json.loads(data_path.read_text()).get("champions", [])
     except Exception:

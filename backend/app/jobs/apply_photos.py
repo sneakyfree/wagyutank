@@ -18,7 +18,12 @@ from pathlib import Path
 from ..db import SessionLocal
 from ..models import Animal, AnimalPhoto
 
-MAP = Path(__file__).resolve().parent.parent / "seed" / "data" / "animal_photos.json"
+def _data_path():
+    """Per-tank content, strictly: tanks/<key>/seed/animal_photos.json — the Wagyu file is
+    only a fallback for the wagyu tank itself. A clone without its own file
+    seeds NOTHING here (never another breed's data)."""
+    from .. import tank
+    return tank.seed_path_strict("animal_photos.json")
 
 
 def _resolve(db, key: str) -> Animal | None:
@@ -75,7 +80,12 @@ def _apply_one(db, a: Animal, val) -> int:
 
 
 def main():
-    m = json.loads(MAP.read_text())
+    _dp = _data_path()
+    if _dp is None:
+        from .. import tank
+        print(f"No animal_photos.json for tank '{tank.key()}' — skipping (per-tank content).")
+        return
+    m = json.loads(_dp.read_text())
     db = SessionLocal()
     try:
         applied = 0

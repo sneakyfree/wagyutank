@@ -157,6 +157,11 @@ def main():
     # 6b. recurring jobs wired on the right machines (declared in tank.json)
     _jobs_wired(cfg, args.key, vps)
 
+    # 6c. clone ships its OWN social card, not WagyuTank's (tankify can't rewrite
+    #     binaries; the postbuild generator or per-breed art must replace it).
+    if args.key != "wagyu":
+        _own_og_image(domain)
+
     # 7. listing create (mutating — cleaned up)
     if args.no_mutate:
         record("listing create works", SKIP, "--no-mutate")
@@ -171,6 +176,23 @@ def main():
     if fails:
         print("  FAILED: " + ", ".join(r[0] for r in fails))
     sys.exit(1 if fails else 0)
+
+
+def _own_og_image(domain: str):
+    import hashlib
+    def sha(url):
+        p = subprocess.run(["curl", "-s", "-A", UA, "-m", "25", url],
+                           capture_output=True, timeout=35)
+        return hashlib.sha1(p.stdout).hexdigest() if p.returncode == 0 and p.stdout else None
+    ours = sha(f"https://{domain}/og-image.png")
+    wagyu = sha("https://www.wagyutank.com/og-image.png")
+    if not ours:
+        record("own social card (og-image)", FAILED, "og-image.png not served")
+    elif ours == wagyu:
+        record("own social card (og-image)", FAILED,
+               "still WagyuTank's card — rebuild frontend (postbuild generates one)")
+    else:
+        record("own social card (og-image)", PASS, "distinct from WagyuTank's")
 
 
 def _jobs_wired(cfg: dict, key: str, vps: str):

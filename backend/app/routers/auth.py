@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
+from .. import tank
 from ..config import settings as cfg
 from ..db import get_db
 from ..models import PasswordReset, User
@@ -90,7 +91,7 @@ def login(request: Request, form: OAuth2PasswordRequestForm = Depends(), db: Ses
     if not user or not verify_password(form.password, user.hashed_password):
         raise HTTPException(401, "Incorrect email or password.")
     if user.account_status == "suspended":
-        raise HTTPException(403, "This account is suspended. Contact support@wagyutank.com.")
+        raise HTTPException(403, f"This account is suspended. Contact {tank.brand().get('contactEmail', 'support@wagyutank.com')}.")
     if user.account_status == "deleted":
         raise HTTPException(401, "Incorrect email or password.")
     if user.totp_enabled:
@@ -183,7 +184,7 @@ def forgot_password(request: Request, email: str = Body(..., embed=True), db: Se
     db.add(PasswordReset(user_id=user.id, token_hash=_hash_token(raw),
                          expires_at=_now() + timedelta(minutes=45)))
     db.commit()
-    reset_url = f"{cfg.app_base_url}/reset-password?token={raw}"
+    reset_url = f"{tank.base_url()}/reset-password?token={raw}"
     if mail.enabled():
         mail.send_password_reset(user.email, reset_url)
         return generic
@@ -216,18 +217,20 @@ def send_verify(request: Request, user: User = Depends(get_current_user),
     if not ratelimit.allow(f"send_verify:user:{user.id}", 3, 3600):
         raise HTTPException(429, "Verification email already sent — check your inbox (and spam).")
     token = create_email_verify_token(user.id)
-    host = request.headers.get("host", "api.wagyutank.com")
+    host = request.headers.get("host", tank.api_base_url().split("://", 1)[-1])
     scheme = "http" if ("localhost" in host or "127.0.0.1" in host) else "https"
     link = f"{scheme}://{host}/api/auth/verify-email?token={token}"
+    brand_name = tank.brand().get("name", "WagyuTank")
+    gold = (tank.brand().get("colors") or {}).get("gold") or "#8a6d2b"
     html = (f"<div style='font-family:sans-serif;max-width:520px;margin:0 auto;line-height:1.6'>"
-            f"<h2 style='color:#8a6d2b'>Verify your WagyuTank email</h2>"
+            f"<h2 style='color:{gold}'>Verify your {brand_name} email</h2>"
             f"<p>Click below to confirm you own <strong>{user.email}</strong>. This unlocks "
             f"features tied to your email's domain, like importing your existing listings.</p>"
-            f"<p style='margin:24px 0'><a href='{link}' style='background:#8a6d2b;color:#fff;"
+            f"<p style='margin:24px 0'><a href='{link}' style='background:{gold};color:#fff;"
             f"padding:12px 22px;border-radius:6px;text-decoration:none'>Verify my email</a></p>"
             f"<p style='color:#888;font-size:13px'>This link expires in 7 days. If you didn't "
             f"request it, you can ignore this email.</p></div>")
-    ok = mail.send(user.email, "Verify your WagyuTank email", html)
+    ok = mail.send(user.email, f"Verify your {brand_name} email", html)
     return {"ok": bool(ok), "message": f"Verification link sent to {user.email}."
             if ok else "Couldn't send the email right now — please try again later."}
 
@@ -240,13 +243,14 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     if user and not user.is_email_verified:
         user.is_email_verified = True
         db.commit()
+    gold = (tank.brand().get("colors") or {}).get("gold") or "#8a6d2b"
     msg = (f"Your email <strong>{user.email}</strong> is verified — you're all set. "
-           f"Head back to your <a href='https://www.wagyutank.com/dashboard' "
-           f"style='color:#8a6d2b'>dashboard</a>."
+           f"Head back to your <a href='{tank.base_url()}/dashboard' "
+           f"style='color:{gold}'>dashboard</a>."
            if user else "This verification link is invalid or has expired.")
     return HTMLResponse(
         f"<div style='font-family:sans-serif;max-width:480px;margin:60px auto;text-align:center'>"
-        f"<h2 style='color:#8a6d2b'>WagyuTank</h2><p>{msg}</p></div>",
+        f"<h2 style='color:{gold}'>{tank.brand().get('name', 'WagyuTank')}</h2><p>{msg}</p></div>",
         status_code=200 if user else 400)
 
 

@@ -69,16 +69,25 @@ QUOTES = [
 ]
 
 
+def _rows():
+    """USDA cattle-market rows are breed-generic; the 'wagyu' category rows are
+    Wagyu retail prices — only the wagyu tank seeds those."""
+    from .. import tank
+    if tank.key() == "wagyu":
+        return QUOTES
+    return [q for q in QUOTES if q.get("category") != "wagyu"]
+
+
 def main():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         db.query(MarketQuote).delete()
-        for q in QUOTES:
+        for q in _rows():
             db.add(MarketQuote(**q))
         db.commit()
-        print(f"Seeded {len(QUOTES)} market quotes across "
-              f"{len(set(q['category'] for q in QUOTES))} categories.")
+        print(f"Seeded {len(_rows())} market quotes across "
+              f"{len(set(q['category'] for q in _rows()))} categories.")
     finally:
         db.close()
 

@@ -91,16 +91,33 @@ SALES = [
 ]
 
 
+def _tank_rows():
+    """The hardcoded SALES below are WAGYU history. A clone seeds notable sales
+    from tanks/<key>/seed/notable_sales.json (same dict shape) or not at all."""
+    import json
+    from .. import tank
+    if tank.key() == "wagyu":
+        return SALES
+    p = tank.seed_path_strict("notable_sales.json")
+    if p is None:
+        print(f"No notable_sales.json for tank '{tank.key()}' — skipping (per-tank content).")
+        return None
+    return json.loads(p.read_text())
+
+
 def main():
+    rows = _tank_rows()
+    if rows is None:
+        return
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         db.query(NotableSale).delete()
-        for s in SALES:
+        for s in rows:
             db.add(NotableSale(**s))
         db.commit()
-        print(f"Seeded {len(SALES)} notable sales across "
-              f"{len(set(s['category'] for s in SALES))} categories.")
+        print(f"Seeded {len(rows)} notable sales across "
+              f"{len(set(s['category'] for s in rows))} categories.")
     finally:
         db.close()
 
