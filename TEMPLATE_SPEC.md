@@ -128,6 +128,49 @@ existing rows**. Extractor + LLM prompts take the product vocabulary from config
 First clone (Highland) = the template's proving run; expect to move the engine/
 config line once. Clones 3+ ≈ days each, mostly steps 2–3.
 
+## 6a. Compute doctrine — which machine runs what, and why
+
+Three machines, three roles. The decision rule for ANY new recurring job:
+**default it to the VPS** — we pay a flat monthly rate for that CPU whether it
+works or idles, so idle VPS capacity is wasted money. Move a job to Veron ONLY
+if it needs one of the three things a headless datacenter box can't give:
+**(a) a residential IP** (DDG, YouTube, GDELT, many seller sites block or
+throttle datacenter ranges), **(b) JS rendering at scale** (Playwright/Chromium
+fleets), or **(c) the GPU** (vision, whisper, local LLM). Windy 0 is a dev/build
+box — it runs NO recurring tank jobs (frontend builds, wrangler deploys, and the
+hatchery itself run there interactively).
+
+| Machine | Hardware / network | Recurring role |
+|---|---|---|
+| **VPS** `vps` (72.60.118.54, Hostinger) | 4 vCPU / 16GB, flat monthly, datacenter IP | System of record + 24/7 workhorse: every `tank@<key>` API process, all SQLite DBs, RSS/httpx news crawls, LLM content jobs (translation, highlights, sale radar, digest) via Windy Mind, watchdog, seeders, all email sends |
+| **Veron 1** `wg-veron` (10.10.0.6) | RTX 5090 + Core Ultra 9, residential T1 | The residential/heavy specialist, weekly cadence: `tank-crawl.sh <key>` (Playwright JS-rendered Roundup crawl via `backend/scripts/crawl_listings.cjs`) + `tank-harvest.sh <key>` (yt-dlp video harvest). **Every result ships home to the VPS** (scp → ingest under the tank's env) — Veron is a worker, never a store |
+| **Windy 0** (this box) | dev iMac, bad internet | Dev checkout only. Nothing recurring. (It briefly owned the crawl until 2026-07-11; fully retired from tanks — see the crawler memory banner) |
+
+**Job declaration is data, not folklore:** each tank's `tank.json` carries a
+`jobs` block (`vps[]` = module+schedule run via `deploy/run-tank-job.sh`,
+`veron[]` = script+schedule). The hatchery's `jobs` phase materializes these as
+marker-delimited cron blocks on both machines — idempotent, adopting any
+hand-typed strays, preserving every unrelated line. Schedules are staggered per
+tank by `crawl.cron_offset_min` (wagyu 0, murraygrey 30, next 60…) so tanks
+never crawl simultaneously.
+
+**Extraction lane (honest current state):** the crawl's LLM fact-extraction runs
+on the **VPS** through Windy Mind → Groq's free lane (llama-3.3-70b) — $0, per
+the no-cloud-cost rule, but rate-limited (the documented throughput ceiling).
+The sanctioned upgrade when that ceiling bites: move extraction to a **local
+model on Veron's 5090** during the crawl itself — faster, unmetered, still $0.
+Not yet built.
+
+**Discovery-yield lessons (hard-won on Wagyu — apply to every new breed):**
+- Highest yield = crawlable breed-association **member directories**
+  (server-rendered lists; one akaushi.com page ≈ 60 listings). Hunt these first.
+- Individual ranch/stud pages ≈ 1–2 listings each — fine, not the accelerator.
+- JS marketplaces/classifieds (MercadoLibre, AuctionsPlus, Gumtree…) = **0
+  yield** — lazy-loaded category pages the extractor can't read. Skip.
+- Expect a finite ceiling per breed (Wagyu saturated ≈ 430 sellers / 750
+  listings after ~40 discovery agents). Rounds-of-2 agents, inline WebSearch,
+  NO nested sub-agents (nested fan-out hangs).
+
 ## 6. Infra plan (from measured VPS state)
 
 4 vCPU / 16GB / 75GB free; each tank ≈150MB RAM + MB-scale DB. **Comfortable: 10–15

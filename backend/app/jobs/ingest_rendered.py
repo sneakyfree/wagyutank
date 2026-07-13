@@ -1,5 +1,5 @@
-"""Ingest JS-rendered seller pages (from scripts/crawl_listings.cjs on Windy 0)
-into the Roundup. Reuses the aggregator's extraction + upsert (facts + our own
+"""Ingest JS-rendered seller pages (from scripts/crawl_listings.cjs, which runs
+on VERON 1 — residential IP; see deploy/tank-crawl.sh) into the Roundup. Reuses the aggregator's extraction + upsert (facts + our own
 neutral summary + link-back only).
 
   python -m app.jobs.ingest_rendered rendered_pages.json

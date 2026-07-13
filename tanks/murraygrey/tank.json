@@ -110,6 +110,16 @@
     "pagesProject": "murraygrey-tank",
     "service": "tank@murraygrey"
   },
+  "jobs": {
+    "vps": [
+      {"module": "app.jobs.news", "schedule": "20 5,17 * * *"},
+      {"module": "app.jobs.watchdog", "schedule": "40 11 * * *"}
+    ],
+    "veron": [
+      {"script": "tank-crawl.sh", "schedule": "30 4 * * 0"},
+      {"script": "tank-harvest.sh", "schedule": "30 6 * * 0"}
+    ]
+  },
   "copy": {
     "heroEyebrow": "\ud83d\udc02 THE GLOBAL MURRAY GREY CROSSROADS",
     "heroTitle": "The world's marketplace & knowledge hub for Murray Grey genetics",

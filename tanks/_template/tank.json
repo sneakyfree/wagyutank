@@ -60,6 +60,16 @@
     "pagesProject": "{{KEY}}-tank",
     "service": "tank@{{KEY}}"
   },
+  "jobs": {
+    "vps": [
+      {"module": "app.jobs.news", "schedule": "20 5,17 * * *"},
+      {"module": "app.jobs.watchdog", "schedule": "10 11 * * *"}
+    ],
+    "veron": [
+      {"script": "tank-crawl.sh", "schedule": "0 4 * * 0"},
+      {"script": "tank-harvest.sh", "schedule": "0 6 * * 0"}
+    ]
+  },
   "copy": {
     "heroEyebrow": "🐂 THE GLOBAL {{BREED_UPPER}} CROSSROADS",
     "heroTitle": "The world's marketplace & knowledge hub for {{BREED}} genetics",

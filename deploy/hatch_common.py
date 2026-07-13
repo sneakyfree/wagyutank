@@ -82,11 +82,97 @@ def run(cmd: list[str], *, input_text: str | None = None, timeout: int = 120,
                           timeout=timeout, check=check)
 
 
-def ssh_run(host: str, remote_cmd: str, *, timeout: int = 120) -> tuple[int, str, str]:
+def ssh_run(host: str, remote_cmd: str, *, timeout: int = 120,
+            input_text: str | None = None) -> tuple[int, str, str]:
     """Run a command on a remote host over ssh. Returns (rc, stdout, stderr)."""
     p = run(["ssh", "-o", "ConnectTimeout=15", "-o", "StrictHostKeyChecking=no",
-             host, remote_cmd], timeout=timeout)
+             host, remote_cmd], timeout=timeout, input_text=input_text)
     return p.returncode, p.stdout, p.stderr
+
+
+# ---------------------------------------------------------------- cron blocks
+def cron_block_markers(key: str) -> tuple[str, str]:
+    return (f"# >>> tank:{key} (managed by hatch-tank.sh — edit tank.json, not this block) >>>",
+            f"# <<< tank:{key} <<<")
+
+
+def cron_converge(host: str, key: str, new_lines: list[str], *,
+                  adopt_patterns: list[str], dry: bool = False) -> tuple[str, int]:
+    """Idempotently converge one tank's marker-delimited cron block on a host,
+    preserving every other line of the crontab byte-for-byte.
+
+    - Replaces the existing `# >>> tank:<key> …` block (if any) with new_lines.
+    - ADOPTS stray unmanaged lines that match adopt_patterns (pre-hatchery
+      hand-typed entries for this tank) by removing them — their replacement
+      lives in the managed block.
+    - Backs up the previous crontab to ~/.crontab.pre-hatch.bak before install.
+
+    Returns (result, adopted): result ∈ created|updated|unchanged|would-*.
+    """
+    rc, out, _ = ssh_run(host, "crontab -l 2>/dev/null || true")
+    old = out if out.endswith("\n") or not out else out + "\n"
+    begin, end = cron_block_markers(key)
+
+    kept: list[str] = []
+    in_block = False
+    had_block = False
+    block_at = -1          # where the existing block starts, so we replace IN
+    adopted = 0            # PLACE — appending would ping-pong two tanks' blocks
+    for ln in old.splitlines():
+        s = ln.strip()
+        if s == begin:
+            in_block = True
+            had_block = True
+            block_at = len(kept)
+            continue
+        if s == end:
+            in_block = False
+            continue
+        if in_block:
+            continue
+        if not s.startswith("#") and any(p in ln for p in adopt_patterns):
+            adopted += 1
+            continue
+        kept.append(ln)
+
+    block = [begin, *new_lines, end]
+    if block_at >= 0:
+        merged = [*kept[:block_at], *block, *kept[block_at:]]
+    else:
+        merged = [*kept, *block]
+    new_text = "\n".join(merged) + "\n"
+    if new_text == old:
+        return "unchanged", 0
+    result = "updated" if had_block else "created"
+    if dry:
+        return f"would-{'update' if had_block else 'create'}", adopted
+    # sanity: never install something that lost non-tank lines
+    non_tank_old = [l for l in old.splitlines()
+                    if l.strip() and not any(p in l for p in adopt_patterns)
+                    and begin not in l and end not in l]
+    if any(l not in new_text.splitlines() for l in non_tank_old
+           if not _within_block(old, l, begin, end)):
+        raise HatchError(f"cron convergence on {host} would drop unrelated lines — aborting")
+    ssh_run(host, "crontab -l > ~/.crontab.pre-hatch.bak 2>/dev/null || true")
+    rc, out, err = ssh_run(host, "crontab -", input_text=new_text)
+    if rc != 0:
+        raise HatchError(f"crontab install on {host} failed: {(err or out)[:200]}")
+    return result, adopted
+
+
+def _within_block(text: str, line: str, begin: str, end: str) -> bool:
+    inb = False
+    for ln in text.splitlines():
+        s = ln.strip()
+        if s == begin:
+            inb = True
+            continue
+        if s == end:
+            inb = False
+            continue
+        if ln == line:
+            return inb
+    return False
 
 
 # ---------------------------------------------------------------- Cloudflare API

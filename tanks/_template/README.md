@@ -16,7 +16,12 @@ where seed content was WagyuTank-shaped.
 
 That copies this directory to `tanks/highland/` and substitutes the tokens it can
 derive (`{{KEY}}`, `{{BRAND_NAME}}`, `{{DOMAIN}}`, `{{BREED}}`, colours, port,
-pages project, service name). It then lists the `{{PLACEHOLDERS}}` you still owe.
+pages project, service name) — and staggers the `jobs` schedules by
+`--cron-offset` minutes (pick the next free slot: wagyu=0, murraygrey=30, then
+60, 90…) so tanks never crawl simultaneously. The `jobs` block declares the
+tank's whole recurring-compute layer (VPS news/watchdog + Veron weekly
+crawl/harvest); the hatchery's `jobs` phase materializes it as managed cron
+blocks on both machines. It then lists the `{{PLACEHOLDERS}}` you still owe.
 
 **Step 1 — fill the breed CONTENT** (the part that can't be templated — it's
 knowledge, ~$30–80 of research per breed per TEMPLATE_SPEC §8):

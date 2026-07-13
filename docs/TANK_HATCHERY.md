@@ -77,6 +77,7 @@ Run in this order (default). Each is independently runnable with `--only`.
 | `mail-dns` | **receive + policy** records: MX apex→`mail.windymail.ai`, apex SPF, DMARC, autoconfig/autodiscover | record match |
 | `stalwart` | mail **domain** + `office@<d>` as an **alias on the one founder mailbox** (the `gwhitmer` principal — NOT a separate login) + domain **catch-all** → office | `query Domain` / founder alias map |
 | `seed` | runs the tank's content seeders on its DB (feature-gated) | seeders are idempotent-replace |
+| `jobs` | the **recurring-compute layer** on both machines: VPS cron block (news/watchdog via `run-tank-job.sh`) + Veron cron block (weekly `tank-crawl.sh` + `tank-harvest.sh`), declared in `tank.json jobs` | marker-block text comparison |
 | `frontend` | `TANK_API=… npm run build` + `wrangler pages deploy` (off by default — `--with-frontend`) | — |
 | `smoke` | `deploy/smoke_tank.py` end-to-end verification | — |
 
@@ -86,6 +87,52 @@ Resend gives a domain **outbound** (DKIM/SPF via `send.<d>` + `resend._domainkey
 That alone does **not** let `office@<domain>` receive anything. The `mail-dns` +
 `stalwart` phases add the **inbound** half — MX at the apex pointing to the shared
 Stalwart, and a catch-all so `info@`/`sales@`/anything@ has somewhere to land.
+
+### The recurring-compute layer (`jobs` phase)
+
+The backend isn't just a process — it's a fleet of crawlers and content
+generators split across two machines by the **compute doctrine**
+(TEMPLATE_SPEC §6a): the flat-rate **VPS** runs everything it can (API, RSS
+news crawls, LLM content jobs, watchdog, digest — idle VPS CPU is wasted
+money); **Veron 1** (5090 + residential T1, `wg-veron`) runs only what a
+datacenter box can't — Playwright JS-rendered crawling and yt-dlp video
+harvest — and ships every result home to the VPS. Windy 0 runs nothing
+recurring.
+
+Each tank **declares** its jobs in `tank.json`:
+
+```jsonc
+"jobs": {
+  "vps": [
+    {"module": "app.jobs.news",     "schedule": "20 5,17 * * *"},
+    {"module": "app.jobs.watchdog", "schedule": "40 11 * * *"}
+  ],
+  "veron": [
+    {"script": "tank-crawl.sh",   "schedule": "30 4 * * 0"},   // weekly Roundup crawl
+    {"script": "tank-harvest.sh", "schedule": "30 6 * * 0"}    // weekly video harvest
+  ]
+}
+```
+
+The `jobs` phase materializes these as a marker-delimited block in each
+machine's crontab (`# >>> tank:<key> … <<<`), **adopting** any pre-existing
+hand-typed lines for that tank, replacing an existing block in place, and
+preserving every unrelated crontab line byte-for-byte (backup at
+`~/.crontab.pre-hatch.bak`). Change a schedule by editing `tank.json` and
+re-running — never by editing crontabs.
+
+`scaffold-content.py` staggers a new tank's schedules by `--cron-offset`
+minutes (wagyu=0, murraygrey=30, next=60…) so tanks never crawl at once.
+
+**Reference inventory (what actually runs today):**
+
+| Tank | VPS | Veron |
+|---|---|---|
+| wagyu *(legacy)* | systemd timers: news 3×/day, aggregate daily 06:38, digest Mon 14:00 + watchdog cron 11:30 — report-only, managed outside the hatchery | crawl Sun 04:00, harvest Sun 06:00 (managed block) |
+| murraygrey | managed block: news 05:20+17:20, watchdog 11:40 | crawl Sun 04:30, harvest Sun 06:30 (managed block) |
+
+New tanks get the murraygrey shape (cron via `run-tank-job.sh`), not wagyu's
+legacy timers.
 
 **One founder mailbox, not one login per tank.** Every tank's `office@<domain>` is
 added as an **alias on the single `gwhitmer` principal** — the same mailbox Grant

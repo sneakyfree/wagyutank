@@ -154,6 +154,9 @@ def main():
             except Exception:
                 pass
 
+    # 6b. recurring jobs wired on the right machines (declared in tank.json)
+    _jobs_wired(cfg, args.key, vps)
+
     # 7. listing create (mutating — cleaned up)
     if args.no_mutate:
         record("listing create works", SKIP, "--no-mutate")
@@ -168,6 +171,38 @@ def main():
     if fails:
         print("  FAILED: " + ", ".join(r[0] for r in fails))
     sys.exit(1 if fails else 0)
+
+
+def _jobs_wired(cfg: dict, key: str, vps: str):
+    """Verify the recurring-compute layer landed where tank.json declares it:
+    VPS lane (cron block, or legacy systemd timers for wagyu) + Veron lane
+    (weekly crawl/harvest cron block on the residential box)."""
+    jobs = cfg.get("jobs") or {}
+    marker = f"# >>> tank:{key} "
+    # VPS lane
+    if jobs.get("vps"):
+        rc, out = ssh(vps, f"crontab -l 2>/dev/null | grep -cF '{marker}' ; "
+                           f"crontab -l 2>/dev/null | grep -c 'run-tank-job.sh {key} '")
+        nums = out.split()
+        blk = int(nums[0]) if nums and nums[0].isdigit() else 0
+        lines = int(nums[1]) if len(nums) > 1 and nums[1].isdigit() else 0
+        want = len(jobs["vps"])
+        record("VPS jobs cron block present",
+               PASS if blk >= 1 and lines >= want else FAILED,
+               f"block={bool(blk)}, {lines}/{want} job lines")
+    elif jobs.get("vps_note"):
+        rc, out = ssh(vps, "systemctl list-timers --all --no-pager 2>/dev/null "
+                           "| grep -cE 'wagyutank-(news|aggregate|digest)'")
+        n = int(out.strip() or 0) if out.strip().isdigit() else 0
+        record("VPS legacy timers active", PASS if n >= 3 else FAILED, f"{n}/3 timers")
+    # Veron lane
+    if jobs.get("veron"):
+        veron = os.environ.get("HATCH_CRAWL_SSH", "wg-veron")
+        rc, out = ssh(veron, f"crontab -l 2>/dev/null | grep -cF '{marker}'", timeout=45)
+        n = int(out.strip() or 0) if out.strip().isdigit() else 0
+        record("Veron crawl/harvest cron block present",
+               PASS if n >= 1 else FAILED,
+               f"managed block on {veron}" if n else f"no block on {veron}")
 
 
 def _imap_login(host: str, email: str, pw: str):
@@ -201,27 +236,48 @@ def _mail_loopback(imap: imaplib.IMAP4_SSL, office: str, domain: str):
         record("outbound send accepted (Resend)", FAILED, f"HTTP {code} {out[:80]}")
         return
     record("outbound send accepted (Resend)", PASS, f"id sent")
-    # poll INBOX for the nonce
+    # poll for the nonce — INBOX first, then every folder (the founder mailbox
+    # has sieve rules that file each site's mail into Sites/<domain>).
+    def _folders() -> list[str]:
+        try:
+            typ, lst = imap.list()
+            names = []
+            for f in lst or []:
+                name = f.decode().split(' "/" ')[-1].strip('"')
+                if name and "\\Noselect" not in f.decode():
+                    names.append(name)
+            # INBOX first, then Sites/*, then the rest
+            return sorted(set(names), key=lambda n: (n != "INBOX", not n.startswith("Sites"), n))
+        except Exception:  # noqa: BLE001
+            return ["INBOX"]
+
     found_from = None
+    where = None
     for _ in range(15):
         time.sleep(4)
-        try:
-            imap.select("INBOX")
-            typ, data = imap.search(None, "SUBJECT", f'"{subject}"')
-            ids = data[0].split() if data and data[0] else []
-            if ids:
-                typ, msg = imap.fetch(ids[-1], "(RFC822)")
-                raw = msg[0][1]
-                parsed = BytesParser(policy=email_default).parsebytes(raw)
-                found_from = str(parsed.get("From", ""))
-                break
-        except Exception:  # noqa: BLE001
-            continue
+        for fld in _folders():
+            try:
+                typ, _sel = imap.select(f'"{fld}"', readonly=True)
+                if typ != "OK":
+                    continue
+                typ, data = imap.search(None, "SUBJECT", f'"{subject}"')
+                ids = data[0].split() if data and data[0] else []
+                if ids:
+                    typ, msg = imap.fetch(ids[-1], "(RFC822)")
+                    parsed = BytesParser(policy=email_default).parsebytes(msg[0][1])
+                    found_from = str(parsed.get("From", ""))
+                    where = fld
+                    break
+            except Exception:  # noqa: BLE001
+                continue
+        if found_from:
+            break
     if not found_from:
         record("office@ mail lands in founder inbox", FAILED,
-               "message not received within ~60s")
+               "message not received within ~60s (searched all folders)")
         return
-    record("office@ mail lands in founder inbox", PASS, "received in shared inbox")
+    record("office@ mail lands in founder inbox", PASS,
+           f"received in {where or 'shared inbox'}")
     from_ok = office in found_from
     record("From address = office@<domain>", PASS if from_ok else FAILED,
            f"From: {found_from}")

@@ -100,6 +100,8 @@ def main():
             p.write_text(new)
             stamped += 1
 
+    _shift_job_schedules(dest / "tank.json", args.cron_offset)
+
     remaining = sorted({tok for p in dest.rglob("*") if p.is_file()
                         for tok in _tokens(p)})
     print(f"✓ scaffolded tanks/{args.key} ({stamped} files stamped)")
@@ -108,6 +110,44 @@ def main():
               + ", ".join(remaining[:12]) + ("…" if len(remaining) > 12 else ""))
     print("  next: fill seed/ content (foundation_animals, breed_history, faq, "
           "roundup_seeds) then run ./deploy/hatch-tank.sh " + args.key)
+
+
+def _shift_job_schedules(tank_json: Path, offset_min: int):
+    """Stagger the template's base job schedules by the tank's cron offset so
+    tanks never crawl/harvest simultaneously (wagyu=0, murraygrey=30, next=60…).
+    Shifts each `jobs` schedule's minute (with hour carry). No-ops if tank.json
+    isn't valid JSON yet (e.g. --port omitted leaves {{PORT}} unfilled)."""
+    import json
+    if not offset_min or not tank_json.exists():
+        return
+    try:
+        cfg = json.loads(tank_json.read_text())
+    except json.JSONDecodeError:
+        print("  ! tank.json has unfilled tokens — job schedules NOT offset; "
+              "shift them by hand or re-run after filling")
+        return
+    jobs = cfg.get("jobs") or {}
+    changed = False
+    for lane in ("vps", "veron"):
+        for job in jobs.get(lane, []) or []:
+            parts = (job.get("schedule") or "").split()
+            if len(parts) != 5 or not parts[0].isdigit():
+                continue
+            new_hours = []
+            for hh in parts[1].split(","):
+                if not hh.isdigit():
+                    new_hours = None
+                    break
+                total = int(hh) * 60 + int(parts[0]) + offset_min
+                new_hours.append(str((total // 60) % 24))
+            if new_hours is None:
+                continue
+            new_min = (int(parts[0]) + offset_min) % 60
+            job["schedule"] = " ".join([str(new_min), ",".join(new_hours), *parts[2:]])
+            changed = True
+    if changed:
+        tank_json.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+        print(f"  · job schedules staggered by +{offset_min} min")
 
 
 def _tokens(path: Path):

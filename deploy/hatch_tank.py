@@ -42,7 +42,7 @@ REPO = Path(__file__).resolve().parent.parent            # .../wagyutank
 MAIL_HOST_DEFAULT = "mail.windymail.ai"
 
 PHASES = ["scaffold", "zone", "web-dns", "pages", "resend", "mail-dns",
-          "stalwart", "seed", "frontend", "smoke"]
+          "stalwart", "seed", "jobs", "frontend", "smoke"]
 
 
 # ============================================================ config / context
@@ -504,6 +504,103 @@ def phase_seed(ctx: Ctx):
         (h.ok if rc == 0 else h.warn)(f"{mod}: {'ok' if rc==0 else 'rc='+str(rc)} {tail}")
 
 
+# ============================================================ phase: jobs
+def phase_jobs(ctx: Ctx):
+    """Converge the tank's RECURRING-COMPUTE layer on both machines.
+
+    Compute doctrine (see TEMPLATE_SPEC §6b): the VPS is flat-rate 24/7 CPU we
+    already pay for — every job that CAN run there DOES (API serving, RSS/httpx
+    news crawls, LLM content jobs via Windy Mind, watchdog, digest). Veron 1
+    (RTX 5090 + Core Ultra 9 + residential T1) runs ONLY what the VPS can't:
+    JS-rendered Playwright crawling and yt-dlp video harvest (datacenter IPs get
+    blocked/throttled) — and ships every result home to the VPS, which stays the
+    system of record. Windy 0 is a dev/build box: no recurring tank jobs.
+
+    Schedules are declared in tank.json `jobs` (vps[] / veron[]) and materialized
+    as a marker-delimited cron block per tank; stray hand-typed lines for the
+    same tank are adopted into the block. Everything else in the crontab is
+    preserved byte-for-byte (backup at ~/.crontab.pre-hatch.bak)."""
+    h.step(f"jobs — recurring compute for '{ctx.key}' (VPS + Veron)")
+    jobs = ctx.cfg.get("jobs") or {}
+    root = h.REPO_ROOT_VPS()
+
+    # ---- VPS lane -------------------------------------------------------
+    vps_jobs = jobs.get("vps") or []
+    if ctx.legacy_service and not vps_jobs:
+        _report_legacy_vps_jobs(ctx)
+    elif vps_jobs:
+        lines = []
+        for j in vps_jobs:
+            sched, mod = j.get("schedule", ""), j.get("module", "")
+            if len(sched.split()) != 5 or not mod:
+                h.warn(f"skipping malformed vps job: {j}")
+                continue
+            log = f"/root/tank-{ctx.key}-{mod.rsplit('.', 1)[-1]}.log"
+            lines.append(f"{sched} {root}/deploy/run-tank-job.sh {ctx.key} {mod} >> {log} 2>&1")
+        res, adopted = h.cron_converge(
+            h.VPS_SSH(), ctx.key, lines,
+            adopt_patterns=[f"run-tank-job.sh {ctx.key} "], dry=ctx.dry)
+        msg = f"VPS cron block ({len(lines)} jobs) [{res}]"
+        if adopted:
+            msg += f" — adopted {adopted} hand-typed line(s)"
+        (h.ok if res == "unchanged" else h.info)(msg)
+    else:
+        h.info("no VPS jobs declared")
+
+    # ---- Veron lane ------------------------------------------------------
+    veron_jobs = jobs.get("veron") or []
+    if not veron_jobs:
+        h.info("no Veron jobs declared")
+        return
+    veron = h.env("HATCH_CRAWL_SSH", "wg-veron")
+    rc, out, _ = h.ssh_run(veron, "test -d ~/wagyutank/deploy && echo yes || echo no",
+                           timeout=40)
+    if out.strip() != "yes":
+        h.warn(f"~/wagyutank missing on {veron} — clone it there first "
+               f"(git clone https://github.com/sneakyfree/wagyutank.git ~/wagyutank); "
+               f"skipping Veron jobs")
+        return
+    # the workers the scripts depend on
+    rc, out, _ = h.ssh_run(veron, "which node >/dev/null && echo node-ok; "
+                                   "PATH=$HOME/.local/bin:$PATH which yt-dlp >/dev/null && echo ytdlp-ok",
+                           timeout=40)
+    for tool, tag in (("node", "node-ok"), ("yt-dlp", "ytdlp-ok")):
+        if tag not in out:
+            h.warn(f"{tool} not found on {veron} — its jobs will no-op until installed")
+    lines = []
+    for j in veron_jobs:
+        sched, script = j.get("schedule", ""), j.get("script", "")
+        if len(sched.split()) != 5 or not script:
+            h.warn(f"skipping malformed veron job: {j}")
+            continue
+        log = f"$HOME/.{script.replace('tank-', '').replace('.sh', '')}-{ctx.key}.log"
+        lines.append(f"{sched} $HOME/wagyutank/deploy/{script} {ctx.key} >> {log} 2>&1")
+    res, adopted = h.cron_converge(
+        veron, ctx.key, lines,
+        adopt_patterns=[f"tank-crawl.sh {ctx.key}", f"tank-harvest.sh {ctx.key}"],
+        dry=ctx.dry)
+    msg = f"Veron cron block ({len(lines)} jobs) [{res}]"
+    if adopted:
+        msg += f" — adopted {adopted} hand-typed line(s)"
+    (h.ok if res == "unchanged" else h.info)(msg)
+
+
+def _report_legacy_vps_jobs(ctx: Ctx):
+    """WagyuTank's VPS jobs predate the hatchery (systemd timers + a root cron
+    watchdog). Report their health; don't manage them."""
+    note = ctx.cfg.get("jobs", {}).get("vps_note")
+    if note:
+        h.info(note[:110] + ("…" if len(note) > 110 else ""))
+    rc, out, _ = h.ssh_run(
+        h.VPS_SSH(),
+        "systemctl list-timers --all --no-pager 2>/dev/null | grep -cE 'wagyutank-(news|aggregate|digest)'; "
+        "crontab -l 2>/dev/null | grep -c 'app.jobs.watchdog'")
+    counts = out.split()
+    timers = counts[0] if counts else "?"
+    wd = counts[1] if len(counts) > 1 else "?"
+    h.ok(f"legacy VPS jobs detected: {timers}/3 systemd timers + watchdog cron×{wd} (report-only)")
+
+
 # ============================================================ phase: frontend
 def phase_frontend(ctx: Ctx):
     h.step(f"frontend — build + deploy {ctx.pages_project}")
@@ -558,8 +655,8 @@ def _report(typ: str, name: str, content: str, result: str):
 PHASE_FN = {
     "scaffold": phase_scaffold, "zone": phase_zone, "web-dns": phase_web_dns,
     "pages": phase_pages, "resend": phase_resend, "mail-dns": phase_mail_dns,
-    "stalwart": phase_stalwart, "seed": phase_seed, "frontend": phase_frontend,
-    "smoke": phase_smoke,
+    "stalwart": phase_stalwart, "seed": phase_seed, "jobs": phase_jobs,
+    "frontend": phase_frontend, "smoke": phase_smoke,
 }
 
 

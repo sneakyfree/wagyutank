@@ -120,5 +120,13 @@
     "port": 8120,
     "pagesProject": "wagyutank",
     "service": "wagyutank-api"
+  },
+  "jobs": {
+    "vps": [],
+    "vps_note": "LEGACY: wagyu's VPS jobs run as systemd timers (wagyutank-news 3x/day 05/13/21:15, wagyutank-aggregate daily 06:38, wagyutank-digest weekly Mon 14:00 UTC) plus a root cron watchdog at 11:30 — predates the hatchery; managed outside it. The hatchery jobs phase reports their health but does not touch them.",
+    "veron": [
+      {"script": "tank-crawl.sh", "schedule": "0 4 * * 0"},
+      {"script": "tank-harvest.sh", "schedule": "0 6 * * 0"}
+    ]
   }
 }
