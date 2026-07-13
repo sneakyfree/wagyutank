@@ -34,7 +34,10 @@ print("|".join(sorted(words)))
 PYEOF
 ) || TANK_TERMS=""
 TANK_BOT=$(python3 -c "import json,sys;b=json.load(open('$TANKJSON'))['brand'];print(f\"{b['name']}Bot/1.0; +https://www.{b['domain']}/roundup\")" 2>/dev/null) || TANK_BOT=""
-export TANK_TERMS TANK_BOT
+# Crawl mode from tank.json crawl.mode — "genetics" (default; original behavior)
+# or "live_beef" (WagyuSale-style live cattle + beef link classification).
+TANK_CRAWL_MODE=$(python3 -c "import json;print((json.load(open('$TANKJSON')).get('crawl') or {}).get('mode') or 'genetics')" 2>/dev/null) || TANK_CRAWL_MODE="genetics"
+export TANK_TERMS TANK_BOT TANK_CRAWL_MODE
 node "$REPO/backend/scripts/crawl_listings.cjs" --seeds "$SEEDS" --out "$OUT" \
   --per-site 5 --concurrency 8 --goto-timeout 30000 --max-pages 500
 scp -q "$OUT" "$VPS:/root/wagyutank/backend/${KEY}_rendered.json"

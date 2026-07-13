@@ -37,7 +37,7 @@ const MAX_PAGES = parseInt(arg("max-pages", "600"), 10);
 // followed ONLY when they also carry a genetics HINT — otherwise a shop's
 // heat-detection stickers and merch get crawled and burn LLM budget. SKIP
 // hard-filters non-genetics commerce (dairy-breed catalogs, beef/meat, merch).
-const STRONG = /semen|embryo|straw|\bdose|sperma|genetik|genetic|for.?sale|nettbutikk/i;
+let STRONG = /semen|embryo|straw|\bdose|sperma|genetik|genetic|for.?sale|nettbutikk/i;
 const COMMERCE = /product|collection|shop|store|katalog|catalog/i;
 // Per-tank breed terms: TANK_TERMS env = pipe-joined lowercase terms (set by
 // deploy/tank-crawl.sh from the tank's tank.json). Without it, defaults to the
@@ -46,13 +46,33 @@ const COMMERCE = /product|collection|shop|store|katalog|catalog/i;
 // SKIP (so e.g. an AngusTank crawl doesn't skip its own breed).
 const BREED_TERMS = (process.env.TANK_TERMS || "wagyu|akaushi|michifuku|itoshigenami|tajima|fukutsuru|shigeshigenami")
   .toLowerCase().split("|").map(s => s.trim()).filter(Boolean);
-const HINT = new RegExp(BREED_TERMS.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") +
+let HINT = new RegExp(BREED_TERMS.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") +
   "|semen|embryo|straw|sperma|genetik|genetic|\\bsire\\b|\\bbull\\b|\\bdam\\b", "i");
 const SKIP_BREEDS = ["holstein", "jersey", "angus", "hereford", "charolais", "simmental", "brahman"]
   .filter(b => !BREED_TERMS.some(t => t.includes(b)));
-const SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|about|blog|news|faq|policy|cookie|newsletter|wishlist|compare)\\b" +
+let SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|about|blog|news|faq|policy|cookie|newsletter|wishlist|compare)\\b" +
   "|beef|meat|fleisch|rindfleisch|carne|steak|" + SKIP_BREEDS.join("|") +
   "|dairy|\\bmilk\\b|restaurant|recipe|cook|butcher|wholesale|gift|apparel|merch", "i");
+
+// Crawl mode: TANK_CRAWL_MODE env (from tank.json `crawl.mode`, set by
+// deploy/tank-crawl.sh). Default "genetics" keeps every existing tank's link
+// selection byte-identical. "live_beef" (WagyuSale-style tanks) retargets the
+// classifier at live cattle + direct-from-producer beef: beef/meat words stop
+// being SKIP poison and cattle-class words become STRONG follows. Genetics
+// terms (semen/embryo/straw) stay followable via HINT — ranch pages mix both —
+// but are no longer STRONG on their own.
+const CRAWL_MODE = (process.env.TANK_CRAWL_MODE || "genetics").trim().toLowerCase();
+if (CRAWL_MODE === "live_beef") {
+  const LIVE_BEEF = "\\b(bulls?|heifers?|cows?|calf|calves|pairs?|bred|open|feeders?|steers?" +
+    "|cattle.?for.?sale|breeding.?stock|beef.?box|quarter.?beef|half.?beef|whole.?beef|freezer.?beef)\\b";
+  STRONG = new RegExp("for.?sale|nettbutikk|" + LIVE_BEEF, "i");
+  HINT = new RegExp(HINT.source + "|" + LIVE_BEEF, "i");
+  // Same boilerplate/off-breed skips as genetics, MINUS the beef/meat/butcher
+  // block (that's this tank's inventory).
+  SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|about|blog|news|faq|policy|cookie|newsletter|wishlist|compare)\\b" +
+    (SKIP_BREEDS.length ? "|" + SKIP_BREEDS.join("|") : "") +
+    "|dairy|\\bmilk\\b|restaurant|recipe|cook|gift|apparel|merch", "i");
+}
 
 function follow(clean, t) {
   if (STRONG.test(clean) || STRONG.test(t)) return true;

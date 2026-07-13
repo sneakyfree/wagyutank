@@ -112,7 +112,8 @@ DISCOVERY_QUERIES = [
     "wagyu semen for sale south africa", "wagyu genetics for sale asia",
 ]
 
-_PRODUCT_LABEL = {"semen": "Semen", "embryo": "Embryos", "clone_rights": "Cloning Rights"}
+_PRODUCT_LABEL = {"semen": "Semen", "embryo": "Embryos", "clone_rights": "Cloning Rights",
+                  "live_animal": "Live Cattle", "beef": "Beef"}
 
 # Extra seed URLs discovered offline (residential IP) and committed to the repo,
 # because search engines block the VPS's datacenter IP. Refreshed periodically.
@@ -209,6 +210,16 @@ def _classify_product(text: str) -> str | None:
         return "clone_rights"
     if any(w in t for w in ("semen", "straw", "sire", " ai ", "insemination")):
         return "semen"
+    # Live/beef families — gated on tank.product_keys() so a genetics tank can
+    # NEVER classify anything as live_animal/beef (behavior above is unchanged).
+    pkeys = tank.product_keys()
+    if "live_animal" in pkeys and any(w in t for w in (
+            "bull", "heifer", "cow", "calf", "calves", "pair", "feeder", "steer",
+            "cattle for sale", "breeding stock", "bred female")):
+        return "live_animal"
+    if "beef" in pkeys and any(w in t for w in (
+            "beef", "brisket", "ribeye", "steak", "quarter", "half", "box", "freezer")):
+        return "beef"
     return None
 
 
@@ -248,17 +259,28 @@ def _shopify_products(base_url: str) -> list[dict] | None:
             # relevance can look at the body; classification must not (avoids false positives)
             if not any(w in f"{title_l} {tags} {body}".lower() for w in _breed_terms()):
                 continue
-            # hard-exclude live-animal listings even if the title also mentions embryo/semen
-            if any(p in title_l for p in ("cows & heifers", "cows and heifers", "heifers for sale",
-                                          "cows for sale", "bulls for sale", "cattle for sale",
-                                          "live cattle", "bred heifer", "bred cow")):
-                continue
-            # exclude live animals + beef/meat unless the title itself names a genetics product
             has_genetics_word = any(g in title_l for g in ("semen", "embryo", "straw", "ivf", "clone"))
-            if not has_genetics_word and any(w in title_l for w in (
-                    "heifer", "cow", "calf", "steer", "bull for sale", "bred female", "live ",
-                    "beef", "meat", "brisket", "ribeye", "steak", "ground", "roast", "freezer")):
-                continue
+            if tank.has_family("live") or tank.has_family("beef"):
+                # Inverted exclusion for live/beef tanks: live-animal and beef
+                # products are the inventory, so they PASS; pure-genetics
+                # products (semen/embryo with no live/beef words) are skipped.
+                if has_genetics_word and not any(w in title_l for w in (
+                        "heifer", "cow", "calf", "calves", "pair", "feeder", "steer",
+                        "bull for sale", "bred female", "live ", "cattle for sale",
+                        "beef", "meat", "brisket", "ribeye", "steak", "quarter", "half",
+                        "box", "freezer")):
+                    continue
+            else:
+                # hard-exclude live-animal listings even if the title also mentions embryo/semen
+                if any(p in title_l for p in ("cows & heifers", "cows and heifers", "heifers for sale",
+                                              "cows for sale", "bulls for sale", "cattle for sale",
+                                              "live cattle", "bred heifer", "bred cow")):
+                    continue
+                # exclude live animals + beef/meat unless the title itself names a genetics product
+                if not has_genetics_word and any(w in title_l for w in (
+                        "heifer", "cow", "calf", "steer", "bull for sale", "bred female", "live ",
+                        "beef", "meat", "brisket", "ribeye", "steak", "ground", "roast", "freezer")):
+                    continue
             # classify from title + tags + shopify's product_type only (never the body)
             ptype = _classify_product(f"{title_l} {tags} {pr.get('product_type', '')}")
             if not ptype:
@@ -312,6 +334,30 @@ def _extract_system() -> str:
     breed_u = " / ".join(w.upper() for w in _breed_terms()) or "WAGYU"
     pkeys = "|".join(f"'{k}'" for k in sorted(tank.product_keys())) or "'semen'|'embryo'"
     plabels = ", ".join(p.get("label", "").lower() for p in tank.products() if p.get("label"))
+    if tank.has_family("live") or tank.has_family("beef"):
+        # Live-cattle / beef tanks (WagyuSale-style) get their own extraction
+        # schema. Genetics tanks never reach this branch — their prompt below
+        # stays byte-identical.
+        return (
+        f"You extract structured facts about LIVE {breed_u} CATTLE and {breed_u} BEEF for sale "
+        f"({plabels or 'live cattle, beef'}) from a web page's text. Return ONLY a JSON array. "
+        "Each element: {product_type: " + pkeys + ", animal_name, registration_no, bloodline, "
+        "animal_class ('bull'|'cow'|'bred_heifer'|'open_heifer'|'bull_calf'|'heifer_calf'|'pair'|"
+        "'feeder'|'steer'; null for beef or if unstated), sex ('male'|'female' or null), "
+        "age_months (number or null), weight_lbs (number or null), "
+        "head_count (number of head in the lot; a cow-calf pair counts as 1; null if unstated), "
+        "bred_status ('open'|'exposed'|'bred'|'pair' or null), price (number or null), "
+        "price_basis ('per_head'|'per_cwt'|'per_lb'|'per_box' or null), currency, quantity, "
+        "fulfillment ('ship'|'pickup'|'both' or null), seller_name, location, "
+        "state_region (the state/province named on the page, e.g. 'Texas'; else null), "
+        "country (ISO 2-letter), "
+        "listing_date (if the ad states when it was posted/updated, as ISO 'YYYY-MM-DD' or "
+        "'YYYY-MM'; else null — do NOT guess)}. "
+        f"Include ONLY genuine for-sale live {_breed_short()} cattle and {_breed_short()} beef "
+        f"listings — skip semen/embryo/genetics rows, general info, and non-{_breed_short()} "
+        "animals. If the page has none, return []. "
+        "Never invent data; use null for anything not stated."
+        )
     return (
     f"You extract structured facts about FROZEN {breed_u} GENETICS for sale ({plabels or 'semen straws, embryos'}) "
     "from a web page's text. Return ONLY a JSON array. "
@@ -370,7 +416,9 @@ def _extract(text: str, source_url: str) -> list[dict]:
         # ["Tajima","Fujiyoshi"]) — SQLite can't bind a list, so coerce every
         # free-text field to a plain string before it reaches the ORM.
         for f in ("animal_name", "registration_no", "bloodline", "seller_name",
-                  "location", "price_unit", "currency", "title", "quantity", "product_type"):
+                  "location", "price_unit", "currency", "title", "quantity", "product_type",
+                  "animal_class", "sex", "bred_status", "price_basis", "fulfillment",
+                  "state_region"):
             v = item.get(f)
             if isinstance(v, list):
                 item[f] = ", ".join(str(x).strip() for x in v if x not in (None, "")) or None
@@ -409,12 +457,18 @@ def _summary(li: dict, animal: str | None, product: ProductType) -> str:
         qn = int(float(qty)) if qty not in (None, "") else None
     except (TypeError, ValueError):
         qn = None
-    singular = {"semen": "semen straw", "embryo": "embryo", "clone_rights": "cloning right"}[product.value]
-    plural = {"semen": "semen straws", "embryo": "embryos", "clone_rights": "cloning rights"}[product.value]
+    singular = {"semen": "semen straw", "embryo": "embryo", "clone_rights": "cloning right",
+                "live_animal": "live animal", "beef": "beef offering"}[product.value]
+    plural = {"semen": "semen straws", "embryo": "embryos", "clone_rights": "cloning rights",
+              "live_animal": "live animals", "beef": "beef offerings"}[product.value]
     noun = singular if qn == 1 else plural
     lead = f"{qn} " if qn else ""
     reg = f" ({li['registration_no']})" if li.get("registration_no") else ""
-    bits.append(f"{lead}{noun} from {animal or f'a {_breed_short()} sire'}{reg}.")
+    if product.value in ("live_animal", "beef"):
+        fallback = f"a {_breed_short()} producer"
+    else:
+        fallback = f"a {_breed_short()} sire"
+    bits.append(f"{lead}{noun} from {animal or fallback}{reg}.")
     if li.get("bloodline"):
         bits.append(f"{li['bloodline']} bloodline.")
     if li.get("seller_name"):
@@ -453,6 +507,46 @@ def _export_regions(li: dict) -> list:
     return [r for r in (li.get("export_regions") or []) if isinstance(r, str) and r.upper() in allowed]
 
 
+def _as_int(v) -> int | None:
+    try:
+        return int(float(v)) if v not in (None, "") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _as_float(v) -> float | None:
+    try:
+        return float(v) if v not in (None, "") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _lb_str(v, maxlen: int, lower: bool = True) -> str | None:
+    if v in (None, ""):
+        return None
+    s = str(v).strip()
+    if not s:
+        return None
+    return (s.lower() if lower else s)[:maxlen]
+
+
+def _live_beef_fields(li: dict) -> dict:
+    """Coerced live-cattle/beef facts (crawl.mode 'live_beef' extraction). For
+    genetics listings every key is None, so these columns stay null exactly as
+    before."""
+    return {
+        "animal_class": _lb_str(li.get("animal_class"), 24),
+        "sex": _lb_str(li.get("sex"), 8),
+        "age_months": _as_int(li.get("age_months")),
+        "weight_lbs": _as_float(li.get("weight_lbs")),
+        "head_count": _as_int(li.get("head_count")),
+        "bred_status": _lb_str(li.get("bred_status"), 16),
+        "price_basis": _lb_str(li.get("price_basis"), 12),
+        "fulfillment": _lb_str(li.get("fulfillment"), 12),
+        "state_region": _lb_str(li.get("state_region"), 60, lower=False),
+    }
+
+
 def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
     product = _product(li.get("product_type"))
     if not product:
@@ -469,6 +563,7 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
     country, region = _country_region(li, source_site)
     updated_at = li.get("_updated_at") if isinstance(li.get("_updated_at"), datetime) else None
     date_type = li.get("_date_type")
+    lb = _live_beef_fields(li)
     if row:
         row.last_seen_at = now
         row.status = "active" if not row.flagged else row.status
@@ -484,6 +579,9 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         if updated_at and (not row.source_updated_at or updated_at > row.source_updated_at):
             row.source_updated_at = updated_at
             row.source_date_type = date_type
+        for f, v in lb.items():  # live/beef facts: backfill when the source now states them
+            if v is not None and getattr(row, f) in (None, ""):
+                setattr(row, f, v)
         return False
     db.add(AggregatedListing(
         dedup_key=key, product_type=product,
@@ -501,6 +599,7 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         source_updated_at=updated_at, source_date_type=date_type,
         source_site=source_site, source_url=source_url,
         first_seen_at=now, last_seen_at=now, status="active",
+        **lb,  # live-cattle/beef facts (all None on genetics listings)
     ))
     return True
 
