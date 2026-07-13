@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from .. import tank
 from ..db import get_db
 from ..models import Animal, Listing, ListingStatus, ProductType, SaleType
 from ..schemas import ListingOut
@@ -67,8 +68,11 @@ def search(
 def facets(db: Session = Depends(get_db)):
     """Available facet values for the search UI."""
     bloodlines = [b[0] for b in db.query(Animal.bloodline).distinct() if b[0]]
+    # Only THIS tank's product types — the full enum would leak other verticals'
+    # families (live_animal/beef) into every genetics tank's browse UI.
+    tank_keys = tank.product_keys()
     return {
-        "product_types": [p.value for p in ProductType],
+        "product_types": [p.value for p in ProductType if p.value in tank_keys],
         "bloodlines": sorted(bloodlines),
         "sale_types": [s.value for s in SaleType],
         "export_regions": ["AUS", "EU", "CAN", "US"],

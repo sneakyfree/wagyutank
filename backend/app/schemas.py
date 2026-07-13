@@ -169,6 +169,29 @@ class ListingCreate(BaseModel):
     lab_production_cost: float | None = None
     cloning_facility_id: int | None = None
 
+    # live-animal (family "live")
+    animal_class: str | None = None      # bull/cow/bred_heifer/open_heifer/bull_calf/heifer_calf/pair/feeder/steer
+    head_count: int | None = None
+    dob: datetime | None = None
+    weight_lbs: float | None = None
+    bred_status: str | None = None       # open/exposed/bred/pair
+    due_date: datetime | None = None
+    service_sire_reg: str | None = None
+    delivery_available: bool = False
+    freight_note: str | None = None
+
+    # beef (family "beef" — discovery-only)
+    beef_cut_type: str | None = None     # quarter/half/whole/box/cuts/ground
+    box_weight_lbs: float | None = None
+    fulfillment: str | None = None       # ship/pickup/both
+    external_url: str | None = None
+
+    # pricing basis + seller location (live/beef)
+    price_basis: str | None = None       # per_head/per_cwt/per_lb/per_box/flat
+    country: str | None = None
+    state_region: str | None = None
+    postal_code: str | None = None
+
     quantity_available: int = 1
     quantity_visibility: QuantityVisibility = QuantityVisibility.IN_STOCK_ONLY
     per_buyer_cap: int | None = None
@@ -209,6 +232,25 @@ class ListingOut(BaseModel):
     rights_count: int | None
     exclusive: bool
     lab_production_cost: float | None
+    # live-animal / beef (null on genetics listings)
+    animal_class: str | None = None
+    head_count: int | None = None
+    dob: datetime | None = None
+    weight_lbs: float | None = None
+    bred_status: str | None = None
+    due_date: datetime | None = None
+    service_sire_reg: str | None = None
+    delivery_available: bool = False
+    freight_note: str | None = None
+    beef_cut_type: str | None = None
+    box_weight_lbs: float | None = None
+    fulfillment: str | None = None
+    external_url: str | None = None
+    price_basis: str | None = None
+    country: str | None = None
+    state_region: str | None = None
+    postal_code: str | None = None
+    distance_miles: float | None = None   # populated only on radius searches
     quantity_display: str = ""
     seller_handle: str | None = None
     seller_name: str | None = None

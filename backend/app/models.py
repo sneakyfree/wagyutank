@@ -42,6 +42,10 @@ class ProductType(str, enum.Enum):
     SEMEN = "semen"
     EMBRYO = "embryo"
     CLONE_RIGHTS = "clone_rights"
+    # The "live"/"beef" families (WagyuSale-style tanks). Every create/classify
+    # path is gated by tank.product_keys(), so genetics tanks never see these.
+    LIVE_ANIMAL = "live_animal"   # live cattle — bulls, cows, heifers, pairs, feeders, steers
+    BEEF = "beef"                 # direct-from-producer beef — discovery-only (no on-platform checkout)
 
 
 class SaleType(str, enum.Enum):
@@ -290,6 +294,31 @@ class Listing(Base):
     exclusive: Mapped[bool] = mapped_column(Boolean, default=False)  # "the only clone ever"
     lab_production_cost: Mapped[float | None] = mapped_column(Float) # est. cost payable to cloning lab
     cloning_facility_id: Mapped[int | None] = mapped_column(ForeignKey("facilities.id"))
+
+    # Live-animal specifics (family "live" — WagyuSale-style tanks; genetics rows leave null)
+    animal_class: Mapped[str | None] = mapped_column(String(24))     # bull/cow/bred_heifer/open_heifer/bull_calf/heifer_calf/pair/feeder/steer
+    head_count: Mapped[int | None] = mapped_column(Integer)          # lot size (a pair counts as 1)
+    dob: Mapped[datetime | None] = mapped_column(DateTime)           # age derived at render
+    weight_lbs: Mapped[float | None] = mapped_column(Float)
+    bred_status: Mapped[str | None] = mapped_column(String(16))      # open/exposed/bred/pair
+    due_date: Mapped[datetime | None] = mapped_column(DateTime)
+    service_sire_reg: Mapped[str | None] = mapped_column(String(40)) # bred-to sire — cross-links to the genetics tank
+    delivery_available: Mapped[bool] = mapped_column(Boolean, default=False)
+    freight_note: Mapped[str | None] = mapped_column(String(300))
+
+    # Beef specifics (family "beef" — discovery-only: contact the producer, no checkout)
+    beef_cut_type: Mapped[str | None] = mapped_column(String(40))    # quarter/half/whole/box/cuts/ground
+    box_weight_lbs: Mapped[float | None] = mapped_column(Float)
+    fulfillment: Mapped[str | None] = mapped_column(String(12))      # ship/pickup/both
+    external_url: Mapped[str | None] = mapped_column(String(600))    # producer's own order/contact page
+
+    # Pricing basis + seller location (live/beef tanks; genetics rows leave null)
+    price_basis: Mapped[str | None] = mapped_column(String(12))      # per_head/per_cwt/per_lb/per_box/flat (null = legacy per-unit)
+    country: Mapped[str | None] = mapped_column(String(2))
+    state_region: Mapped[str | None] = mapped_column(String(60), index=True)
+    postal_code: Mapped[str | None] = mapped_column(String(16))
+    lat: Mapped[float | None] = mapped_column(Float)
+    lng: Mapped[float | None] = mapped_column(Float)
 
     # Quantity + visibility
     quantity_available: Mapped[int] = mapped_column(Integer, default=1)
@@ -745,6 +774,17 @@ class AggregatedListing(Base):
     css_status: Mapped[str] = mapped_column(String(12), default="unknown")  # css | domestic | unknown
     export_regions: Mapped[list] = mapped_column(JSON, default=list)  # EU/AUS/CAN/MEX/BR/UK/CN/NZ
 
+    # Live-cattle / beef extraction fields (crawl.mode "live_beef" tanks; genetics rows leave null)
+    animal_class: Mapped[str | None] = mapped_column(String(24))
+    sex: Mapped[str | None] = mapped_column(String(8))
+    age_months: Mapped[int | None] = mapped_column(Integer)
+    weight_lbs: Mapped[float | None] = mapped_column(Float)
+    head_count: Mapped[int | None] = mapped_column(Integer)
+    bred_status: Mapped[str | None] = mapped_column(String(16))
+    price_basis: Mapped[str | None] = mapped_column(String(12))    # per_head/per_cwt/per_lb/per_box
+    fulfillment: Mapped[str | None] = mapped_column(String(12))    # ship/pickup/both
+    state_region: Mapped[str | None] = mapped_column(String(60))
+
     source_site: Mapped[str] = mapped_column(String(120), index=True)  # domain / name
     source_url: Mapped[str] = mapped_column(String(600))               # link back to original
 
@@ -971,3 +1011,31 @@ class ZenkyoInterest(Base):
     party_size: Mapped[int] = mapped_column(Integer, default=1)
     note: Mapped[str | None] = mapped_column(String(400))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class GeoPostal(Base):
+    """Offline postal-code centroid gazetteer (GeoNames, CC-BY 4.0) — powers the
+    zero-cloud-cost "near me" search on live-cattle/beef tanks. Loaded once by
+    app.jobs.seed_geo from the bundled dataset; breed-agnostic."""
+    __tablename__ = "geo_postal"
+    __table_args__ = (UniqueConstraint("country", "postal"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    country: Mapped[str] = mapped_column(String(2), index=True)
+    postal: Mapped[str] = mapped_column(String(16), index=True)
+    place_name: Mapped[str | None] = mapped_column(String(120))
+    admin1_code: Mapped[str | None] = mapped_column(String(20))   # US state / CA province / AU state
+    admin1_name: Mapped[str | None] = mapped_column(String(60))
+    lat: Mapped[float] = mapped_column(Float)
+    lng: Mapped[float] = mapped_column(Float)
+
+
+class SsoRedemption(Base):
+    """Single-use record of a redeemed cross-site SSO token (jti) — replay
+    protection for the sister-site trust circle (wagyutank ↔ wagyusale). Rows
+    older than an hour are reaped opportunistically on insert."""
+    __tablename__ = "sso_redemptions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    jti: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    redeemed_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

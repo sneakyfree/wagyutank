@@ -79,6 +79,28 @@ def product_meta(pkey: str) -> dict | None:
     return None
 
 
+def product_family(pkey: str) -> str:
+    """The product's family axis: "genetics" (semen/embryo/clone_rights), "live"
+    (live animals), or "beef" (direct-from-producer meat, discovery-only). Absent
+    = "genetics", so the original genetics tanks behave byte-identically."""
+    p = product_meta(pkey)
+    return ((p or {}).get("family") or "genetics").strip() or "genetics"
+
+
+def has_family(family: str) -> bool:
+    """Does this tank sell any product of the given family? Used to gate
+    family-specific jobs (e.g. the semen price index skips non-genetics tanks)."""
+    return any(product_family(p.get("key", "")) == family for p in products())
+
+
+def network_peers() -> list[dict]:
+    """Sister tanks in the cross-site flywheel (tank.json `network.peers`) —
+    e.g. wagyusale ↔ wagyu. Each entry: {key, name, domain, families, cta}."""
+    net = config().get("network") or {}
+    return [p for p in (net.get("peers") or [])
+            if isinstance(p, dict) and p.get("domain")]
+
+
 def features() -> dict:
     return config().get("features", {})
 
