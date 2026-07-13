@@ -1,27 +1,662 @@
 [
-{"url":"https://www.dextermarketplace.com/","site":"dextermarketplace.com","country":"US"},
-{"url":"http://www.dexters4u.com/semen/","site":"dexters4u.com","country":"US"},
-{"url":"https://www.dexters4u.com/embryos/","site":"dexters4u.com","country":"US"},
-{"url":"https://songwoodhavenfarm.com/sale-barn/ai-semen-sales/","site":"songwoodhavenfarm.com","country":"US"},
-{"url":"https://www.grandmasdexters.net/shop","site":"grandmasdexters.net","country":"US"},
-{"url":"https://www.legacybreeders.org/ai.html","site":"legacybreeders.org","country":"US"},
-{"url":"https://findyourwhitedexter.com/","site":"findyourwhitedexter.com","country":"US"},
-{"url":"https://dextercattle.org/adca-awards-2-4/","site":"dextercattle.org","country":"US"},
-{"url":"https://trimbullfarms.com/","site":"trimbullfarms.com","country":"US"},
-{"url":"https://dextercattlebreeder.com/","site":"dextercattlebreeder.com","country":"US"},
-{"url":"https://hammondslandcattle.com/irish-dexter","site":"hammondslandcattle.com","country":"US"},
-{"url":"https://www.madkettlefarm.com/dexter-cattle.html","site":"madkettlefarm.com","country":"US"},
-{"url":"https://www.mountainheritagefarm.com/store","site":"mountainheritagefarm.com","country":"US"},
-{"url":"https://www.ibreeder.co.uk/collections/dexter-1","site":"ibreeder.co.uk","country":"GB"},
-{"url":"https://www.dextercattle.org.uk/","site":"dextercattle.org.uk","country":"GB"},
-{"url":"https://dextercattlesociety.ie/animals-for-sale/","site":"dextercattlesociety.ie","country":"IE"},
-{"url":"https://derryduff.ie/dexter-cattle/","site":"derryduff.ie","country":"IE"},
-{"url":"https://www.cows.ie/livestock-breeds/dexter","site":"cows.ie","country":"IE"},
-{"url":"https://www.miniaturedextercattle.com.au/for_sale.php?cat=semens","site":"miniaturedextercattle.com.au","country":"AU"},
-{"url":"https://www.dextercattle.org.au/buying-a-dexter/for-sale","site":"dextercattle.org.au","country":"AU"},
-{"url":"https://margritadexters.com.au/","site":"margritadexters.com.au","country":"AU"},
-{"url":"https://www.dextercattle.ca/market.html","site":"dextercattle.ca","country":"CA"},
-{"url":"https://www.dextercattle.ca/semen.html","site":"dextercattle.ca","country":"CA"},
-{"url":"https://mapleridge-farm.com/products/premium-dexter-semen","site":"mapleridge-farm.com","country":"CA"},
-{"url":"https://www.rarebreeds.co.nz/dexter.html","site":"rarebreeds.co.nz","country":"NZ"}
+{
+"url": "https://www.dextermarketplace.com/",
+"site": "dextermarketplace.com",
+"country": "US"
+},
+{
+"url": "http://www.dexters4u.com/semen/",
+"site": "dexters4u.com",
+"country": "US"
+},
+{
+"url": "https://www.dexters4u.com/embryos/",
+"site": "dexters4u.com",
+"country": "US"
+},
+{
+"url": "https://songwoodhavenfarm.com/sale-barn/ai-semen-sales/",
+"site": "songwoodhavenfarm.com",
+"country": "US"
+},
+{
+"url": "https://www.grandmasdexters.net/shop",
+"site": "grandmasdexters.net",
+"country": "US"
+},
+{
+"url": "https://www.legacybreeders.org/ai.html",
+"site": "legacybreeders.org",
+"country": "US"
+},
+{
+"url": "https://findyourwhitedexter.com/",
+"site": "findyourwhitedexter.com",
+"country": "US"
+},
+{
+"url": "https://dextercattle.org/adca-awards-2-4/",
+"site": "dextercattle.org",
+"country": "US"
+},
+{
+"url": "https://trimbullfarms.com/",
+"site": "trimbullfarms.com",
+"country": "US"
+},
+{
+"url": "https://dextercattlebreeder.com/",
+"site": "dextercattlebreeder.com",
+"country": "US"
+},
+{
+"url": "https://hammondslandcattle.com/irish-dexter",
+"site": "hammondslandcattle.com",
+"country": "US"
+},
+{
+"url": "https://www.madkettlefarm.com/dexter-cattle.html",
+"site": "madkettlefarm.com",
+"country": "US"
+},
+{
+"url": "https://www.mountainheritagefarm.com/store",
+"site": "mountainheritagefarm.com",
+"country": "US"
+},
+{
+"url": "https://www.ibreeder.co.uk/collections/dexter-1",
+"site": "ibreeder.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.dextercattle.org.uk/",
+"site": "dextercattle.org.uk",
+"country": "GB"
+},
+{
+"url": "https://dextercattlesociety.ie/animals-for-sale/",
+"site": "dextercattlesociety.ie",
+"country": "IE"
+},
+{
+"url": "https://derryduff.ie/dexter-cattle/",
+"site": "derryduff.ie",
+"country": "IE"
+},
+{
+"url": "https://www.cows.ie/livestock-breeds/dexter",
+"site": "cows.ie",
+"country": "IE"
+},
+{
+"url": "https://www.miniaturedextercattle.com.au/for_sale.php?cat=semens",
+"site": "miniaturedextercattle.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.dextercattle.org.au/buying-a-dexter/for-sale",
+"site": "dextercattle.org.au",
+"country": "AU"
+},
+{
+"url": "https://margritadexters.com.au/",
+"site": "margritadexters.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.dextercattle.ca/market.html",
+"site": "dextercattle.ca",
+"country": "CA"
+},
+{
+"url": "https://www.dextercattle.ca/semen.html",
+"site": "dextercattle.ca",
+"country": "CA"
+},
+{
+"url": "https://mapleridge-farm.com/products/premium-dexter-semen",
+"site": "mapleridge-farm.com",
+"country": "CA"
+},
+{
+"url": "https://www.rarebreeds.co.nz/dexter.html",
+"site": "rarebreeds.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://www.silvermapledexters.com/sement",
+"site": "silvermapledexters.com",
+"country": "US"
+},
+{
+"url": "https://sureshotcattle.com/product-category/bull-semen/",
+"site": "sureshotcattle.com",
+"country": "US"
+},
+{
+"url": "https://www.twomenandahen.com/livestock/irish-dexter-cattle",
+"site": "twomenandahen.com",
+"country": "US"
+},
+{
+"url": "https://www.cattlerange.com/cattle-for-sale/dexter/embryos-and-semen/all-states/all-subclasses",
+"site": "cattlerange.com",
+"country": "US"
+},
+{
+"url": "https://www.livestockmarket.com/listings/dexter-cattle-for-sale-in-texas/?Animal=171001&State=TEXAS&BreedCattle=Dexter",
+"site": "livestockmarket.com",
+"country": "US"
+},
+{
+"url": "https://www.sirebuyer.com/bull-semen-classifieds/",
+"site": "sirebuyer.com",
+"country": "US"
+},
+{
+"url": "https://lastbuck-ranch.com/",
+"site": "lastbuck-ranch.com",
+"country": "US"
+},
+{
+"url": "https://www.woofterranchdexters.org/",
+"site": "woofterranchdexters.org",
+"country": "US"
+},
+{
+"url": "https://www.quartermilegood.com/dextercattle",
+"site": "quartermilegood.com",
+"country": "US"
+},
+{
+"url": "https://www.cascademeadowsfarm.com/dextercattle.html",
+"site": "cascademeadowsfarm.com",
+"country": "US"
+},
+{
+"url": "https://chaneysdexters.com/",
+"site": "chaneysdexters.com",
+"country": "US"
+},
+{
+"url": "https://leaningcedarranch.com/dexter-cattle/",
+"site": "leaningcedarranch.com",
+"country": "US"
+},
+{
+"url": "https://thatonefarm.com/dexter-cattle-for-sale-in-virginia/",
+"site": "thatonefarm.com",
+"country": "US"
+},
+{
+"url": "https://redriverdexters.com/",
+"site": "redriverdexters.com",
+"country": "US"
+},
+{
+"url": "http://www.havencreekfarm.com/dexter-cattle-for-sale.html",
+"site": "havencreekfarm.com",
+"country": "US"
+},
+{
+"url": "http://www.aspenhillfarms.com/irishdextercattle.html",
+"site": "aspenhillfarms.com",
+"country": "US"
+},
+{
+"url": "https://www.cattledepot.com/cattle/embryos-semen",
+"site": "cattledepot.com",
+"country": "US"
+},
+{
+"url": "https://www.rbst.org.uk/marketplace/cattle-semen/",
+"site": "rbst.org.uk",
+"country": "GB"
+},
+{
+"url": "https://6countiesnidexters.org/ai-semen/",
+"site": "6countiesnidexters.org",
+"country": "GB"
+},
+{
+"url": "https://sellmylivestock.com/livestock/category/cattle/dexter",
+"site": "sellmylivestock.com",
+"country": "GB"
+},
+{
+"url": "https://www.preloved.co.uk/classifieds/horses-livestock/cattle/all/uk/dexter",
+"site": "preloved.co.uk",
+"country": "GB"
+},
+{
+"url": "https://dextercattleforsale.co.uk/",
+"site": "dextercattleforsale.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.dextersea.uk/",
+"site": "dextersea.uk",
+"country": "GB"
+},
+{
+"url": "https://www.midlanddextergroup.com/",
+"site": "midlanddextergroup.com",
+"country": "GB"
+},
+{
+"url": "https://www.nidextercattlegroup.com/",
+"site": "nidextercattlegroup.com",
+"country": "GB"
+},
+{
+"url": "https://deer-n-dexter.co.uk/dextercattle/",
+"site": "deer-n-dexter.co.uk",
+"country": "GB"
+},
+{
+"url": "http://www.eagleridge-dexters.co.uk/cattle.html",
+"site": "eagleridge-dexters.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.ballyboleydexters.com/buy-cattle",
+"site": "ballyboleydexters.com",
+"country": "GB"
+},
+{
+"url": "https://www.dunlargdexters.co.uk/",
+"site": "dunlargdexters.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.haye-farm.co.uk/livestock",
+"site": "haye-farm.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.honeycombedextercattle.co.uk/",
+"site": "honeycombedextercattle.co.uk",
+"country": "GB"
+},
+{
+"url": "https://inrbs.ie/dexter-cattle/",
+"site": "inrbs.ie",
+"country": "IE"
+},
+{
+"url": "https://braveherders.ie/dexter-cattle/",
+"site": "braveherders.ie",
+"country": "IE"
+},
+{
+"url": "https://killenure.com/dexter-beef/",
+"site": "killenure.com",
+"country": "IE"
+},
+{
+"url": "https://donabatedexter.ie/",
+"site": "donabatedexter.ie",
+"country": "IE"
+},
+{
+"url": "https://bluestackfarms.com/dexter-beef",
+"site": "bluestackfarms.com",
+"country": "IE"
+},
+{
+"url": "https://www.donedeal.ie/beefcattle?words=dexter",
+"site": "donedeal.ie",
+"country": "IE"
+},
+{
+"url": "https://finnebroguewoods.com/dexter-beef",
+"site": "finnebroguewoods.com",
+"country": "GB"
+},
+{
+"url": "https://cromwellfarms.com/dexter-cattle-for-sale/",
+"site": "cromwellfarms.com",
+"country": "AU"
+},
+{
+"url": "https://www.sungkaipark.com/",
+"site": "sungkaipark.com",
+"country": "AU"
+},
+{
+"url": "https://www.chamelfields.com.au/dexter-cattle",
+"site": "chamelfields.com.au",
+"country": "AU"
+},
+{
+"url": "https://pinespur.wixsite.com/pinespurdexterstud",
+"site": "pinespur.wixsite.com",
+"country": "AU"
+},
+{
+"url": "https://www.newinndexterstud.com/",
+"site": "newinndexterstud.com",
+"country": "AU"
+},
+{
+"url": "https://dextersintasmania.weebly.com/dexters-for-sale-in-tasmania.html",
+"site": "dextersintasmania.weebly.com",
+"country": "AU"
+},
+{
+"url": "https://www.agtrader.com.au/livestock/cattle/dexter",
+"site": "agtrader.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.gumtree.com.au/s-livestock/dexter/k0c18457",
+"site": "gumtree.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.farmstock.com.au/Classifieds/Cattle/Sale/",
+"site": "farmstock.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.winnfarms.co.nz/dexter-miniature-cattle",
+"site": "winnfarms.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://windingriverhomestead.co.nz/resources/our-animals/",
+"site": "windingriverhomestead.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://koanga.org.nz/thorny-croft-animals-for-sale-2024/",
+"site": "koanga.org.nz",
+"country": "NZ"
+},
+{
+"url": "https://mylivestock.co.nz/go/browse/listings",
+"site": "mylivestock.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://www.trademe.co.nz/a/marketplace/business-farming-industry/farming-forestry/livestock/beef-cattle",
+"site": "trademe.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://heritagelivestockcanada.com/gene-bank",
+"site": "heritagelivestockcanada.com",
+"country": "CA"
+},
+{
+"url": "https://www.deeplyrootedfarm.ca/dexter-cattle",
+"site": "deeplyrootedfarm.ca",
+"country": "CA"
+},
+{
+"url": "https://dextercourtfarm.com/",
+"site": "dextercourtfarm.com",
+"country": "CA"
+},
+{
+"url": "https://www.ravenwoodacres.com/",
+"site": "ravenwoodacres.com",
+"country": "CA"
+},
+{
+"url": "https://www.kijiji.ca/b-livestock/ontario/dexter/k0c217l9004",
+"site": "kijiji.ca",
+"country": "CA"
+},
+{
+"url": "https://www.ceta.ca/breed-associations.html",
+"site": "ceta.ca",
+"country": "CA"
+},
+{
+"url": "https://dextercattlecompany.com/",
+"site": "dextercattlecompany.com",
+"country": "CA"
+},
+{
+"url": "https://dexter-bddz.de/",
+"site": "dexter-bddz.de",
+"country": "DE"
+},
+{
+"url": "https://www.dexter-verband-deutschland.de/",
+"site": "dexter-verband-deutschland.de",
+"country": "DE"
+},
+{
+"url": "https://www.pferdehof-leue.de/dexter-rinderzucht/",
+"site": "pferdehof-leue.de",
+"country": "DE"
+},
+{
+"url": "https://www.dexter-frankenwald.de/unsere-rinder/verkaufstiere/",
+"site": "dexter-frankenwald.de",
+"country": "DE"
+},
+{
+"url": "https://www.bio-dexterrind.de/tierverkauf/",
+"site": "bio-dexterrind.de",
+"country": "DE"
+},
+{
+"url": "https://hollanddexter.nl/",
+"site": "hollanddexter.nl",
+"country": "NL"
+},
+{
+"url": "https://www.boerhoes.nl/onze-dieren/dexters",
+"site": "boerhoes.nl",
+"country": "NL"
+},
+{
+"url": "https://www.danskdexter.dk/",
+"site": "danskdexter.dk",
+"country": "DK"
+},
+{
+"url": "https://dexterforeningen.se/",
+"site": "dexterforeningen.se",
+"country": "SE"
+},
+{
+"url": "https://www.fleischrinder.at/rassen/dexter/",
+"site": "fleischrinder.at",
+"country": "AT"
+},
+{
+"url": "https://www.landwirt.com/en/classifieds/cattle-market/dexter-cattle",
+"site": "landwirt.com",
+"country": "AT"
+},
+{
+"url": "https://www.agrarboerse.eu/inserate/dexter",
+"site": "agrarboerse.eu",
+"country": "DE"
+},
+{
+"url": "https://www.tyr.no/dexter/",
+"site": "tyr.no",
+"country": "NO"
+},
+{
+"url": "https://lesdexterducreux.fr/",
+"site": "lesdexterducreux.fr",
+"country": "FR"
+},
+{
+"url": "https://www.dextersa.co.za/",
+"site": "dextersa.co.za",
+"country": "ZA"
+},
+{
+"url": "https://landorstud.co.za/dexter/",
+"site": "landorstud.co.za",
+"country": "ZA"
+},
+{
+"url": "https://landwinkelhopenzo.nl/ons-vee",
+"site": "landwinkelhopenzo.nl",
+"country": "NL"
+},
+{
+"url": "https://www.marktplaats.nl/l/dieren-en-toebehoren/runderen/q/dexter/",
+"site": "marktplaats.nl",
+"country": "NL"
+},
+{
+"url": "https://easy-agri.com/?races=dexter",
+"site": "easy-agri.com",
+"country": "BE"
+},
+{
+"url": "https://www.lesbetesnoiresdelamontagnebourbonnaise.fr/",
+"site": "lesbetesnoiresdelamontagnebourbonnaise.fr",
+"country": "FR"
+},
+{
+"url": "https://www.harmes-viersen.de/dexterzucht",
+"site": "harmes-viersen.de",
+"country": "DE"
+},
+{
+"url": "https://www.fleischrinderzucht.de/rassen/dexter-rinder.html",
+"site": "fleischrinderzucht.de",
+"country": "DE"
+},
+{
+"url": "https://www.dexterhof.ch/verkauf/fleisch-vom-dexter-rind/",
+"site": "dexterhof.ch",
+"country": "CH"
+},
+{
+"url": "https://holzwang.ch/Dexter/",
+"site": "holzwang.ch",
+"country": "CH"
+},
+{
+"url": "https://www.dexterhomebeef.ch/dexter",
+"site": "dexterhomebeef.ch",
+"country": "CH"
+},
+{
+"url": "https://kuhteilen.ch/rassen/dexter",
+"site": "kuhteilen.ch",
+"country": "CH"
+},
+{
+"url": "https://www.tier-inserate.ch/Bauernhofmarkt/Rinder/Dexter-Rind/Schweiz",
+"site": "tier-inserate.ch",
+"country": "CH"
+},
+{
+"url": "https://www.danskkoedkvaeg.dk/racer/dexter/",
+"site": "danskkoedkvaeg.dk",
+"country": "DK"
+},
+{
+"url": "https://marsagard.se/r%C3%A5dgivningtj%C3%A4nster/dexter",
+"site": "marsagard.se",
+"country": "SE"
+},
+{
+"url": "https://www.lantbruksnet.se/",
+"site": "lantbruksnet.se",
+"country": "SE"
+},
+{
+"url": "https://www.nab-se.se/raser/dexter-42463665",
+"site": "nab-se.se",
+"country": "SE"
+},
+{
+"url": "https://irishdextercattlemen.com/marketplace/",
+"site": "irishdextercattlemen.com",
+"country": "US"
+},
+{
+"url": "https://www.farmfair.ie/",
+"site": "farmfair.ie",
+"country": "IE"
+},
+{
+"url": "https://www.universalsemensales.com/breeds/dexter",
+"site": "universalsemensales.com",
+"country": "US"
+},
+{
+"url": "https://www.plumcreekdexters.com/cattle-for-sale/",
+"site": "plumcreekdexters.com",
+"country": "US"
+},
+{
+"url": "https://www.cloverbellfarm.com/dexter-cattle-for-sale",
+"site": "cloverbellfarm.com",
+"country": "US"
+},
+{
+"url": "https://summersolsticefarms.weebly.com/dexter-cattle--for-sale.html",
+"site": "summersolsticefarms.weebly.com",
+"country": "US"
+},
+{
+"url": "https://jlmissouri.com/cattledexter-cattle/",
+"site": "jlmissouri.com",
+"country": "US"
+},
+{
+"url": "https://www.okdexters.org/",
+"site": "okdexters.org",
+"country": "US"
+},
+{
+"url": "https://dextercattletxla.com/",
+"site": "dextercattletxla.com",
+"country": "US"
+},
+{
+"url": "https://www.skerryhallfarm.co.uk/dexter-beef",
+"site": "skerryhallfarm.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.scawfellgenetics.co.uk/",
+"site": "scawfellgenetics.co.uk",
+"country": "GB"
+},
+{
+"url": "http://www.tenoaksfarm.com/",
+"site": "tenoaksfarm.com",
+"country": "US"
+},
+{
+"url": "http://www.texasdextercattle.com/",
+"site": "texasdextercattle.com",
+"country": "US"
+},
+{
+"url": "https://irishdexters.com/",
+"site": "irishdexters.com",
+"country": "US"
+},
+{
+"url": "http://www.emeraldparkfarm.com/",
+"site": "emeraldparkfarm.com",
+"country": "US"
+},
+{
+"url": "https://www.rnrranchandtack.com/dexter-cattle",
+"site": "rnrranchandtack.com",
+"country": "US"
+},
+{
+"url": "http://www.callistemonpark.com/dexter-cattle/",
+"site": "callistemonpark.com",
+"country": "AU"
+}
 ]

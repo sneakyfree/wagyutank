@@ -1,21 +1,557 @@
 [
-{"url":"https://loja.crvbrasil.com.br/semen","site":"loja.crvbrasil.com.br","country":"BR"},
-{"url":"https://crv4all.com/en/service/crv-tropical-breeds","site":"crv4all.com","country":"NL"},
-{"url":"https://altagenetics.com.br/","site":"altagenetics.com.br","country":"BR"},
-{"url":"https://semex.com.br/lista-leite-tropical/Gir-Leiteiro","site":"semex.com.br","country":"BR"},
-{"url":"https://loja.absglobal.com/semens/leite","site":"loja.absglobal.com","country":"BR"},
-{"url":"https://www.xgenetica.com.br/semen/gir-leiteiro/","site":"xgenetica.com.br","country":"BR"},
-{"url":"https://geneticaanimal.com.br/","site":"geneticaanimal.com.br","country":"BR"},
-{"url":"https://estanciatamburil.com.br/","site":"estanciatamburil.com.br","country":"BR"},
-{"url":"https://www.agroexport.agr.br/en/racas/girolando","site":"agroexport.agr.br","country":"BR"},
-{"url":"https://selectsires.com.br/","site":"selectsires.com.br","country":"BR"},
-{"url":"https://lagunagens.com.br/","site":"lagunagens.com.br","country":"BR"},
-{"url":"https://accuvanceindia.com/imported-genetics","site":"accuvanceindia.com","country":"IN"},
-{"url":"https://genusabsindia.com/elite-dairy-cattle/","site":"genusabsindia.com","country":"IN"},
-{"url":"https://www.gircow.in/","site":"gircow.in","country":"IN"},
-{"url":"https://www.fincasadhana.mx/","site":"fincasadhana.mx","country":"MX"},
-{"url":"https://www.rancho3jotas.com/","site":"rancho3jotas.com","country":"MX"},
-{"url":"https://geneticatricolor.com/home/categoria-producto/venta-de-semen/razas-lecheras-tropico/semen-gyr/","site":"geneticatricolor.com","country":"CO"},
-{"url":"https://ganaderiamanantiales.com/producto/10-embriones-congelados-girolando-plusgyr/","site":"ganaderiamanantiales.com","country":"CO"},
-{"url":"https://trgenetics.com/distributors/","site":"trgenetics.com","country":"NZ"}
+{
+"url": "https://loja.crvbrasil.com.br/semen",
+"site": "loja.crvbrasil.com.br",
+"country": "BR"
+},
+{
+"url": "https://crv4all.com/en/service/crv-tropical-breeds",
+"site": "crv4all.com",
+"country": "NL"
+},
+{
+"url": "https://altagenetics.com.br/",
+"site": "altagenetics.com.br",
+"country": "BR"
+},
+{
+"url": "https://semex.com.br/lista-leite-tropical/Gir-Leiteiro",
+"site": "semex.com.br",
+"country": "BR"
+},
+{
+"url": "https://loja.absglobal.com/semens/leite",
+"site": "loja.absglobal.com",
+"country": "BR"
+},
+{
+"url": "https://www.xgenetica.com.br/semen/gir-leiteiro/",
+"site": "xgenetica.com.br",
+"country": "BR"
+},
+{
+"url": "https://geneticaanimal.com.br/",
+"site": "geneticaanimal.com.br",
+"country": "BR"
+},
+{
+"url": "https://estanciatamburil.com.br/",
+"site": "estanciatamburil.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.agroexport.agr.br/en/racas/girolando",
+"site": "agroexport.agr.br",
+"country": "BR"
+},
+{
+"url": "https://selectsires.com.br/",
+"site": "selectsires.com.br",
+"country": "BR"
+},
+{
+"url": "https://lagunagens.com.br/",
+"site": "lagunagens.com.br",
+"country": "BR"
+},
+{
+"url": "https://accuvanceindia.com/imported-genetics",
+"site": "accuvanceindia.com",
+"country": "IN"
+},
+{
+"url": "https://genusabsindia.com/elite-dairy-cattle/",
+"site": "genusabsindia.com",
+"country": "IN"
+},
+{
+"url": "https://www.gircow.in/",
+"site": "gircow.in",
+"country": "IN"
+},
+{
+"url": "https://www.fincasadhana.mx/",
+"site": "fincasadhana.mx",
+"country": "MX"
+},
+{
+"url": "https://www.rancho3jotas.com/",
+"site": "rancho3jotas.com",
+"country": "MX"
+},
+{
+"url": "https://geneticatricolor.com/home/categoria-producto/venta-de-semen/razas-lecheras-tropico/semen-gyr/",
+"site": "geneticatricolor.com",
+"country": "CO"
+},
+{
+"url": "https://ganaderiamanantiales.com/producto/10-embriones-congelados-girolando-plusgyr/",
+"site": "ganaderiamanantiales.com",
+"country": "CO"
+},
+{
+"url": "https://trgenetics.com/distributors/",
+"site": "trgenetics.com",
+"country": "NZ"
+},
+{
+"url": "https://home.semex.com.br/node/7654",
+"site": "home.semex.com.br",
+"country": "BR"
+},
+{
+"url": "http://touros.abspecplan.com.br/?pages=bulls&raca=15",
+"site": "touros.abspecplan.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.tairana.com.br/",
+"site": "tairana.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.rbbfazendafloresta.com.br/",
+"site": "rbbfazendafloresta.com.br",
+"country": "BR"
+},
+{
+"url": "http://www.fazendabrasilia.com.br/site/vendas.php",
+"site": "fazendabrasilia.com.br",
+"country": "BR"
+},
+{
+"url": "http://www.xapetuba.com.br/girLeiteiroEmbrioes.asp",
+"site": "xapetuba.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.mfrural.com.br/busca/leiteiro-girolando",
+"site": "mfrural.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.girolando.com.br/",
+"site": "girolando.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.girleiteiro.org.br/",
+"site": "girleiteiro.org.br",
+"country": "BR"
+},
+{
+"url": "https://asbia.org.br/",
+"site": "asbia.org.br",
+"country": "BR"
+},
+{
+"url": "https://www.googado.com.br/collections/gado-de-leite/embrioes-girolando",
+"site": "googado.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.bhembrioes.com.br/",
+"site": "bhembrioes.com.br",
+"country": "BR"
+},
+{
+"url": "https://caproniembrioes.com.br/",
+"site": "caproniembrioes.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.cenatte.com.br/",
+"site": "cenatte.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.geneticaaditiva.com.br/novilhas-girolando-a-venda",
+"site": "geneticaaditiva.com.br",
+"country": "BR"
+},
+{
+"url": "http://embriza.com.br/",
+"site": "embriza.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.pecuaria.com.br/divulgado/",
+"site": "pecuaria.com.br",
+"country": "BR"
+},
+{
+"url": "http://www.fivet.com.br/",
+"site": "fivet.com.br",
+"country": "BR"
+},
+{
+"url": "http://www.gertecembrioes.com.br/home.php",
+"site": "gertecembrioes.com.br",
+"country": "BR"
+},
+{
+"url": "https://agrogir.com/produto/venda-de-embrioes/",
+"site": "agrogir.com",
+"country": "BR"
+},
+{
+"url": "https://embriovita.com.br/",
+"site": "embriovita.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.origensbra.com.br/",
+"site": "origensbra.com.br",
+"country": "BR"
+},
+{
+"url": "https://rahurisemenstation.com/",
+"site": "rahurisemenstation.com",
+"country": "IN"
+},
+{
+"url": "https://stgen.in/",
+"site": "stgen.in",
+"country": "IN"
+},
+{
+"url": "https://www.nddb.coop/services/animalbreeding/animalreproduction/semenproduction",
+"site": "nddb.coop",
+"country": "IN"
+},
+{
+"url": "https://www.pashushala.com/page/category/category?category=Cow&breed=Gir",
+"site": "pashushala.com",
+"country": "IN"
+},
+{
+"url": "https://www.indiamart.com/thesurabhienterprises/frozen-animal-semen.html",
+"site": "indiamart.com",
+"country": "IN"
+},
+{
+"url": "https://www.tradeindia.com/products/gir-bull-semen-c4270751.html",
+"site": "tradeindia.com",
+"country": "IN"
+},
+{
+"url": "https://sagbidaj.org/",
+"site": "sagbidaj.org",
+"country": "IN"
+},
+{
+"url": "https://egenetica.co/",
+"site": "egenetica.co",
+"country": "CO"
+},
+{
+"url": "https://genexcolombia.com/semen_bovino/",
+"site": "genexcolombia.com",
+"country": "CO"
+},
+{
+"url": "https://novagenetics.co/",
+"site": "novagenetics.co",
+"country": "CO"
+},
+{
+"url": "https://www.geneticaselecta.com/",
+"site": "geneticaselecta.com",
+"country": "CO"
+},
+{
+"url": "https://haciendalafortuna.com/",
+"site": "haciendalafortuna.com",
+"country": "CO"
+},
+{
+"url": "https://revistageneticabovina.com/ganaderias/hacienda-el-empedrado/",
+"site": "revistageneticabovina.com",
+"country": "CO"
+},
+{
+"url": "https://www.suganado.com/anuncios-suganado/venta-ganado-embriones-raza-gyr-lechero-vacas-terneras-novillas/",
+"site": "suganado.com",
+"country": "CO"
+},
+{
+"url": "https://croper.com/products/4701-venta-de-genetica-de-gyr-girolando",
+"site": "croper.com",
+"country": "CO"
+},
+{
+"url": "https://hdavillacarmen.com/",
+"site": "hdavillacarmen.com",
+"country": "CO"
+},
+{
+"url": "https://haciendalaestancia.ec/registro-genealogico-gyr/",
+"site": "haciendalaestancia.ec",
+"country": "EC"
+},
+{
+"url": "http://www.ranchosonido.mx/perfil_negocios/",
+"site": "ranchosonido.mx",
+"country": "MX"
+},
+{
+"url": "https://progeiga.com.mx/store/categorias/semen-bovino-razas-lecheras/gyr-lechero/",
+"site": "progeiga.com.mx",
+"country": "MX"
+},
+{
+"url": "https://cebumexico.com/",
+"site": "cebumexico.com",
+"country": "MX"
+},
+{
+"url": "http://ganaderia-guadalupe.com/",
+"site": "ganaderia-guadalupe.com",
+"country": "GT"
+},
+{
+"url": "https://www.sembrion.com/",
+"site": "sembrion.com",
+"country": "GT"
+},
+{
+"url": "https://nutrimaxcr.com/productos/semen-bovino/semen-y-embriones-bovinos/",
+"site": "nutrimaxcr.com",
+"country": "CR"
+},
+{
+"url": "https://asocebucr.com/gyr/",
+"site": "asocebucr.com",
+"country": "CR"
+},
+{
+"url": "https://cricepa.com/",
+"site": "cricepa.com",
+"country": "PA"
+},
+{
+"url": "https://www.cooleche.com/servicios/asistencia-tecnica/",
+"site": "cooleche.com",
+"country": "PA"
+},
+{
+"url": "https://www.encuentra24.com/nicaragua-es/anuncios-casificados-mascotas-animales-caballos-ganado",
+"site": "encuentra24.com",
+"country": "NI"
+},
+{
+"url": "https://www.solgenetica.pe/semen-razas-tropicales/",
+"site": "solgenetica.pe",
+"country": "PE"
+},
+{
+"url": "https://vri.lamolina.edu.pe/laboratorios/banco-de-semen/",
+"site": "vri.lamolina.edu.pe",
+"country": "PE"
+},
+{
+"url": "https://agroshow.info/agroexponente/reprogenesis",
+"site": "agroshow.info",
+"country": "VE"
+},
+{
+"url": "https://www.viateca.com/la_empresa.htm",
+"site": "viateca.com",
+"country": "VE"
+},
+{
+"url": "https://agropecuarialagunanueva.com.ve/",
+"site": "agropecuarialagunanueva.com.ve",
+"country": "VE"
+},
+{
+"url": "https://avisavenezuela.org/girolando-una-raza-para-producir-leche-en-el-tropico/",
+"site": "avisavenezuela.org",
+"country": "VE"
+},
+{
+"url": "https://www.semex.com.ar/",
+"site": "semex.com.ar",
+"country": "AR"
+},
+{
+"url": "https://infonegocios.com.py/infoganaderia/el-alamo-un-centro-genetico-de-avanzada-en-paraguay",
+"site": "infonegocios.com.py",
+"country": "PY"
+},
+{
+"url": "https://www.arp.org.py/",
+"site": "arp.org.py",
+"country": "PY"
+},
+{
+"url": "https://www.ckl.africa/product/crv/",
+"site": "ckl.africa",
+"country": "KE"
+},
+{
+"url": "https://www.crvavoncroft.com/service/tropical-breeds/",
+"site": "crvavoncroft.com",
+"country": "KE"
+},
+{
+"url": "https://twigachemicals.com/",
+"site": "twigachemicals.com",
+"country": "KE"
+},
+{
+"url": "https://www.abcz.org.br/",
+"site": "abcz.org.br",
+"country": "BR"
+},
+{
+"url": "https://fortgen.com/en/",
+"site": "fortgen.com",
+"country": "BR"
+},
+{
+"url": "https://vetfertility.co.za/https/-/vetfertility-co-za/import-export/",
+"site": "vetfertility.co.za",
+"country": "ZA"
+},
+{
+"url": "https://www.genimex.co.za/",
+"site": "genimex.co.za",
+"country": "ZA"
+},
+{
+"url": "https://www.embryoplus.com/",
+"site": "embryoplus.com",
+"country": "ZA"
+},
+{
+"url": "https://aamrodairies.com/a2mate/bull_semen",
+"site": "aamrodairies.com",
+"country": "IN"
+},
+{
+"url": "https://www.zebushop.com.mx/",
+"site": "zebushop.com.mx",
+"country": "MX"
+},
+{
+"url": "https://www.agrosemex.com/semen-bovino/",
+"site": "agrosemex.com",
+"country": "CO"
+},
+{
+"url": "https://leitebrasil.com.br/",
+"site": "leitebrasil.com.br",
+"country": "BR"
+},
+{
+"url": "https://inseminardecolombia.com/",
+"site": "inseminardecolombia.com",
+"country": "CO"
+},
+{
+"url": "https://www.bestcattlesales.com/",
+"site": "bestcattlesales.com",
+"country": "US"
+},
+{
+"url": "https://ganorsa.com/categoria-producto/categorias/semen-bovino/gyr-lechero-semen-bovino/",
+"site": "ganorsa.com",
+"country": "GT"
+},
+{
+"url": "http://vilaricaagropecuaria.com.br/racas/gir-leiteiro",
+"site": "vilaricaagropecuaria.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.calciolandia.com/paginas/a-calciolandia",
+"site": "calciolandia.com",
+"country": "BR"
+},
+{
+"url": "https://grotadasa2a2.com.br/nossa-historia/",
+"site": "grotadasa2a2.com.br",
+"country": "BR"
+},
+{
+"url": "https://agrocolanta.com/genetica/",
+"site": "agrocolanta.com",
+"country": "CO"
+},
+{
+"url": "https://totalpec.com/",
+"site": "totalpec.com",
+"country": "BO"
+},
+{
+"url": "https://www.engormix.com/",
+"site": "engormix.com",
+"country": "AR"
+},
+{
+"url": "https://www.vitrolabembriones.com/",
+"site": "vitrolabembriones.com",
+"country": "CO"
+},
+{
+"url": "https://haciendalajudea.com/",
+"site": "haciendalajudea.com",
+"country": "CO"
+},
+{
+"url": "https://www.mfleiloes.com.br/",
+"site": "mfleiloes.com.br",
+"country": "BR"
+},
+{
+"url": "https://programaleiloes.com/agenda",
+"site": "programaleiloes.com",
+"country": "BR"
+},
+{
+"url": "https://sba1.com/leiloes",
+"site": "sba1.com",
+"country": "BR"
+},
+{
+"url": "https://www.erural.net/",
+"site": "erural.net",
+"country": "BR"
+},
+{
+"url": "https://www.genexbrasil.com.br/",
+"site": "genexbrasil.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.embral.com.br/leilao/leilao_agenda.aspx",
+"site": "embral.com.br",
+"country": "BR"
+},
+{
+"url": "https://livestockanimalexchange.com/product/girolando-cows-for-sale/",
+"site": "livestockanimalexchange.com",
+"country": "US"
+},
+{
+"url": "https://makongifarm.com/about-us/",
+"site": "makongifarm.com",
+"country": "KE"
+},
+{
+"url": "https://alamadhisemenstation.com/",
+"site": "alamadhisemenstation.com",
+"country": "IN"
+},
+{
+"url": "https://shop.surabhienterprises.com/collections/frozen-semen",
+"site": "shop.surabhienterprises.com",
+"country": "IN"
+},
+{
+"url": "https://www.exportersindia.com/indian-suppliers/frozen-animal-semen.htm",
+"site": "exportersindia.com",
+"country": "IN"
+}
 ]

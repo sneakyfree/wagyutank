@@ -1,0 +1,219 @@
+[
+  {
+    "name": "Associação Brasileira dos Criadores de Girolando (ABCG)",
+    "url": "https://www.girolando.com.br/",
+    "country": "BR",
+    "category": "association",
+    "note": "Official Girolando breed association/registry (Uberaba); sets standards, registers pedigrees, supports semen/embryo export and genomic-evaluation exports. WebFetch got 403 (WAF); site is public in a browser. Registry portal: webgirolando.com.br."
+  },
+  {
+    "name": "Associação Brasileira dos Criadores de Gir Leiteiro (ABCGIL)",
+    "url": "https://www.girleiteiro.org.br/",
+    "country": "BR",
+    "category": "association",
+    "note": "Official Dairy Gir breed association (Uberaba); runs the PNMGL bull summary with Embrapa. Registry/breed authority behind the genetics that are exported (incl. to India)."
+  },
+  {
+    "name": "ASBIA — Assoc. Brasileira de Inseminação Artificial",
+    "url": "https://asbia.org.br/",
+    "country": "BR",
+    "category": "association",
+    "note": "National AI/semen-industry association; publishes INDEX ASBIA market & export statistics and co-signed the Brazil–India semen/embryo export study. Directory/authority hub for Brazilian AI companies, not a direct seller."
+  },
+  {
+    "name": "WTA - Watanabe Tecnologia Aplicada",
+    "url": "https://www.wtavet.com.br/",
+    "country": "BR",
+    "category": "info",
+    "note": "100% Brazilian repro-tech supplier: OPU, FIV, TE, AI equipment/consumables, exports 50+ countries. Tech/equipment (not embryos), relevant to Gir/Girolando FIV operations."
+  },
+  {
+    "name": "EPAMIG - Gir Leiteiro genetic material",
+    "url": "https://www.epamig.br/",
+    "country": "BR",
+    "category": "registry",
+    "note": "Minas Gerais state ag-research company; sells Gir Leiteiro donors, bulls, oocytes and sexed embryos via annual Shopping Gir Leiteiro (Expozebu) + digital donor catalog (catalogo_shoping_gir_leiteiro PDF on epamig.br). Not directly fetched."
+  },
+  {
+    "name": "BAIF Sire Directory",
+    "url": "http://siredirectory.baifonline.org/",
+    "country": "IN",
+    "category": "directory",
+    "note": "Public BAIF sire/semen catalogue. Conventional & sex-sorted semen for indigenous (incl. Gir), crossbred and exotic breeds. Note: sire.baif.org.in 301-redirects here."
+  },
+  {
+    "name": "NDDB — Frozen Semen Production",
+    "url": "https://www.nddb.coop/services/animalbreeding/animalreproduction/semenproduction",
+    "country": "IN",
+    "category": "association",
+    "note": "National Dairy Development Board. Documents its 4 mega semen stations (SAG Ahmedabad, ABC UP, Alamadhi TN, Rahuri MH) all offering Gir among elite bulls; ~30% of national semen output. NDDB also imported 40k doses of Brazilian Gir semen."
+  },
+  {
+    "name": "Dairy Dimension — Rajasthan Brazilian Gir import (article)",
+    "url": "https://dairydimension.com/rajasthan-gir-semen-import-sex-sorted-insemination-dairy-growth-2025/",
+    "country": "IN",
+    "category": "info",
+    "note": "News article (May 2025): Rajasthan distributing 2,680 doses of Brazilian Gir bull semen across 23 districts under National Gokul Mission; plans own sexed-semen lab. Useful lead for import channels/officials, not a seller."
+  },
+  {
+    "name": "Asocebú (Gyr genealogical registry)",
+    "url": "http://www.asocebu.com/index.php/razas/gyr",
+    "country": "CO",
+    "category": "registry",
+    "note": "Colombian Zebu association; official Gyr genealogical book, genetic evaluations, performance testing. Public info + SIR genealogy platform."
+  },
+  {
+    "name": "GanaderosVIP",
+    "url": "https://www.ganaderosvip.com/post/donde-comprar-ganado-gyr-en-colombia-de-buena-genetica",
+    "country": "CO",
+    "category": "directory",
+    "note": "Colombian brokerage/marketplace connecting buyers to certified Gyr breeders via WhatsApp; also courses & shop. Public."
+  },
+  {
+    "name": "Asociación de Criadores Gyr y Girolando del Ecuador (ASOGYRE)",
+    "url": "https://www.instagram.com/asogyre.ec/",
+    "country": "EC",
+    "category": "social",
+    "note": "Official Ecuador Gyr/Girolando breeders' association (~60+ members, 5,760 registered animals). No standalone website reachable (asogyre.com refused connection); public presence is Instagram/Facebook. Registry + fairs."
+  },
+  {
+    "name": "El Diario (Ecuador) - Gyr/Girolando market coverage",
+    "url": "https://www.eldiario.ec/negocios/asociacion-de-criadores-gyr-y-girolando-de-ecuador-reporta-5760-animales-registrados-y-expansion-en-la-costa-y-el-tropico-27012026/",
+    "country": "EC",
+    "category": "info",
+    "note": "Ecuadorian news outlet documenting the Gyr/Girolando semen-dose (pajuela) and embryo market in Manabi/Santo Domingo; useful lead source for named haciendas. Not directly fetched."
+  },
+  {
+    "name": "Asociacion Mexicana de Criadores de Cebu (AMCC)",
+    "url": "https://cebumexico.com/",
+    "country": "MX",
+    "category": "association",
+    "note": "National Zebu registry covering Gyr; runs auctions, genetic evaluations, breeder galleries. HQ Tampico / Parque Zebu Altamira."
+  },
+  {
+    "name": "Asocebu Costa Rica — Gyr breed page",
+    "url": "https://asocebucr.com/gyr/",
+    "country": "CR",
+    "category": "association",
+    "note": "Asociacion de Criadores de Ganado Cebu de Costa Rica; genealogical registry for Gyr (9,746 Gyr registered 1994-2017), shows and member directory."
+  },
+  {
+    "name": "PLATICAR — Comunidad Lecheria Tropical y Ganado Girolando (INTA CR)",
+    "url": "http://www.platicar.go.cr/index.php/comunidades-practica/53-comunidades-de-practica/750-lecher%C3%ADa-tropical-y-producci%C3%B3n-de-ganado-girolando",
+    "country": "CR",
+    "category": "info",
+    "note": "Costa Rica govt (INTA) tropical-dairy/Girolando community-of-practice info hub. Public page but returns HTTP 403 to automated fetches; likely live in-browser — flagged for manual confirmation."
+  },
+  {
+    "name": "CRICEPA (Asociacion de Criadores de Cebu de Panama)",
+    "url": "https://cricepa.com/",
+    "country": "PA",
+    "category": "association",
+    "note": "David, Chiriqui. Zebu registry/breeder directory incl. Gyr; registrations and shows."
+  },
+  {
+    "name": "GuiagroNicaragua",
+    "url": "https://guiagronicaragua.com/ganaderia-bovina-genetica-razas-y-semen/",
+    "country": "NI",
+    "category": "directory",
+    "note": "Nicaragua agri directory/seller: Gyr, Gyrolando, Jersey, Pardo Suizo semen catalog plus breeding stock and embryos."
+  },
+  {
+    "name": "Perulactea",
+    "url": "https://perulactea.com/girolando-una-raza-para-producir-leche-en-el-tropico/",
+    "country": "PE",
+    "category": "info",
+    "note": "Peru/LatAm dairy-industry info portal; publishes Girolando/Gyr tropical-dairy technical content. Live, no paywall. Info/lead source, not a direct seller."
+  },
+  {
+    "name": "Alta Genética de Venezuela C.A.",
+    "url": "https://www.facebook.com/altageneticadevenezuelaca/",
+    "country": "VE",
+    "category": "social",
+    "note": "Venezuelan genetics distributor (semen, embryos, livestock, AI supplies) incl. Gyr/Girolando. No standalone website found; Facebook is its only public presence, hence social category."
+  },
+  {
+    "name": "AVISA Venezuela (Asociación Venezolana de la Industria de Salud Animal)",
+    "url": "https://avisavenezuela.org/girolando-una-raza-para-producir-leche-en-el-tropico/",
+    "country": "VE",
+    "category": "association",
+    "note": "Venezuelan animal-health industry association; publishes Girolando/Gyr tropical-dairy educational content. Live public blog. Info/association, not a direct seller."
+  },
+  {
+    "name": "INTA Banco de Semen y Embriones",
+    "url": "https://www.argentina.gob.ar/inta/tecnologias/banco-de-semen-y-embriones",
+    "country": "AR",
+    "category": "registry",
+    "note": "Argentine national ag institute gene bank (bovine/equine semen & embryos). Live public gov page; general bovine repro, does not specifically itemize Gyr/Girolando. Included as national genebank/registry reference."
+  },
+  {
+    "name": "Asociación Rural del Paraguay (ARP)",
+    "url": "https://www.arp.org.py/",
+    "country": "PY",
+    "category": "association",
+    "note": "Paraguay national livestock association; runs ORZARP breed registry and Expo Paraguay. Live public site. Registry/directory gateway to Paraguayan Gyr/Girolando breeders rather than a direct seller."
+  },
+  {
+    "name": "ASOCEBU Bolivia (Asociación Boliviana de Criadores de Cebú)",
+    "url": "https://asocebu.com.bo/nosotros/",
+    "country": "BO",
+    "category": "registry",
+    "note": "Bolivian zebu breeders association (Santa Cruz); registers Gyr Lechero and, since 2015 via agreement with Brazil's ABCGIL, the Girolando breed. Live public site; hub for Bolivian dairy-genetics sellers and Expocruz semen/embryo trade."
+  },
+  {
+    "name": "Publiagro",
+    "url": "https://publiagro.com.bo/2026/05/gyr-y-girolando-el-modelo-genetico-que-transforma-la-lecheria-tropical-en-un-negocio-rentable/",
+    "country": "BO",
+    "category": "info",
+    "note": "Bolivian agribusiness news site; ongoing Gyr/Girolando tropical-dairy coverage. Live public. Info/lead source, not a seller."
+  },
+  {
+    "name": "Associação Brasileira dos Criadores de Zebu (ABCZ)",
+    "url": "https://www.abcz.org.br/",
+    "country": "BR",
+    "category": "association",
+    "note": "Brazilian Zebu breeders' association (Uberaba); parent registry framework for Gir/zebu genetics feeding Girolando exports. Public (200)."
+  },
+  {
+    "name": "Embrapa Gado de Leite",
+    "url": "https://www.embrapa.br/en/web/gado-de-leite",
+    "country": "BR",
+    "category": "info",
+    "note": "Brazilian gov't dairy-cattle research body; formally partners with ABCG/FAO to supply Girolando genetics and protocols to Nigeria and other African programs. Public (200)."
+  },
+  {
+    "name": "Jassar Aftab — Livestock & Dairy Genetics Companies in Pakistan",
+    "url": "https://jassaraftab.com/livestock-and-dairy-genetics-companies-in-pakistan-2/",
+    "country": "PK",
+    "category": "directory",
+    "note": "Public directory of 13+ Pakistani dairy-genetics firms; states private semen units locally produce Gir and Girolando doses (does not break down by company)."
+  },
+  {
+    "name": "Ditjen PKH (Indonesia) — Brazil Girolando cooperation",
+    "url": "https://ditjenpkh.pertanian.go.id/berita/1753-brazil-tawarkan-kerjasama-kembangkan-sapi-girolando-di-indonesia",
+    "country": "ID",
+    "category": "info",
+    "note": "Indonesian Directorate General of Livestock news: Brazil offering Girolando dairy development/import cooperation to Indonesia post-FMD. WebFetch 403 (bot block); indexed and public."
+  },
+  {
+    "name": "RCR Peru",
+    "url": "https://www.rcrperu.com/desarrollo-del-ganado-lechero-gyr-en-peru/",
+    "country": "PE",
+    "category": "info",
+    "note": "Peruvian ag news portal; documents Gyr dairy development (INIA El Porvenir, San Martin) via Brazilian imported semen. Info/lead source for Peru, not a direct seller. Verified live."
+  },
+  {
+    "name": "IndianCattle (Gowbazaar)",
+    "url": "https://indiancattle.com/",
+    "country": "IN",
+    "category": "directory",
+    "note": "Live India directory + 'Gowbazaar' marketplace of pure-bred farms, Gir cattle sellers and semen suppliers by state; supported by Bombay Gowrakshak Trust."
+  },
+  {
+    "name": "DairyKnowledge Portal (NDDB)",
+    "url": "https://www.dairyknowledge.in/",
+    "country": "IN",
+    "category": "info",
+    "note": "Live NDDB knowledge portal; publishes the public 'List of Semen Stations' PDF (Gir/Sahiwal sources across India). Reference/registry for locating Indian Gir semen studs."
+  }
+]

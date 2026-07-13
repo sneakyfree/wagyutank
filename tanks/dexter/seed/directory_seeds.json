@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Purebred Dexter Cattle Association of North America (Dexters Today)",
+    "url": "https://www.dexterstoday.com/",
+    "country": "US",
+    "category": "registry",
+    "note": "PDCA registry; public 'Dexter Marketplace' + 'Dexter Bull Semen' under Buy & Sell (feeds dextermarketplace.com). Treasurer in NC. No login for homepage/marketplace."
+  },
+  {
+    "name": "PDCA Online Pedigree / Member Search",
+    "url": "https://pdca-pedigree.org/db/index.php",
+    "country": "US",
+    "category": "registry",
+    "note": "Public PDCA pedigree DB with Member Search and Animal Search; no login for browsing."
+  },
+  {
+    "name": "Dexter Cattle Society",
+    "url": "https://www.dextercattle.co.uk/",
+    "country": "GB",
+    "category": "registry",
+    "note": "UK & Ireland breed society (Carlisle, Cumbria); ~1,100 members; herd book, beef map, member sale/hire/AI listings. Public homepage; individual member-listing area is login-gated (not accessed)."
+  },
+  {
+    "name": "Six Counties NI Dexter Group - AI Semen",
+    "url": "https://6countiesnidexters.org/ai-semen/",
+    "country": "GB",
+    "category": "association",
+    "note": "Northern Ireland Dexter group AI semen sales (members GBP18/straw, non-members GBP23; e.g. Ballyloughan Chevalier EX95). Page returned HTTP 403 to automated fetch (bot block) but is a real live public page per search index."
+  },
+  {
+    "name": "East Anglian Dexter Cattle Group (dextersea)",
+    "url": "https://www.dextersea.uk/",
+    "country": "GB",
+    "category": "association",
+    "note": "Regional group / division of Dexter Cattle Society; membership GBP10/yr; public show schedules, sale listings, contacts."
+  },
+  {
+    "name": "Midland Dexter Group",
+    "url": "https://www.midlanddextergroup.com/",
+    "country": "GB",
+    "category": "association",
+    "note": "Regional group affiliated to Dexter Cattle Society covering Midlands/Gloucestershire/Herefordshire/Oxfordshire/Wiltshire/Worcestershire; public marketplace/news sections."
+  },
+  {
+    "name": "NI Dexter Cattle Group",
+    "url": "https://www.nidextercattlegroup.com/",
+    "country": "GB",
+    "category": "association",
+    "note": "Northern Ireland Dexter group affiliated to UK & Ireland Dexter Cattle Society; public cattle-sales and beef-purchase sections; membership CTA."
+  },
+  {
+    "name": "Irish Native Rare Breed Society — Dexter Cattle",
+    "url": "https://inrbs.ie/dexter-cattle/",
+    "country": "IE",
+    "category": "association",
+    "note": "Public breed-conservation page; ~1,000 breeding females in Republic; Irish Dexter Group (est. 2014); embedded map locating local Dexter farmers."
+  },
+  {
+    "name": "DCAI Registry service (LB Centre)",
+    "url": "https://lbcentre.com.au/Dexter-Cattle-Australia.php",
+    "country": "AU",
+    "category": "registry",
+    "note": "DCAI herdbook/registry back-end (LB Centre). Live per search but WebFetch hit SSL cert issue; likely valid in browser."
+  },
+  {
+    "name": "Dexter Cattle Promotional Group of Western Australia (DCAI)",
+    "url": "https://dextergroupofwesternaustralia.weebly.com/",
+    "country": "AU",
+    "category": "directory",
+    "note": "WA regional group; lists member studs (Billabong, Glenwarlock, Chittering Downs, Smalltime, Rise View, etc.)."
+  },
+  {
+    "name": "Dexter Cattle Group of Tasmania (Wix)",
+    "url": "https://dextercattlegrouptas.wixsite.com/dextercattletasmania",
+    "country": "AU",
+    "category": "directory",
+    "note": "Official TAS promotion group public site; member info, events, galleries."
+  },
+  {
+    "name": "Dexter Cattle Group of South Australia (Weebly)",
+    "url": "http://dextergroupofsa.weebly.com/",
+    "country": "AU",
+    "category": "directory",
+    "note": "SA regional group. Note: page advertises migration to sadexter.com (not resolving as of check)."
+  },
+  {
+    "name": "Dexter Cattle For Sale Victoria (Facebook)",
+    "url": "https://www.facebook.com/dextercattleforsalevictoria/",
+    "country": "AU",
+    "category": "social",
+    "note": "Included only as social presence for VIC private/stud sales; public page."
+  },
+  {
+    "name": "Dexter Cattle Society NZ (dextercattle.nz)",
+    "url": "https://dextercattle.nz/",
+    "country": "NZ",
+    "category": "registry",
+    "note": "Official NZ Dexter breed registry/herd book, incorporated 2001. Public registry, breed standard, governance docs; member area gated (not accessed)."
+  },
+  {
+    "name": "Canadian Embryo Transfer Association - Breed Associations",
+    "url": "https://www.ceta.ca/breed-associations.html",
+    "country": "CA",
+    "category": "association",
+    "note": "Public CETA resource page listing breed associations incl. Canadian Dexter Cattle Association (links to CLRC dexter registry). Embryo-transfer industry body."
+  },
+  {
+    "name": "Bundesrasseverband Deutscher Dexter-Züchter und -Halter e.V. (BDDZ)",
+    "url": "https://dexter-bddz.de/",
+    "country": "DE",
+    "category": "association",
+    "note": "Official German Dexter breed body aligned with the English DCS; public classifieds, breed info, events, member forms."
+  },
+  {
+    "name": "Dexter Verband Deutschland (DVD)",
+    "url": "https://www.dexter-verband-deutschland.de/",
+    "country": "DE",
+    "category": "association",
+    "note": "Official German breed representative (member of BRS); Kiel office; runs a cattle marketplace and AI/breeding support."
+  },
+  {
+    "name": "Vereniging Holland Dexter",
+    "url": "https://hollanddexter.nl/",
+    "country": "NL",
+    "category": "association",
+    "note": "Official stud-book association for NL and Flanders (founded 1993, ~200 members, ~850 registered animals); ZooEasy registry."
+  },
+  {
+    "name": "Dansk Dexterforening",
+    "url": "https://www.danskdexter.dk/",
+    "country": "DK",
+    "category": "association",
+    "note": "Danish Dexter Association (Denmark holds one of the largest herds); breed info, bulls for sale, shows. Actively updated Dec 2025."
+  },
+  {
+    "name": "Svenska Dexterföreningen",
+    "url": "https://dexterforeningen.se/",
+    "country": "SE",
+    "category": "association",
+    "note": "Swedish Dexter Association (founded 2010); herd book via NAB; growing registrations (178 animals in 2024)."
+  },
+  {
+    "name": "Fleischrinder Austria – Dexter",
+    "url": "https://www.fleischrinder.at/rassen/dexter/",
+    "country": "AT",
+    "category": "association",
+    "note": "Official Austrian beef-breeders association Dexter page; downloadable breeding program, herd-book classification, advisor contacts."
+  },
+  {
+    "name": "Norsk Dexter (TYR)",
+    "url": "https://www.tyr.no/dexter/",
+    "country": "NO",
+    "category": "association",
+    "note": "Norwegian Dexter breed section under TYR beef org (~1500 registered dams); membership, breeding plans, 14 regional chapters. Updated Nov 2025."
+  },
+  {
+    "name": "Dexter Cattle Breeders' Society of South Africa (Dextersa)",
+    "url": "https://www.dextersa.co.za/",
+    "country": "ZA",
+    "category": "association",
+    "note": "National breed society est. 1953, ~65 stud breeders, four regional clubs. Public breed info, journals, breeder directory page (meet-the-dexter-breeders)."
+  },
+  {
+    "name": "Fleischrinder-Zuchtverband Schleswig-Holstein & HH — Dexter",
+    "url": "https://www.fleischrinderzucht.de/rassen/dexter-rinder.html",
+    "country": "DE",
+    "category": "association",
+    "note": "Real German beef-cattle breeding association with a Dexter breed page (appears in search). Fetch blocked by a TLS cert-chain error on our side, not a 404/login — treat as likely-live lead."
+  },
+  {
+    "name": "Dansk Kødkvæg — Dexter",
+    "url": "https://www.danskkoedkvaeg.dk/racer/dexter/",
+    "country": "DK",
+    "category": "association",
+    "note": "Danish Beef Cattle Association Dexter breed page (links to danskdexter.dk). Public info/association page."
+  },
+  {
+    "name": "NAB — Svensk Köttrasavel (Dexter)",
+    "url": "https://www.nab-se.se/raser/dexter-42463665",
+    "country": "SE",
+    "category": "association",
+    "note": "Swedish beef-breeding cooperative Dexter breed page (search-confirmed). Server returned 429 rate-limit (responding, not dead) during verification — likely-live lead."
+  },
+  {
+    "name": "Stackyard — Dexter breeders directory",
+    "url": "https://www.stackyard.com/pedigree/html/dexter.html",
+    "country": "GB",
+    "category": "directory",
+    "note": "Public breeder/society directory linking Dexter associations worldwide (UK, Australia, Canada, US, Holland, Germany) plus a Breeders Corner. Useful hub for further discovery."
+  },
+  {
+    "name": "Oklahoma Dexter Cattle Association",
+    "url": "https://www.okdexters.org/",
+    "country": "US",
+    "category": "association",
+    "note": "Regional ADCA-affiliated club. Has 'For Sale or Wanted' classifieds and 'Current Membership' breeder directory."
+  },
+  {
+    "name": "Dexter Cattle Texas & Louisiana (ADCA Region 7)",
+    "url": "https://dextercattletxla.com/",
+    "country": "US",
+    "category": "association",
+    "note": "Regional group + Dexter Cattle Knowledge Base. Community/info hub for TX/LA breeders."
+  },
+  {
+    "name": "Dexter Cattle World (proboards)",
+    "url": "https://dextercattleworld.proboards.com/",
+    "country": "US",
+    "category": "info",
+    "note": "Public forum; boards include sales/semen topics. Browsing public, posting needs account. ~1,883 threads, active 2025."
+  },
+  {
+    "name": "Irish Dexter Cattle forum (proboards)",
+    "url": "https://dextercattle.proboards.com/",
+    "country": "US",
+    "category": "info",
+    "note": "Public forum with an 'Auction Barn' livestock-for-sale board; browse without login. Active into 2026."
+  },
+  {
+    "name": "Oklahoma State Univ. Dexter breed page",
+    "url": "https://breeds.okstate.edu/cattle/dexter-cattle",
+    "country": "US",
+    "category": "info",
+    "note": "Authoritative breed reference (OSU Dept. Animal Science). Returns 403 to automated fetch but is a well-known live public page."
+  }
+]
