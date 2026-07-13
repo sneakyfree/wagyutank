@@ -11,11 +11,12 @@ from sqlalchemy.orm import Session
 from .. import tank
 from ..config import settings as cfg
 from ..db import get_db
-from ..models import PasswordReset, User
+from ..models import PasswordReset, SsoRedemption, User
 from ..schemas import Token, UserCreate, UserPrivate
 from ..security import (
-    create_access_token, create_email_verify_token, get_current_user, hash_password,
-    user_id_from_email_verify, user_id_from_unsubscribe, verify_password,
+    create_access_token, create_email_verify_token, create_sso_token, get_current_user,
+    hash_password, user_id_from_email_verify, user_id_from_unsubscribe, verify_password,
+    verify_sso_token,
 )
 from ..services import email as mail
 from ..services import ratelimit
@@ -252,6 +253,114 @@ def verify_email(token: str, db: Session = Depends(get_db)):
         f"<div style='font-family:sans-serif;max-width:480px;margin:60px auto;text-align:center'>"
         f"<h2 style='color:{gold}'>{tank.brand().get('name', 'WagyuTank')}</h2><p>{msg}</p></div>",
         status_code=200 if user else 400)
+
+
+# ------------------------------------------------------- Sister-site SSO
+# Minimal 2-site trust circle (wagyutank ↔ wagyusale). Flow: a signed-in user
+# on site A mints a 90-second single-use token (POST /sso/mint), the frontend
+# sends them to site B's /sso page with it, and site B's API redeems it
+# (POST /sso/redeem) for a normal local session — creating the local account
+# on first visit. Both sides sign with the SHARED sso secret, never their own
+# jwt_secret, and audience-pin every token to the peer's domain.
+
+def _sso_enabled() -> bool:
+    return bool(cfg.sso_shared_secret and cfg.sso_peer_api)
+
+
+def _sso_peer_domain() -> str:
+    """Bare domain of the peer tank ('wagyusale.com') from its API base URL —
+    that domain is the `aud` we stamp into minted tokens, mirroring how the
+    peer verifies against its own tank.brand()['domain']."""
+    from urllib.parse import urlparse
+    host = urlparse(cfg.sso_peer_api).netloc or cfg.sso_peer_api.strip().strip("/")
+    host = host.split(":", 1)[0].lower()
+    for prefix in ("api.", "www."):
+        if host.startswith(prefix):
+            host = host[len(prefix):]
+    return host
+
+
+@router.post("/sso/mint")
+def sso_mint(user: User = Depends(get_current_user)):
+    """Mint a short-lived cross-site token so the signed-in user can hop to
+    the sister site without re-registering. Requires a live local session."""
+    if not _sso_enabled():
+        raise HTTPException(404, "Cross-site sign-in is not configured on this site.")
+    if user.account_status != "active":
+        raise HTTPException(403, "This account can't use cross-site sign-in.")
+    if not ratelimit.allow(f"sso_mint:user:{user.id}", 10, 300):
+        raise HTTPException(429, "Too many cross-site attempts. Please wait a minute.")
+    token = create_sso_token(user.email, user.display_name, user.is_email_verified,
+                             aud=_sso_peer_domain())
+    return {
+        "token": token,
+        "peer_api": cfg.sso_peer_api.rstrip("/"),
+        "peer_web": cfg.sso_peer_api.rstrip("/").replace("://api.", "://www."),
+        "expires_in": 90,
+    }
+
+
+@router.post("/sso/redeem")
+def sso_redeem(request: Request, token: str = Body(..., embed=True),
+               db: Session = Depends(get_db)):
+    """Redeem a sister-site token for a normal local session. First visit
+    creates the local account (random unusable password — set one later via
+    forgot-password); repeat visits just sign in. Tokens are single-use (jti
+    recorded in SsoRedemption) and must be audience-pinned to THIS tank."""
+    if not cfg.sso_shared_secret:
+        raise HTTPException(404, "Cross-site sign-in is not configured on this site.")
+    if not ratelimit.allow(f"sso_redeem:ip:{_client_ip(request)}", 20, 300):
+        raise HTTPException(429, "Too many attempts. Please wait a minute and try again.")
+    claims = verify_sso_token(token, expected_aud=tank.brand().get("domain", ""))
+    email = (claims or {}).get("sub", "").strip().lower()
+    jti = (claims or {}).get("jti") or ""
+    if not claims or not email or not jti:
+        raise HTTPException(401, "This sign-in link is invalid or has expired — please try again from the other site.")
+
+    # Replay protection: burn the jti BEFORE issuing anything. The unique
+    # constraint is the backstop against a concurrent double-redeem; old rows
+    # are reaped opportunistically (tokens only live 90s, rows live 1h).
+    from sqlalchemy.exc import IntegrityError
+    if db.query(SsoRedemption).filter(SsoRedemption.jti == jti).first():
+        raise HTTPException(401, "This sign-in link was already used — please try again from the other site.")
+    db.query(SsoRedemption).filter(
+        SsoRedemption.redeemed_at < _now() - timedelta(hours=1)).delete()
+    db.add(SsoRedemption(jti=jti))
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(401, "This sign-in link was already used — please try again from the other site.")
+
+    user = db.query(User).filter(User.email == email).first()
+    if user:
+        if user.account_status == "suspended":
+            raise HTTPException(403, f"This account is suspended. Contact {tank.brand().get('contactEmail', 'support@wagyutank.com')}.")
+        if user.account_status == "deleted":
+            raise HTTPException(403, "This account is unavailable.")
+        # The peer verified this email; that trust carries across the circle.
+        if claims.get("ev") and not user.is_email_verified:
+            user.is_email_verified = True
+    else:
+        from ..roles import role_for_email
+        user = User(
+            email=email,
+            hashed_password=hash_password(secrets.token_urlsafe(32)),  # unusable — SSO/reset only
+            display_name=(claims.get("name") or "").strip() or email.split("@")[0],
+            is_email_verified=bool(claims.get("ev")),
+            role=role_for_email(email, cfg.super_admin_emails, cfg.admin_emails),
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        try:
+            mail.send_welcome(user.email, user.display_name)
+        except Exception:
+            pass
+    if user.totp_enabled:
+        from ..security import create_preauth_token
+        return {"twofa_required": True, "challenge": create_preauth_token(user.id)}
+    return _finish_login(user, db)
 
 
 @router.get("/unsubscribe", response_class=HTMLResponse)

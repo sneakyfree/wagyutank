@@ -12,6 +12,13 @@ class Settings(BaseSettings):
 
     frontend_origin: str = "http://localhost:3000"
 
+    # Sister-site SSO trust circle (wagyutank ↔ wagyusale). Both tanks share ONE
+    # secret (set identically in each tank.env) that is distinct from jwt_secret,
+    # so neither tank's session tokens can forge cross-site logins. Empty secret
+    # = SSO disabled on this tank.
+    sso_shared_secret: str = ""
+    sso_peer_api: str = ""  # the OTHER tank's API base, e.g. https://api.wagyutank.com
+
     # Stripe (real keys come from the lockbox / env, never committed)
     stripe_secret_key: str = ""
     stripe_publishable_key: str = ""

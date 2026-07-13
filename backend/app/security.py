@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -6,6 +7,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
+from . import tank
 from .config import settings
 from .db import get_db
 from .models import User
@@ -86,6 +88,43 @@ def takedown_from_token(token: str) -> dict | None:
             return None
         return {"site": payload.get("site"), "email": payload.get("email")}
     except (JWTError, TypeError, ValueError):
+        return None
+
+
+def create_sso_token(email: str, display_name: str, email_verified: bool, aud: str) -> str:
+    """Cross-site handoff token for the sister-tank trust circle (wagyutank ↔
+    wagyusale). Signed with the SHARED SSO secret — never this tank's own
+    jwt_secret — so a compromise of one tank's session secret can't forge
+    logins on the other. 90-second lifetime; single-use via the jti recorded
+    in SsoRedemption at redeem time."""
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": email,
+        "name": display_name,
+        "ev": bool(email_verified),
+        "jti": uuid4().hex,
+        "aud": aud,                                   # the PEER tank's domain
+        "iss": tank.brand().get("domain", ""),        # this tank's domain
+        "iat": now,
+        "exp": now + timedelta(seconds=90),
+        "scope": "sso",
+    }
+    return jwt.encode(payload, settings.sso_shared_secret, algorithm=settings.jwt_algorithm)
+
+
+def verify_sso_token(token: str, expected_aud: str) -> dict | None:
+    """Decode a sister-tank SSO token. Returns the claims dict, or None if the
+    signature, expiry, audience (must equal THIS tank's domain) or scope fails.
+    Replay protection (jti) is the caller's job — this only proves authenticity."""
+    if not settings.sso_shared_secret or not expected_aud:
+        return None
+    try:
+        payload = jwt.decode(token, settings.sso_shared_secret,
+                             algorithms=[settings.jwt_algorithm], audience=expected_aud)
+        if payload.get("scope") != "sso":
+            return None
+        return payload
+    except JWTError:
         return None
 
 
