@@ -115,6 +115,11 @@
   "crawl": {
     "cron_offset_min": 90
   },
+  "deploy": {
+    "port": 8123,
+    "pagesProject": "gir-tank",
+    "service": "tank@gir"
+  },
   "copy": {
     "heroEyebrow": "🐂 THE GLOBAL TROPICAL-DAIRY CROSSROADS",
     "heroTitle": "Gir & Girolando dairy genetics — built for the tropics",

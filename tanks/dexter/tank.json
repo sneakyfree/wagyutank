@@ -104,6 +104,11 @@
   "crawl": {
     "cron_offset_min": 60
   },
+  "deploy": {
+    "port": 8122,
+    "pagesProject": "dexter-tank",
+    "service": "tank@dexter"
+  },
   "copy": {
     "heroEyebrow": "🐂 THE GLOBAL DEXTER CROSSROADS",
     "heroTitle": "The world's marketplace & knowledge hub for Dexter genetics",
