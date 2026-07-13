@@ -1,0 +1,80 @@
+{
+  "key": "{{KEY}}",
+  "brand": {
+    "name": "{{BRAND_NAME}}",
+    "domain": "{{DOMAIN}}",
+    "tagline": "The world's marketplace & knowledge hub for {{BREED}} genetics",
+    "species": "{{SPECIES}}",
+    "breed": "{{BREED}}",
+    "logoText": "{{LOGO_TEXT}}",
+    "wordmark": ["{{BREED_UPPER}}", "TANK"],
+    "colors": {
+      "gold": "{{COLOR_GOLD}}",
+      "goldBright": "{{COLOR_GOLD_BRIGHT}}",
+      "goldSoft": "{{COLOR_GOLD_SOFT}}"
+    },
+    "contactEmail": "office@{{DOMAIN}}",
+    "location": "Salt Lake City, Utah, USA",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "{{BRAND_NAME}} — The Global Marketplace & Knowledge Hub for {{BREED}} Genetics",
+    "footerBlurb": "the world's marketplace for {{BREED}} genetics",
+    "description": "Buy and sell {{BREED}} genetics — semen and embryos — and explore the breed's origin story, foundation bloodlines, a live genetics price index, and translated global news. The central hub for the world's {{BREED}} community. Free to list.",
+    "keywords": [
+      "{{BREED}}",
+      "{{BREED}} cattle",
+      "{{BREED}} semen",
+      "{{BREED}} embryos",
+      "{{BREED}} genetics",
+      "{{BREED}} bull",
+      "{{BREED}} stud"
+    ]
+  },
+  "products": [
+    {"key": "semen", "label": "Semen", "unit": "straw", "icon": "sperm",
+     "fresh_chilled": false, "glyph": "🧬", "cardTitle": "Semen Straws",
+     "blurb": "Conventional & sexed straws from proven {{BREED}} sires."},
+    {"key": "embryo", "label": "Embryos", "unit": "embryo", "icon": "morula",
+     "fresh_chilled": false, "glyph": "🥚", "cardTitle": "Embryos",
+     "blurb": "Full-blood IVF & in-vivo embryos, sire × dam pedigrees."}
+  ],
+  "features": {
+    "roundup": true, "directory": true, "help": true, "ads": true,
+    "foundation": true, "history": true, "news": true, "videos": true,
+    "price_index": true, "sale_reports": true,
+    "catalog": false, "market_data": false, "japan_hub": false, "zenkyo": false,
+    "feeding": false, "great_sires": false
+  },
+  "vocab": {
+    "animal_singular": "sire",
+    "animal_plural": "cattle",
+    "registry_names": ["{{REGISTRY_PRIMARY}}", "{{REGISTRY_SECONDARY}}"],
+    "export_program": "CSS",
+    "news_search_terms": ["{{BREED}} cattle", "{{BREED}} beef", "{{BREED}} stud"],
+    "video_search_terms": ["{{BREED}} cattle", "{{BREED}} bull", "{{BREED}} stud"],
+    "help_nuance": "{{HELP_NUANCE}}"
+  },
+  "langs": ["en", "es", "pt", "de", "fr"],
+  "crawl": {"cron_offset_min": {{CRON_OFFSET_MIN}}},
+  "deploy": {
+    "port": {{PORT}},
+    "pagesProject": "{{KEY}}-tank",
+    "service": "tank@{{KEY}}"
+  },
+  "copy": {
+    "heroEyebrow": "🐂 THE GLOBAL {{BREED_UPPER}} CROSSROADS",
+    "heroTitle": "The world's marketplace & knowledge hub for {{BREED}} genetics",
+    "heroSub": "Buy and sell {{BREED}} semen and embryos — and explore the breed's origin story, foundation bloodlines, a live genetics price index, and translated global news. List in under a minute. Free.",
+    "searchPlaceholder": "Search a stud, sire, or bloodline…",
+    "roundupTitle": "Every {{BREED}} genetics listing, one feed",
+    "roundupIntro": "The Roundup brings the whole {{BREED}} genetics market together: listings posted on {{BRAND_NAME}} plus semen and embryo listings we track from studs' public pages across the web (marked 📡 — those link straight back to the original seller's page; web sellers pay nothing and can remove a listing anytime).",
+    "theaterTitle": "🎬 The {{BREED}} Theater",
+    "theaterIntro": "The world's {{BREED}} video library — bulls on film, sale recordings, and how-to. Searchable by registration number.",
+    "foundationTitle": "The foundation animals",
+    "foundationIntro": "Meet the animals behind the breed — the founding sires and dams every modern {{BREED}} traces back to."
+  },
+  "substitutions": [
+    ["Japanese and Chinese reporting translated, found nowhere else", "Global reporting translated into your language"],
+    ["Michifuku, Tajima, Itoshigenami", "{{FOUNDER_1}}, {{FOUNDER_2}}, {{FOUNDER_3}}"],
+    ["Kobe beef", "premium beef"]
+  ]
+}

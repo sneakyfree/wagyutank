@@ -49,12 +49,33 @@ _MIGRATIONS = {
 }
 
 
+def _generic_decl(col) -> str:
+    """SQLite column declaration for a model column, derived from its type. Added
+    as NULLable (no NOT NULL) so `ALTER TABLE ADD COLUMN` never needs a value for
+    existing rows; a constant server/Python default is appended when we have one."""
+    try:
+        decl = col.type.compile(dialect=engine.dialect)
+    except Exception:  # noqa: BLE001 — unknown type → let SQLite treat it loosely
+        decl = "TEXT"
+    d = getattr(col, "default", None)
+    if d is not None and getattr(d, "is_scalar", False) and not callable(getattr(d, "arg", None)):
+        arg = d.arg
+        if isinstance(arg, bool):
+            decl += f" DEFAULT {1 if arg else 0}"
+        elif isinstance(arg, (int, float)):
+            decl += f" DEFAULT {arg}"
+        elif isinstance(arg, str):
+            decl += " DEFAULT '" + arg.replace("'", "''") + "'"
+    return decl
+
+
 def main():
     Base.metadata.create_all(bind=engine)  # create any wholly-new tables first
     added = 0
     with engine.begin() as conn:
         existing_tables = {r[0] for r in conn.exec_driver_sql(
             "SELECT name FROM sqlite_master WHERE type='table'")}
+        # 1) explicit migrations (kept for columns that want a specific default)
         for table, cols in _MIGRATIONS.items():
             if table not in existing_tables:
                 continue
@@ -64,6 +85,22 @@ def main():
                     conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
                     print(f"  + {table}.{col}")
                     added += 1
+        # 2) generic drift heal — any model column missing from the DB, derived
+        #    straight from the ORM metadata. This is what lets a tank whose DB was
+        #    created at an older model version (schema drift) self-heal on migrate
+        #    instead of 500ing on the first query that selects the new column.
+        for table_obj in Base.metadata.sorted_tables:
+            if table_obj.name not in existing_tables:
+                continue
+            have = {r[1] for r in conn.exec_driver_sql(
+                f"PRAGMA table_info({table_obj.name})")}
+            for col in table_obj.columns:
+                if col.name in have:
+                    continue
+                conn.exec_driver_sql(
+                    f"ALTER TABLE {table_obj.name} ADD COLUMN {col.name} {_generic_decl(col)}")
+                print(f"  + {table_obj.name}.{col.name} (auto)")
+                added += 1
     print(f"Migration complete ({added} column(s) added).")
     _promote_admins()
 

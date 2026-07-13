@@ -115,5 +115,10 @@
   ],
   "crawl": {
     "cron_offset_min": 0
+  },
+  "deploy": {
+    "port": 8120,
+    "pagesProject": "wagyutank",
+    "service": "wagyutank-api"
   }
 }

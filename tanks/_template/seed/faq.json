@@ -1,0 +1,32 @@
+{
+  "intro": "Answers to the questions we hear most — about {{BRAND_NAME}}, about buying and selling {{BREED}} genetics, and about the breed itself. New to {{BREED}}? Start anywhere; the help assistant at the bottom can answer anything not covered here.",
+  "categories": [
+    {
+      "name": "About {{BRAND_NAME}}",
+      "items": [
+        {"q": "What is {{BRAND_NAME}}?",
+         "a": "{{BRAND_NAME}} is a global marketplace and knowledge hub for {{BREED}} genetics — semen and embryos — plus the breed's history, foundation bloodlines, a live price index, and translated global news."},
+        {"q": "Is it free to list?",
+         "a": "Yes. Listing genetics is free. Revenue comes from optional featured placement and advertising, not from sellers."}
+      ]
+    },
+    {
+      "name": "Buying & selling",
+      "items": [
+        {"q": "How does a sale work?",
+         "a": "{{DESCRIBE_SALE_FLOW}}"},
+        {"q": "Can genetics be exported?",
+         "a": "{{EXPORT_ELIGIBILITY_NOTE}}"}
+      ]
+    },
+    {
+      "name": "About the {{BREED}} breed",
+      "items": [
+        {"q": "Where did {{BREED}} cattle come from?",
+         "a": "{{ORIGIN_SUMMARY}}"},
+        {"q": "What makes {{BREED}} genetics valuable?",
+         "a": "{{VALUE_SUMMARY}}"}
+      ]
+    }
+  ]
+}

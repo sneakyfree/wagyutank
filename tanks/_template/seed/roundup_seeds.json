@@ -1,0 +1,4 @@
+[
+  {"url": "https://{{SELLER_SITE}}/product-category/semen/", "site": "{{SELLER_SITE}}", "country": "{{COUNTRY_CODE}}"},
+  {"url": "https://{{SELLER_SITE_2}}/semen/", "site": "{{SELLER_SITE_2}}", "country": "{{COUNTRY_CODE_2}}"}
+]

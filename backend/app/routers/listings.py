@@ -57,14 +57,18 @@ def to_listing_out(li: Listing) -> ListingOut:
 
 
 def _auto_title(li: ListingCreate, animal_name: str | None) -> str:
+    from .. import tank
     label = _PRODUCT_LABEL[li.product_type]
-    name = animal_name or li.animal_reg or "Wagyu"
+    # breed word for the title — the short head of the tank's breed so WagyuTank
+    # stays "Wagyu …" while a clone reads "Murray Grey …" (never a hardcoded breed).
+    breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+    name = animal_name or li.animal_reg or breed
     if li.product_type == ProductType.EMBRYO:
-        return f"Wagyu Embryos — {name}"
+        return f"{breed} Embryos — {name}"
     if li.product_type == ProductType.CLONE_RIGHTS:
         excl = "Exclusive " if li.exclusive else ""
         return f"{excl}Cloning Rights — {name}"
-    return f"Wagyu {label} — {name}"
+    return f"{breed} {label} — {name}"
 
 
 @router.post("", response_model=ListingOut)

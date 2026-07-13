@@ -1,0 +1,20 @@
+[
+  {
+    "registration_no": "{{REG_OR_null}}",
+    "name": "{{ANIMAL_NAME}}",
+    "aliases": ["{{ALIAS}}"],
+    "animal_type": "bull",
+    "breed": "{{BREED}}",
+    "bloodline": "{{BLOODLINE}}",
+    "bloodline_detail": "{{ONE_LINE_ON_THIS_LINE}}",
+    "birth_year": null,
+    "importer": null,
+    "import_year": null,
+    "is_foundation": true,
+    "notable": "{{WHY_THIS_ANIMAL_MATTERS}}",
+    "au_progeny": null,
+    "photo_available": false,
+    "confidence": "verified",
+    "notes": "{{PROVENANCE_SOURCE}}"
+  }
+]

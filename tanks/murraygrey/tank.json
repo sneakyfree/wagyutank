@@ -105,6 +105,11 @@
   "crawl": {
     "cron_offset_min": 30
   },
+  "deploy": {
+    "port": 8121,
+    "pagesProject": "murraygrey-tank",
+    "service": "tank@murraygrey"
+  },
   "copy": {
     "heroEyebrow": "\ud83d\udc02 THE GLOBAL MURRAY GREY CROSSROADS",
     "heroTitle": "The world's marketplace & knowledge hub for Murray Grey genetics",

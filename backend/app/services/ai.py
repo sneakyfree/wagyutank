@@ -197,15 +197,18 @@ def _complete(prov: dict, product_type: str, animal: AnimalUpsert, language: str
 
 
 def _template_copy(product_type: str, a: AnimalUpsert) -> str:
+    from .. import tank
+    breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
+    fb = "Full-blood " if tank.key() == "wagyu" else ""  # keep WagyuTank copy identical
     noun = _PRODUCT_NOUN.get(product_type, "genetics")
     lead = a.name + (f" ({a.registration_no})" if a.registration_no else "")
     bits: list[str] = []
     if product_type == "clone_rights":
         bits.append(f"Cloning rights to {lead} — bank a legend and make it live again.")
     elif product_type == "embryo":
-        bits.append(f"Full-blood Wagyu embryos out of {lead}, sired by {a.sire_name or 'an elite sire'}.")
+        bits.append(f"{fb}{breed} embryos out of {lead}, sired by {a.sire_name or 'an elite sire'}.")
     else:
-        bits.append(f"Premium full-blood Wagyu {noun} from {lead}.")
+        bits.append(f"Premium {fb}{breed} {noun} from {lead}.")
     if a.bloodline:
         detail = f" — {a.bloodline_detail}" if a.bloodline_detail else ""
         bits.append(f"{a.bloodline} bloodline{detail}.")
