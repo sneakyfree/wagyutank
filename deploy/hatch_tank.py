@@ -106,6 +106,12 @@ def phase_scaffold(ctx: Ctx):
         h.info(f"[dry] would ensure {tank_dir}/tank.env, schema, systemd, nginx")
         return
 
+    # 0. the VPS repo must carry the code being hatched — a new tank's service,
+    #    migrate, and seeders all run from it. Fast-forward only: never rewrites
+    #    VPS-local commits, and running services aren't touched until restarted.
+    rc, out, err = h.ssh_run(vps, f"cd {root} && git pull --ff-only 2>&1 | tail -1")
+    (h.ok if rc == 0 else h.warn)(f"VPS repo sync: {(out or err).strip()[:90] or 'ok'}")
+
     # 1. ensure tank dir + tank.json present on the VPS (push config for a brand-new
     #    tank; never clobber an existing one — those are managed via normal deploys).
     rc, out, _ = h.ssh_run(vps, f"test -f {tank_dir}/tank.json && echo yes || echo no")
@@ -623,9 +629,11 @@ def phase_frontend(ctx: Ctx):
     if ctx.dry:
         h.info(f"[dry] would: TANK_API=https://api.{ctx.domain} npm run build && wrangler deploy")
         return
-    h.info(f"TANK_API=https://api.{ctx.domain} npm run build …")
+    tank_json = REPO / "tanks" / ctx.key / "tank.json"
+    h.info(f"TANK_API=https://api.{ctx.domain} npm run build … (TANK_JSON bootstrap fallback set)")
     p = h.run(["bash", "-lc",
-               f"cd {site!s} && TANK_API=https://api.{ctx.domain} npm run build"], timeout=900)
+               f'cd {site!s} && TANK_API=https://api.{ctx.domain} TANK_JSON="{tank_json}" npm run build'],
+              timeout=900)
     if p.returncode != 0:
         raise h.HatchError(f"frontend build failed: {p.stderr[-300:]}")
     h.ok("built")

@@ -23,4 +23,8 @@ def get_config():
         # Sister tanks in the cross-site flywheel (empty for standalone tanks) —
         # drives the header cross-site button + per-animal PeerLink chips.
         "network": c.get("network", {}),
+        # tankify's deep per-tank substitution pairs — without these in the API
+        # payload, an API-baked frontend build silently skips them (they only
+        # exist in tank.json otherwise).
+        "substitutions": c.get("substitutions", []),
     }

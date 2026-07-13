@@ -21,17 +21,29 @@ def _animal_type(v: str) -> AnimalType:
 
 
 def seed_facilities(db) -> int:
+    """Tolerant of the looser shapes breed-research agents produce:
+    `location: "Adel, Iowa"` instead of city/state, `services` as a comma
+    string instead of a list, `url` instead of `website`. Normalizing here
+    beats hand-fixing every new breed's research output."""
     rows = json.loads(tank.seed_path("facilities.json").read_text())
     added = 0
     for r in rows:
         exists = db.query(Facility).filter(Facility.name == r["name"]).first()
         if exists:
             continue
+        city, state = r.get("city"), r.get("state", "")
+        if not city and r.get("location"):
+            parts = [s.strip() for s in str(r["location"]).split(",")]
+            city = parts[0] if parts else ""
+            state = state or (parts[1] if len(parts) > 1 else "")
+        services = r.get("services", [])
+        if isinstance(services, str):
+            services = [s.strip().lower() for s in services.split(",") if s.strip()]
         db.add(Facility(
-            name=r["name"], city=r["city"], state=r.get("state", ""),
+            name=r["name"], city=city or "", state=state,
             country=r.get("country", "US"), lat=r.get("lat"), lng=r.get("lng"),
-            services=r.get("services", []), export_qualified=r.get("export_qualified", False),
-            website=r.get("website", ""), notes=r.get("notes", ""),
+            services=services, export_qualified=r.get("export_qualified", False),
+            website=r.get("website") or r.get("url", ""), notes=r.get("notes", ""),
         ))
         added += 1
     db.commit()

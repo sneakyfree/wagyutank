@@ -109,6 +109,28 @@
     "pagesProject": "dexter-tank",
     "service": "tank@dexter"
   },
+  "jobs": {
+    "vps": [
+      {
+        "module": "app.jobs.news",
+        "schedule": "20 6,18 * * *"
+      },
+      {
+        "module": "app.jobs.watchdog",
+        "schedule": "10 12 * * *"
+      }
+    ],
+    "veron": [
+      {
+        "script": "tank-crawl.sh",
+        "schedule": "0 5 * * 0"
+      },
+      {
+        "script": "tank-harvest.sh",
+        "schedule": "0 7 * * 0"
+      }
+    ]
+  },
   "copy": {
     "heroEyebrow": "🐂 THE GLOBAL DEXTER CROSSROADS",
     "heroTitle": "The world's marketplace & knowledge hub for Dexter genetics",

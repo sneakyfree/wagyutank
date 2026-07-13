@@ -18,7 +18,8 @@ from ..services.aggregator import _REGION_BY_COUNTRY
 
 from .. import tank as _tank
 def _seeds_path():
-    return _tank.seed_path("roundup_seeds.json")
+    # strict: a tank without its own seed list seeds NOTHING (never wagyu sellers)
+    return _tank.seed_path_strict("roundup_seeds.json")
 
 # General livestock/classifieds PLATFORMS in the crawl seed list — useful crawl
 # targets, but they're not Wagyu operations, so they don't belong on the Atlas.
@@ -39,7 +40,11 @@ def _registrable(host: str) -> str:
 
 def main():
     Base.metadata.create_all(bind=engine)
-    seeds = json.loads(_seeds_path().read_text())
+    sp = _seeds_path()
+    if sp is None:
+        print(f"No roundup_seeds.json for tank '{_tank.key()}' — skipping Atlas seed.")
+        return
+    seeds = json.loads(sp.read_text())
     db = SessionLocal()
     added = updated = 0
     seen: set[str] = set()   # the seed list holds multiple URLs per host
@@ -67,8 +72,48 @@ def main():
             ))
             added += 1
         db.commit()
+
+        # Curated directory entries (tanks/<key>/seed/directory_seeds.json) —
+        # richer than roundup seeds: hand-written name, category, note. These
+        # WIN over the domain-derived label above (registries, associations and
+        # studs the discovery sweep verified but that may not sell online).
+        curated = _tank.seed_path_strict("directory_seeds.json")
+        c_added = c_updated = 0
+        if curated is not None:
+            for s in json.loads(curated.read_text()):
+                url = (s.get("url") or "").strip()
+                site = _registrable(urlparse(url).netloc) if url else ""
+                if not site or "." not in site:
+                    continue
+                country = (s.get("country") or "").upper()[:2] or None
+                cats = [c for c in [s.get("category")] if c]
+                blurb = (s.get("note") or "")[:300] or None
+                row = db.query(DirectorySeller).filter_by(site=site).first()
+                if row:
+                    if s.get("name"):
+                        row.name = s["name"][:160]
+                    if blurb and not row.blurb:
+                        row.blurb = blurb
+                    if cats and not row.categories:
+                        row.categories = cats
+                    if country and not row.country:
+                        row.country = country
+                        row.region = _REGION_BY_COUNTRY.get(country)
+                    c_updated += 1
+                else:
+                    db.add(DirectorySeller(
+                        site=site, name=(s.get("name") or site)[:160], url=url,
+                        country=country, region=_REGION_BY_COUNTRY.get(country or ""),
+                        categories=cats, breeds=[], blurb=blurb,
+                        source="directory_seed",
+                    ))
+                    c_added += 1
+            db.commit()
+
         total = db.query(DirectorySeller).count()
-        print(f"Atlas registry: +{added} added, {updated} updated → {total} sellers total.")
+        print(f"Atlas registry: +{added} added, {updated} updated"
+              + (f"; curated +{c_added}/{c_updated} enriched" if curated is not None else "")
+              + f" → {total} sellers total.")
     finally:
         db.close()
 

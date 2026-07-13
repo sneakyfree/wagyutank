@@ -120,6 +120,28 @@
     "pagesProject": "gir-tank",
     "service": "tank@gir"
   },
+  "jobs": {
+    "vps": [
+      {
+        "module": "app.jobs.news",
+        "schedule": "50 6,18 * * *"
+      },
+      {
+        "module": "app.jobs.watchdog",
+        "schedule": "40 12 * * *"
+      }
+    ],
+    "veron": [
+      {
+        "script": "tank-crawl.sh",
+        "schedule": "30 5 * * 0"
+      },
+      {
+        "script": "tank-harvest.sh",
+        "schedule": "30 7 * * 0"
+      }
+    ]
+  },
   "copy": {
     "heroEyebrow": "🐂 THE GLOBAL TROPICAL-DAIRY CROSSROADS",
     "heroTitle": "Gir & Girolando dairy genetics — built for the tropics",
