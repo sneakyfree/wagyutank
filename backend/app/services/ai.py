@@ -24,15 +24,25 @@ import httpx
 from ..config import settings
 from ..schemas import AnimalUpsert
 
-_PRODUCT_NOUN = {"semen": "semen straws", "embryo": "embryos", "clone_rights": "cloning rights"}
+# Unconditional noun map (a missing key would fall back to "genetics").
+_PRODUCT_NOUN = {"semen": "semen straws", "embryo": "embryos", "clone_rights": "cloning rights",
+                 "live_animal": "live cattle", "beef": "beef"}
 
 def _ad_system() -> str:
     from .. import tank
     breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
     kinds = ", ".join(p.get("label", "").lower() for p in tank.products() if p.get("label"))
+    # Genetics tanks keep the exact original wording (byte-identical). A live/beef
+    # tank (no genetics family) gets a cattle/beef framing instead of "frozen genetics".
+    if tank.has_family("genetics"):
+        return (
+            f"You write concise, accurate, persuasive marketplace listings for frozen {breed} genetics "
+            f"({kinds or 'semen, embryos'}). 2-4 sentences. Never invent facts, pedigree, or EPDs "
+            "not provided. No emojis, no hype clichés."
+        )
     return (
-        f"You write concise, accurate, persuasive marketplace listings for frozen {breed} genetics "
-        f"({kinds or 'semen, embryos'}). 2-4 sentences. Never invent facts, pedigree, or EPDs "
+        f"You write concise, accurate, persuasive marketplace listings for {breed} cattle and beef "
+        f"({kinds or 'live cattle, beef'}). 2-4 sentences. Never invent facts, weights, ages, or EPDs "
         "not provided. No emojis, no hype clichés."
     )
 
@@ -207,6 +217,19 @@ def _template_copy(product_type: str, a: AnimalUpsert) -> str:
     noun = _PRODUCT_NOUN.get(product_type, "genetics")
     lead = a.name + (f" ({a.registration_no})" if a.registration_no else "")
     bits: list[str] = []
+    if product_type == "live_animal":
+        bits.append(f"{breed} cattle for sale — {a.name or 'quality seedstock'}.")
+        if a.bloodline:
+            detail = f" — {a.bloodline_detail}" if a.bloodline_detail else ""
+            bits.append(f"{a.bloodline} bloodline{detail}.")
+        bits.append("Registered and ready to go to work. Contact the seller for weights, "
+                    "photos, and delivery — see the listing for details.")
+        return " ".join(bits)
+    if product_type == "beef":
+        bits.append(f"{breed} beef, direct from the ranch — {a.name or 'premium marbling'}.")
+        bits.append("Buy straight from the producer: contact them for cuts, pricing, and pickup or "
+                    "delivery. Traceable, single-source Wagyu.")
+        return " ".join(bits)
     if product_type == "clone_rights":
         bits.append(f"Cloning rights to {lead} — bank a legend and make it live again.")
     elif product_type == "embryo":

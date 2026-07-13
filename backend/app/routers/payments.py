@@ -53,11 +53,20 @@ def onboard(user: User = Depends(get_current_user), db: Session = Depends(get_db
     return {"onboarding_url": url, "account_id": user.stripe_account_id}
 
 
+def _reject_if_beef(li: Listing) -> None:
+    """Beef is discovery-only — no on-platform checkout (avoids USDA/food-safety
+    liability). Enforced server-side so it can't be bypassed by a crafted request."""
+    from .. import tank
+    if tank.product_family(getattr(li.product_type, "value", li.product_type)) == "beef":
+        raise HTTPException(400, "Beef listings are contact-the-producer only — reach out to the seller directly to buy.")
+
+
 @router.post("/buy/{listing_id}")
 def buy(listing_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     li = db.get(Listing, listing_id)
     if not li or li.status != ListingStatus.ACTIVE:
         raise HTTPException(404, "Listing not available.")
+    _reject_if_beef(li)
     if li.is_sample:
         raise HTTPException(400, "This is a sample listing — it shows what your ad will look like and can't be purchased.")
     if li.sale_type != SaleType.FIXED or li.unit_price is None:

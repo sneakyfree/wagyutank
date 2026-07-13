@@ -25,19 +25,48 @@ from ..services.ai import generate_ad_copy
 
 router = APIRouter(prefix="/api/listings", tags=["listings"])
 
+# Unconditional label map for EVERY product type — a missing entry would KeyError
+# at runtime, so live/beef are always present even on genetics tanks (harmless).
 _PRODUCT_LABEL = {
     ProductType.SEMEN: "Semen",
     ProductType.EMBRYO: "Embryos",
     ProductType.CLONE_RIGHTS: "Cloning Rights",
+    ProductType.LIVE_ANIMAL: "Live Cattle",
+    ProductType.BEEF: "Beef",
 }
+
+# Pretty labels for a live animal's class (drives the auto-title).
+_ANIMAL_CLASS_LABEL = {
+    "bull": "Bull", "cow": "Cow", "bred_heifer": "Bred Heifer",
+    "open_heifer": "Open Heifer", "bull_calf": "Bull Calf", "heifer_calf": "Heifer Calf",
+    "pair": "Cow-Calf Pair", "feeder": "Feeder", "steer": "Steer",
+}
+_BEEF_CUT_LABEL = {
+    "quarter": "Quarter Beef", "half": "Half Beef", "whole": "Whole Beef",
+    "box": "Beef Box", "cuts": "Beef Cuts", "ground": "Ground Beef",
+}
+
+
+def _quantity_unit(li: Listing) -> str:
+    """Singular unit noun for a listing — from the tank's product config (unit
+    field), so live cattle read 'head' and beef 'box' without hardcoding."""
+    from .. import tank
+    meta = tank.product_meta(getattr(li.product_type, "value", li.product_type)) or {}
+    if meta.get("unit"):
+        return meta["unit"]
+    return "straw" if li.product_type == ProductType.SEMEN else "unit"
 
 
 def _quantity_display(li: Listing) -> str:
     vis = li.quantity_visibility
-    n = li.quantity_available or 0
+    # live cattle count heads, not the abstract quantity_available slot
+    n = (li.head_count if li.product_type == ProductType.LIVE_ANIMAL and li.head_count
+         else li.quantity_available) or 0
     if vis == QuantityVisibility.EXACT:
-        unit = "straw" if li.product_type == ProductType.SEMEN else "unit"
-        return f"{n} {unit}{'s' if n != 1 else ''} available"
+        unit = _quantity_unit(li)
+        # "head" is invariant (5 head, not 5 heads); everything else pluralizes.
+        plural = "" if (unit == "head" or n == 1) else "s"
+        return f"{n} {unit}{plural} available"
     if vis == QuantityVisibility.RANGE:
         lo = (n // 10) * 10
         return f"{lo}+ available" if lo else "Limited availability"
@@ -68,7 +97,41 @@ def _auto_title(li: ListingCreate, animal_name: str | None) -> str:
     if li.product_type == ProductType.CLONE_RIGHTS:
         excl = "Exclusive " if li.exclusive else ""
         return f"{excl}Cloning Rights — {name}"
+    if li.product_type == ProductType.LIVE_ANIMAL:
+        # "Wagyu Bred Heifers — 5 head — Coalville, UT"
+        cls = _ANIMAL_CLASS_LABEL.get((li.animal_class or "").lower(), "Cattle")
+        n = li.head_count or 0
+        head = f" — {n} head" if n else ""
+        loc = f" — {li.state_region}" if li.state_region else ""
+        plural = cls if n == 1 else (cls + "s" if not cls.endswith("s") else cls)
+        return f"{breed} {plural}{head}{loc}"
+    if li.product_type == ProductType.BEEF:
+        # "Wagyu Half Beef — Coalville, UT"
+        cut = _BEEF_CUT_LABEL.get((li.beef_cut_type or "").lower(), "Beef")
+        loc = f" — {li.state_region}" if li.state_region else ""
+        return f"{breed} {cut}{loc}"
     return f"{breed} {label} — {name}"
+
+
+def _geocode_into(payload: ListingCreate, kwargs: dict, db: Session) -> None:
+    """Resolve the seller's postal code → lat/lng/state via the offline gazetteer
+    (GeoPostal), populating the listing's location fields. Missing postal or a
+    gazetteer miss simply leaves lat/lng null (still searchable by state)."""
+    kwargs["country"] = (payload.country or "").upper()[:2] or None
+    kwargs["postal_code"] = (payload.postal_code or "").strip() or None
+    kwargs["state_region"] = (payload.state_region or "").strip() or None
+    if not kwargs["postal_code"]:
+        return
+    from ..models import GeoPostal
+    country = kwargs["country"] or "US"
+    row = (db.query(GeoPostal)
+           .filter(GeoPostal.country == country,
+                   GeoPostal.postal == kwargs["postal_code"])
+           .first())
+    if row:
+        kwargs["lat"], kwargs["lng"] = row.lat, row.lng
+        if not kwargs["state_region"]:
+            kwargs["state_region"] = row.admin1_name or row.admin1_code
 
 
 @router.post("", response_model=ListingOut)
@@ -84,6 +147,8 @@ def create_listing(payload: ListingCreate, user: User = Depends(get_current_user
     if payload.product_type and payload.product_type.value not in tank.product_keys():
         raise HTTPException(400, f"This marketplace doesn't accept {payload.product_type.value} listings.")
 
+    family = tank.product_family(payload.product_type.value)
+
     # Resolve the animal name for the title (from the canonical registry if we have it).
     # For embryos, the headline animal is the sire.
     from .animals import find_animal  # lazy import to avoid circular import
@@ -93,10 +158,14 @@ def create_listing(payload: ListingCreate, user: User = Depends(get_current_user
     if animal_name is None and payload.product_type == ProductType.EMBRYO and payload.sire_reg:
         animal_name = payload.sire_reg
 
-    # Validate sale specifics
-    if payload.sale_type == SaleType.FIXED and payload.unit_price is None:
-        raise HTTPException(400, "Fixed-price listings need a unit price.")
-    if payload.sale_type == SaleType.AUCTION and payload.start_price is None:
+    # Validate sale specifics. Beef is discovery-only — no on-platform price/auction
+    # required; a producer just needs a way to be contacted.
+    if family == "beef":
+        if not (payload.external_url or payload.description):
+            raise HTTPException(400, "Beef listings need a contact link or description (buyers reach the producer directly).")
+    elif payload.sale_type == SaleType.FIXED and payload.unit_price is None:
+        raise HTTPException(400, "Fixed-price listings need a price.")
+    elif payload.sale_type == SaleType.AUCTION and payload.start_price is None:
         raise HTTPException(400, "Auctions need a start price.")
 
     title = payload.title or _auto_title(payload, animal_name)
@@ -113,7 +182,7 @@ def create_listing(payload: ListingCreate, user: User = Depends(get_current_user
         )
         description = generate_ad_copy(payload.product_type.value, upsert)
 
-    li = Listing(
+    fields = dict(
         seller_id=user.id,
         product_type=payload.product_type,
         title=title,
@@ -149,8 +218,27 @@ def create_listing(payload: ListingCreate, user: User = Depends(get_current_user
         css_status=payload.css_status,
         photo_url=payload.photo_url,
         video_embed_url=payload.video_embed_url,
+        price_basis=payload.price_basis,
         status=ListingStatus.ACTIVE,
     )
+    # Family-specific field wiring (genetics listings leave these null).
+    if family == "live":
+        fields.update(
+            animal_class=payload.animal_class, head_count=payload.head_count,
+            dob=payload.dob, weight_lbs=payload.weight_lbs, bred_status=payload.bred_status,
+            due_date=payload.due_date, service_sire_reg=payload.service_sire_reg,
+            delivery_available=payload.delivery_available, freight_note=payload.freight_note,
+        )
+    elif family == "beef":
+        fields.update(
+            beef_cut_type=payload.beef_cut_type, box_weight_lbs=payload.box_weight_lbs,
+            fulfillment=payload.fulfillment, external_url=payload.external_url,
+        )
+    # Location (live/beef) — geocode the postal code into lat/lng/state.
+    if family in ("live", "beef"):
+        _geocode_into(payload, fields, db)
+
+    li = Listing(**fields)
     db.add(li)
     db.commit()
     db.refresh(li)
