@@ -89,8 +89,11 @@ class Ctx:
             return self._zone_id
         zid = h.cf_zone_id(self.domain, token=self.god or self.dns_token)
         if not zid:
-            raise h.HatchError(f"no Cloudflare zone for {self.domain} "
-                               f"(run the 'zone' phase first)")
+            if self.dry:
+                return ""   # dry-run: the 'zone' phase would create it — let callers narrate
+            raise h.HatchError(f"no Cloudflare zone for {self.domain} — the domain must be "
+                               f"registered and its nameservers pointed at Cloudflare, "
+                               f"then run the 'zone' phase")
         self._zone_id = zid
         return zid
 
@@ -253,6 +256,9 @@ def phase_zone(ctx: Ctx):
 def phase_web_dns(ctx: Ctx):
     h.step(f"web-dns — api/apex/www for {ctx.domain}")
     zid = ctx.zone_id()
+    if ctx.dry and not zid:
+        h.info("[dry] would converge api A + apex/www CNAME once the zone exists")
+        return
     tok = ctx.dns_token
     recs = h.cf_dns_list(zid, token=tok)
     pages = f"{ctx.pages_project}.pages.dev"
@@ -362,6 +368,9 @@ def phase_resend(ctx: Ctx):
 def phase_mail_dns(ctx: Ctx):
     h.step(f"mail-dns — receive + policy records for {ctx.domain}")
     zid = ctx.zone_id()
+    if ctx.dry and not zid:
+        h.info("[dry] would converge MX/SPF/DMARC/autoconfig once the zone exists")
+        return
     tok = ctx.dns_token
     recs = h.cf_dns_list(zid, token=tok)
     mail = ctx.mail_host
