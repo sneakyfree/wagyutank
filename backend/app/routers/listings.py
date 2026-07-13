@@ -334,6 +334,26 @@ def feature_listing(
     return to_listing_out(li)
 
 
+@router.post("/{listing_id}/cancel", response_model=ListingOut)
+def cancel_listing(
+    listing_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Seller unlists (cancels) their own listing — sets status=cancelled so it
+    drops off the marketplace. Used by external seller integrations (e.g. a seller's
+    own site) to withdraw a listing they previously published."""
+    li = db.get(Listing, listing_id)
+    if not li:
+        raise HTTPException(404, "Listing not found")
+    if li.seller_id != user.id:
+        raise HTTPException(403, "Not your listing.")
+    li.status = ListingStatus.CANCELLED
+    db.commit()
+    db.refresh(li)
+    return to_listing_out(li)
+
+
 @router.post("/{listing_id}/catalog", response_model=ListingOut)
 def toggle_catalog(listing_id: int, payload: CatalogOptIn,
                    user: User = Depends(get_current_user), db: Session = Depends(get_db)):
