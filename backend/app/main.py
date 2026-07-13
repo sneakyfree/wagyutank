@@ -9,7 +9,7 @@ from .db import Base, engine, get_db
 from .routers import (
     admin, ads, aggregated, animals, auth, catalog, claim, config as config_router, discussions,
     events, facilities, listings,
-    canon, directory, feeding, help, market, news, orders, payments, sale_events, sales, search, users, videos, zenkyo,
+    canon, directory, feeding, help, market, news, orders, payments, sale_events, sales, search, users, videos, wantads, zenkyo,
 )
 
 app = FastAPI(
@@ -71,6 +71,7 @@ app.include_router(help.router)
 app.include_router(directory.router)
 app.include_router(claim.router)
 app.include_router(config_router.router)
+app.include_router(wantads.router)
 
 
 @app.get("/api/health", tags=["meta"])
