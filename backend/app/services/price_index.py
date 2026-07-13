@@ -105,7 +105,15 @@ def compute(db: Session) -> dict:
 
 
 def snapshot(db: Session) -> int:
-    """Record today's index values (idempotent-ish; one row per key per run)."""
+    """Record today's index values (idempotent-ish; one row per key per run).
+
+    The index is semen/embryo-shaped; on a live-cattle/beef tank it would produce
+    nonsense, so it no-ops unless the tank sells a genetics-family product. (The
+    hatchery already gates its cron behind features.price_index; this guards a
+    direct run.)"""
+    from .. import tank
+    if not tank.has_family("genetics"):
+        return 0
     data = compute(db)
     n = 0
     m = data["market"]
