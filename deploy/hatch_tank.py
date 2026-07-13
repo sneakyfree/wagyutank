@@ -493,6 +493,10 @@ def phase_seed(ctx: Ctx):
     modules = ["app.seed.seed"]  # base spine: foundation/facilities/history/faq
     # optional content seeders — only those the tank's features enable
     feats = ctx.cfg.get("features", {})
+    # A tank that sells live cattle or beef needs the postal gazetteer for the
+    # "near me" search (breed-agnostic; skipped on pure-genetics tanks).
+    prods = ctx.cfg.get("products", [])
+    has_geo = any((p.get("family") in ("live", "beef")) for p in prods)
     opt = {
         "app.jobs.seed_reference_prices": feats.get("price_index"),
         "app.jobs.seed_sale_events": feats.get("sale_reports"),
@@ -501,6 +505,7 @@ def phase_seed(ctx: Ctx):
         "app.jobs.seed_comments": feats.get("foundation"),
         "app.jobs.seed_ads": feats.get("ads"),
         "app.jobs.seed_market": feats.get("market_data"),
+        "app.jobs.seed_geo": has_geo,
     }
     modules += [m for m, on in opt.items() if on]
     for mod in modules:
