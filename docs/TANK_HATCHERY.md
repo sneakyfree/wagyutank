@@ -183,6 +183,24 @@ account — there is no per-tank mailbox password.
 
 ---
 
+## Clone-proofing guarantees (the 2026-07-13 steamroller pass)
+
+- **No Wagyu data can leak into a clone's DB**: every content seeder resolves via
+  `tank.seed_path_strict` — a missing per-tank seed file means SKIP, never
+  "fall back to Wagyu". Curated wagyu-only content (`seed_comments`) refuses to
+  run on clones; house ads are templated from the brand.
+- **No Wagyu strings can leak into a clone's pages/emails/prompts**: all links
+  derive from `tank.base_url()`; digest/verify/help/ads/LLM-prompts all read
+  `tank.brand()`/`vocab()`; tankify also rewrites ALL-CAPS `WAGYU` and CJK `和牛`.
+- **One env var builds a clone frontend**: `TANK_API` (or `NEXT_PUBLIC_API_BASE`
+  — either works everywhere now) drives config bake, sitemap, API base, tankify,
+  and the generated brand assets (og-image + favicon) in one `npm run build`.
+- **Crawlers hunt the right breed on the right machine**: `tank-crawl.sh` passes
+  `TANK_TERMS`/`TANK_BOT` from tank.json into the Veron crawler's link
+  classifier; `harvest_videos.py` builds every query from the target tank's
+  `/api/config`.
+- The smoke suite enforces all of it, including "clone serves its OWN og-image".
+
 ## Troubleshooting
 
 - **`no such column …` / a page 500s after a code bump** — schema drift. Run
