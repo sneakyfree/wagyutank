@@ -1,0 +1,195 @@
+{
+  "key": "wagyusale",
+  "brand": {
+    "name": "WagyuSale",
+    "domain": "wagyusale.com",
+    "tagline": "Live Wagyu cattle & direct-from-ranch Wagyu beef",
+    "species": "cattle",
+    "breed": "Wagyu & Akaushi",
+    "logoText": "WS",
+    "wordmark": [
+      "WAGYU",
+      "SALE"
+    ],
+    "colors": {
+      "gold": "#b03a2e",
+      "goldBright": "#d35445",
+      "goldSoft": "rgba(176,58,46,0.12)"
+    },
+    "contactEmail": "office@wagyusale.com",
+    "location": "Salt Lake City, Utah, USA",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "WagyuSale — Live Wagyu Cattle & Direct-from-Ranch Wagyu Beef",
+    "footerBlurb": "the marketplace for live Wagyu cattle & direct Wagyu beef",
+    "description": "Buy and sell live Wagyu cattle — bulls, cows, bred and open heifers, cow-calf pairs, feeders and steers — and find direct-from-producer Wagyu beef for restaurants, chefs, and home. Search by state or near your ZIP. Free to list.",
+    "keywords": [
+      "Wagyu cattle for sale",
+      "Wagyu bulls for sale",
+      "bred Wagyu heifers",
+      "Wagyu feeder cattle",
+      "Wagyu cow calf pairs",
+      "Wagyu steers",
+      "Wagyu beef for sale",
+      "Wagyu beef wholesale",
+      "buy Wagyu beef",
+      "Akaushi cattle for sale",
+      "Wagyu beef near me"
+    ]
+  },
+  "products": [
+    {
+      "key": "live_animal",
+      "family": "live",
+      "label": "Live Cattle",
+      "unit": "head",
+      "glyph": "🐄",
+      "cardTitle": "Live Wagyu Cattle",
+      "blurb": "Bulls, cows, bred & open heifers, pairs, feeders and steers — from ranches you can call.",
+      "options": {
+        "animal_class": [
+          "bull",
+          "cow",
+          "bred_heifer",
+          "open_heifer",
+          "bull_calf",
+          "heifer_calf",
+          "pair",
+          "feeder",
+          "steer"
+        ],
+        "bred_status": [
+          "open",
+          "exposed",
+          "bred",
+          "pair"
+        ],
+        "price_basis": [
+          "per_head",
+          "per_cwt"
+        ]
+      }
+    },
+    {
+      "key": "beef",
+      "family": "beef",
+      "label": "Wagyu Beef",
+      "unit": "box",
+      "glyph": "🥩",
+      "cardTitle": "Direct Wagyu Beef",
+      "blurb": "Quarters, halves, and boxes direct from the producer. Contact the ranch — no middleman.",
+      "options": {
+        "beef_cut_type": [
+          "quarter",
+          "half",
+          "whole",
+          "box",
+          "cuts",
+          "ground"
+        ],
+        "fulfillment": [
+          "ship",
+          "pickup",
+          "both"
+        ],
+        "price_basis": [
+          "per_lb",
+          "per_box",
+          "flat"
+        ]
+      }
+    }
+  ],
+  "features": {
+    "roundup": true,
+    "directory": true,
+    "help": true,
+    "ads": true,
+    "foundation": false,
+    "history": false,
+    "news": true,
+    "videos": true,
+    "price_index": false,
+    "sale_reports": true,
+    "catalog": false,
+    "market_data": true,
+    "japan_hub": false,
+    "zenkyo": false,
+    "feeding": true,
+    "great_sires": false,
+    "beef_locator": true
+  },
+  "vocab": {
+    "animal_singular": "animal",
+    "animal_plural": "cattle",
+    "registry_names": [
+      "American Wagyu Association",
+      "American Akaushi Association"
+    ],
+    "export_program": "CSS",
+    "news_search_terms": [
+      "Wagyu cattle prices",
+      "Wagyu beef market",
+      "cattle market"
+    ],
+    "video_search_terms": [
+      "Wagyu cattle ranch",
+      "Wagyu heifers",
+      "Wagyu beef"
+    ],
+    "help_nuance": "WagyuSale is for LIVE Wagyu/Akaushi cattle (bulls, cows, bred and open heifers, cow-calf pairs, feeders and steers) and direct-from-producer beef — the frozen-genetics side (semen, embryos, cloning rights) lives on our sister site WagyuTank.com. Beef sales are discovery-only: WagyuSale connects buyers with producers, and the purchase happens directly with the ranch (no on-platform beef payments). 'Fullblood' means 100% Japanese pedigree; 'purebred'/'F1–F4' are percentage crosses — sellers should state the percentage."
+  },
+  "langs": [
+    "en",
+    "es"
+  ],
+  "network": {
+    "peers": [
+      {
+        "key": "wagyu",
+        "name": "WagyuTank",
+        "domain": "wagyutank.com",
+        "web": "https://www.wagyutank.com",
+        "families": [
+          "genetics"
+        ],
+        "cta": "Frozen genetics for this animal"
+      }
+    ]
+  },
+  "crawl": {
+    "mode": "live_beef",
+    "cron_offset_min": 120
+  },
+  "deploy": {
+    "port": 8124,
+    "pagesProject": "wagyusale",
+    "service": "tank@wagyusale"
+  },
+  "jobs": {
+    "veron": [
+      {"script": "tank-crawl.sh", "schedule": "0 8 * * 0"},
+      {"script": "tank-harvest.sh", "schedule": "0 9 * * 0"}
+    ]
+  },
+  "copy": {
+    "heroEyebrow": "🐄 LIVE WAGYU CATTLE & BEEF, WORLDWIDE",
+    "heroTitle": "The marketplace for live Wagyu cattle & direct Wagyu beef",
+    "heroSub": "Buy and sell live Wagyu — bulls, bred heifers, cow-calf pairs, feeders and steers — and find direct-from-ranch Wagyu beef near you. Search by state or ZIP. List in under a minute. Free.",
+    "searchPlaceholder": "Search cattle, a ranch, or a state…",
+    "roundupTitle": "Every Wagyu cattle & beef listing, one feed",
+    "roundupIntro": "The Roundup brings the whole live-Wagyu market together: listings posted on WagyuSale plus cattle-for-sale and beef listings we track from ranchers' public pages across the web (marked 📡 — those link straight back to the original seller's page; web sellers pay nothing and can remove a listing anytime).",
+    "theaterTitle": "🎬 The Wagyu Sale Barn",
+    "theaterIntro": "Wagyu cattle on film — sale-day footage, ranch tours, and buyer how-to. Searchable by registration number.",
+    "beefTitle": "🥩 Find Wagyu beef near you",
+    "beefIntro": "Direct from the ranch to your kitchen or restaurant. Browse Wagyu beef producers by state, buy straight from the source, and taste single-origin, fully-traceable Wagyu — no middleman."
+  },
+  "substitutions": [
+    ["frozen Wagyu genetics", "live Wagyu cattle & beef"],
+    ["Frozen genetics stay in the facility's tank until you arrange shipping.", "Contact the seller to arrange viewing, transport, or delivery."],
+    ["semen and embryos", "cattle and beef"],
+    ["Kobe beef", "Wagyu beef"],
+    ["Translated Japanese Reporting", "Wagyu Market Reporting"],
+    ["Global Headlines & Translated Japanese", "Wagyu Cattle & Beef Market News"],
+    ["Japanese and Chinese reporting translated, found nowhere else", "Wagyu cattle and beef market news, in one place"]
+  ]
+}

@@ -113,6 +113,21 @@
     "ja",
     "zh"
   ],
+  "network": {
+    "peers": [
+      {
+        "key": "wagyusale",
+        "name": "WagyuSale",
+        "domain": "wagyusale.com",
+        "web": "https://www.wagyusale.com",
+        "families": [
+          "live",
+          "beef"
+        ],
+        "cta": "Live cattle & beef for this animal"
+      }
+    ]
+  },
   "crawl": {
     "cron_offset_min": 0
   },
