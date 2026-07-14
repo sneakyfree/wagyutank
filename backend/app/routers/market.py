@@ -5,14 +5,20 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import MarketQuote
+from .. import tank
 
 router = APIRouter(prefix="/api/market", tags=["market"])
+
+# breed short-name drives the premium label/disclaimer: wagyu → "Wagyu" (breed is
+# "Wagyu & Akaushi"), a clone → its own breed. The category KEY stays "wagyu"
+# (internal, matches seeded MarketQuote.category rows).
+_BREED = (tank.brand().get("breed") or "Wagyu").split("&")[0].split("/")[0].strip()
 
 CATEGORIES = [
     {"key": "feeder", "label": "Feeder Cattle", "icon": "🐮"},
     {"key": "fed", "label": "Fed / Live Cattle", "icon": "🥩"},
     {"key": "cutout", "label": "Boxed Beef Cutout", "icon": "📦"},
-    {"key": "wagyu", "label": "Wagyu Premiums", "icon": "⭐"},
+    {"key": "wagyu", "label": f"{_BREED} Premiums", "icon": "⭐"},
     {"key": "context", "label": "Market Context", "icon": "🌎"},
 ]
 
@@ -50,6 +56,6 @@ def market(db: Session = Depends(get_db)):
         "data": grouped,
         "updated_at": latest,
         "disclaimer": "Commodity figures compiled from USDA AMS public-domain market reports; "
-                      "Wagyu benchmarks from published producer and retail pricing. Indicative, "
+                      f"{_BREED} benchmarks from published producer and retail pricing. Indicative, "
                       "not a trading quote.",
     }

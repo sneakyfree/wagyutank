@@ -7,13 +7,16 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import SaleEvent, WagyuVideo
+from .. import tank
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
 
+# The "Japan" category is Wagyu-specific (Japanese-origin footage). It appears
+# only for tanks with the japan_hub feature ON (wagyu) — a clone never shows it.
 CATEGORIES = [
     {"key": "sire", "label": "Bulls & Bloodlines", "icon": "🐂"},
     {"key": "sale", "label": "Sales & Auctions", "icon": "🏆"},
-    {"key": "japan", "label": "Japan", "icon": "🇯🇵"},
+    *([{"key": "japan", "label": "Japan", "icon": "🇯🇵"}] if tank.feature_on("japan_hub") else []),
     {"key": "education", "label": "Learn", "icon": "🎓"},
     {"key": "ranch", "label": "Ranch Life", "icon": "🤠"},
     {"key": "cooking", "label": "Beef & Cooking", "icon": "🥩"},

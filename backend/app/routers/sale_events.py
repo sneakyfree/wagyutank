@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import SaleEvent, UpcomingSale
+from .. import tank
 
 router = APIRouter(prefix="/api/sale-events", tags=["sale-events"])
 upcoming_router = APIRouter(prefix="/api/upcoming-sales", tags=["upcoming-sales"])
@@ -25,8 +26,10 @@ def upcoming(continent: str | None = None, db: Session = Depends(get_db)):
 
 USD_RATE = {"USD": 1.0, "AUD": 0.66, "NZD": 0.60, "GBP": 1.27, "EUR": 1.08,
             "BRL": 0.18, "JPY": 0.0067}
+# "Asia / Japan" only for Japanese-origin tanks (japan_hub ON); clones say "Asia".
 CONTINENTS = [{"key": "OC", "label": "Australia / NZ"}, {"key": "NA", "label": "North America"},
-              {"key": "EU", "label": "Europe"}, {"key": "AS", "label": "Asia / Japan"},
+              {"key": "EU", "label": "Europe"},
+              {"key": "AS", "label": "Asia / Japan" if tank.feature_on("japan_hub") else "Asia"},
               {"key": "SA", "label": "South America"}]
 
 
