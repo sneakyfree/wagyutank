@@ -166,6 +166,11 @@
     "service": "tank@wagyusale"
   },
   "jobs": {
+    "vps": [
+      {"module": "app.jobs.news", "schedule": "20 6,18 * * *"},
+      {"module": "app.jobs.watchdog", "schedule": "50 11 * * *"},
+      {"module": "app.jobs.digest", "schedule": "0 15 * * 1"}
+    ],
     "veron": [
       {"script": "tank-crawl.sh", "schedule": "0 8 * * 0"},
       {"script": "tank-harvest.sh", "schedule": "0 9 * * 0"}

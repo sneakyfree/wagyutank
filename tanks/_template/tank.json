@@ -63,7 +63,8 @@
   "jobs": {
     "vps": [
       {"module": "app.jobs.news", "schedule": "20 5,17 * * *"},
-      {"module": "app.jobs.watchdog", "schedule": "10 11 * * *"}
+      {"module": "app.jobs.watchdog", "schedule": "10 11 * * *"},
+      {"module": "app.jobs.digest", "schedule": "0 14 * * 1"}
     ],
     "veron": [
       {"script": "tank-crawl.sh", "schedule": "0 4 * * 0"},

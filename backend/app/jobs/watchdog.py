@@ -39,7 +39,16 @@ def _sh(*args) -> tuple[int, str]:
 
 def _self_heal(report: dict) -> list[str]:
     """Restart any timer that isn't armed; trigger a catch-up for DOWN VPS jobs.
-    Best-effort — records what it did; never raises."""
+    Best-effort — records what it did; never raises.
+
+    The systemd units below (wagyutank-news/aggregate/digest) exist ONLY on the
+    legacy wagyu tank. Clones run their jobs from cron (nothing to re-arm), so
+    for any non-wagyu tank this self-heal is a no-op — it must not `systemctl
+    restart` units that don't exist and log spurious failures. Clones still get
+    the daily assessment + email report; only the timer/catch-up heal is wagyu's."""
+    from .. import tank
+    if tank.key() != "wagyu":
+        return []
     actions = []
     # 1. re-arm dead/failed timers
     for t in _TIMERS:

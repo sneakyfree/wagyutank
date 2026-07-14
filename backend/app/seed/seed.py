@@ -25,7 +25,13 @@ def seed_facilities(db) -> int:
     `location: "Adel, Iowa"` instead of city/state, `services` as a comma
     string instead of a list, `url` instead of `website`. Normalizing here
     beats hand-fixing every new breed's research output."""
-    rows = json.loads(tank.seed_path("facilities.json").read_text())
+    # STRICT: a clone with no facilities.json of its own must seed NOTHING here —
+    # never fall back to WagyuTank's directory (that leak put 23 Wagyu facilities
+    # into wagyusale.db). seed_path_strict returns None for a clone missing the file.
+    src = tank.seed_path_strict("facilities.json")
+    if src is None:
+        return 0
+    rows = json.loads(src.read_text())
     added = 0
     for r in rows:
         exists = db.query(Facility).filter(Facility.name == r["name"]).first()
@@ -51,7 +57,12 @@ def seed_facilities(db) -> int:
 
 
 def seed_foundation_animals(db) -> int:
-    rows = json.loads(tank.seed_path("foundation_animals.json").read_text())
+    # STRICT (same reason as seed_facilities): a clone with no foundation_animals.json
+    # seeds no animals rather than inheriting WagyuTank's 57 founders.
+    src = tank.seed_path_strict("foundation_animals.json")
+    if src is None:
+        return 0
+    rows = json.loads(src.read_text())
     added = 0
     for r in rows:
         reg = r.get("registration_no")

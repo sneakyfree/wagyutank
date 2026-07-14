@@ -33,6 +33,7 @@ import os
 import secrets
 import sys
 import time
+from collections import OrderedDict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -66,6 +67,10 @@ class Ctx:
         self.dns_token = h.env("CF_DNS_TOKEN")
         self.pages_token = h.env("CF_PAGES_TOKEN")
         self.resend_key = h.env("RESEND_API_KEY")
+        # the fleet-wide SSO secret every peer tank shares (cross-site login). One
+        # value across the whole trust circle; the hatchery writes it into each
+        # peer tank's tank.env so a clone's flywheel login works with no hand-wiring.
+        self.sso_secret = h.env("SSO_SHARED_SECRET", "")
         self.mail_host = h.env("HATCH_MAIL_HOST", MAIL_HOST_DEFAULT)
         # the one founder mailbox every tank's mail consolidates into (Stalwart
         # account id). Grant reads all domains under this single Roundcube login.
@@ -99,8 +104,35 @@ class Ctx:
 
 
 # ============================================================ phase: scaffold
+def _preflight_port(ctx: Ctx):
+    """Fail fast on a duplicate port. `tanks/PORTS` was an inert ledger nobody
+    read; the source of truth is each tank.json `deploy.port`. Scan siblings,
+    reject a collision, and auto-assign the next free port if none was set."""
+    used: dict[int, str] = {}
+    for p in (REPO / "tanks").glob("*/tank.json"):
+        key = p.parent.name
+        if key == ctx.key:
+            continue
+        try:
+            port = (json.loads(p.read_text()).get("deploy") or {}).get("port")
+        except Exception:
+            continue
+        if port:
+            used[int(port)] = key
+    if ctx.port and int(ctx.port) in used:
+        raise h.HatchError(
+            f"port {ctx.port} is already assigned to tank '{used[int(ctx.port)]}' — "
+            f"pick a free port in tanks/{ctx.key}/tank.json deploy.port "
+            f"(in use: {', '.join(f'{k}={v}' for k, v in sorted(used.items()))})")
+    if not ctx.port:
+        ctx.port = (max(used) + 1) if used else 8120
+        h.warn(f"no port set for '{ctx.key}' — auto-assigned {ctx.port}; "
+               f"lock it in tanks/{ctx.key}/tank.json deploy.port")
+
+
 def phase_scaffold(ctx: Ctx):
     h.step(f"scaffold — VPS runtime for '{ctx.key}' (port {ctx.port})")
+    _preflight_port(ctx)
     vps = h.VPS_SSH()
     root = h.REPO_ROOT_VPS()
     tank_dir = f"{root}/tanks/{ctx.key}"
@@ -130,34 +162,11 @@ def phase_scaffold(ctx: Ctx):
     else:
         h.ok("tank.json present on VPS")
 
-    # 2. tank.env — the isolation boundary. Idempotent: create if missing.
-    rc, out, _ = h.ssh_run(vps, f"test -f {tank_dir}/tank.env && echo yes || echo no")
-    if out.strip() == "yes":
-        h.ok("tank.env exists (leaving it)")
-    else:
-        if ctx.legacy_service:
-            # WagyuTank runs as the original wagyutank-api.service off backend/.env.
-            # Its tank.env exists ONLY so run-tank-job.sh can target the right DB;
-            # it must NOT set JWT_SECRET/DATABASE_URL to anything but the live values.
-            db = "sqlite:///./wagyutank.db"
-            envtxt = (f"TANK={ctx.key}\nPORT={ctx.port or 8120}\n"
-                      f"DATABASE_URL={db}\nFRONTEND_ORIGIN=https://www.{ctx.domain}\n")
-            h.info("legacy tank — tank.env matches backend/.env (no JWT override)")
-        else:
-            jwt = base64.b64encode(secrets.token_bytes(36)).decode().replace("+", "").replace("/", "")[:48]
-            envtxt = (f"TANK={ctx.key}\nPORT={ctx.port}\n"
-                      f"DATABASE_URL=sqlite:///./data/{ctx.key}.db\n"
-                      f"JWT_SECRET={jwt}\nFRONTEND_ORIGIN=https://www.{ctx.domain}\n"
-                      # per-tank overrides of wagyu-defaulted shared settings:
-                      # no inherited admin list (super_admin stays Grant via code
-                      # default); R2 names scoped to this tank so a future video
-                      # rollout can't cross-write into the wagyu bucket.
-                      f"ADMIN_EMAILS=\n"
-                      f"R2_BUCKET={ctx.key}-tank-videos\n"
-                      f"R2_PUBLIC_BASE=https://videos.{ctx.domain}\n")
-        # write atomically via a heredoc
-        h.ssh_run(vps, f"mkdir -p {tank_dir} && cat > {tank_dir}/tank.env <<'HATCHENV'\n{envtxt}HATCHENV")
-        h.ok(f"wrote {tank_dir}/tank.env")
+    # 2. tank.env — the isolation boundary. CONVERGES (not write-once): managed
+    #    keys are reconciled from tank.json on every run so a port/domain/SSO edit
+    #    actually reaches the running backend; JWT_SECRET and any hand-added keys
+    #    are preserved (JWT is never rotated — that would log everyone out).
+    _ensure_tank_env(ctx, vps, tank_dir)
 
     # 3. DB schema (migrate builds every table). Safe to re-run.
     if not ctx.legacy_service:
@@ -187,6 +196,80 @@ def phase_scaffold(ctx: Ctx):
 
     # 5. nginx block for api.<domain>
     _ensure_nginx(ctx, vps)
+
+
+# keys the hatchery OWNS and reconciles from tank.json on every run. Anything
+# else in tank.env (JWT_SECRET, manual admin entries, one-off overrides) is
+# preserved untouched.
+_ENV_RECONCILE_CLONE = ["TANK", "PORT", "DATABASE_URL", "FRONTEND_ORIGIN",
+                        "R2_BUCKET", "R2_PUBLIC_BASE",
+                        "SSO_SHARED_SECRET", "SSO_PEER_API"]
+_ENV_RECONCILE_LEGACY = ["TANK", "PORT", "DATABASE_URL", "FRONTEND_ORIGIN"]
+
+
+def _parse_env(text: str) -> "OrderedDict[str, str]":
+    d: "OrderedDict[str, str]" = OrderedDict()
+    for line in text.splitlines():
+        line = line.rstrip("\n")
+        s = line.strip()
+        if not s or s.startswith("#") or "=" not in s:
+            continue
+        k, v = s.split("=", 1)
+        d[k.strip()] = v
+    return d
+
+
+def _ensure_tank_env(ctx: Ctx, vps: str, tank_dir: str):
+    """Reconcile tank.env: keep JWT + manual keys, refresh the managed set."""
+    _, cur, _ = h.ssh_run(vps, f"cat {tank_dir}/tank.env 2>/dev/null")
+    existing = _parse_env(cur or "")
+    desired = OrderedDict(existing)  # preserve order + any hand-added keys
+
+    if ctx.legacy_service:
+        # WagyuTank serves off backend/.env; its tank.env exists only so
+        # run-tank-job.sh targets the right DB — never a JWT/SSO/R2 override.
+        managed = {"TANK": ctx.key, "PORT": str(ctx.port or 8120),
+                   "DATABASE_URL": "sqlite:///./wagyutank.db",
+                   "FRONTEND_ORIGIN": f"https://www.{ctx.domain}"}
+        reconcile = _ENV_RECONCILE_LEGACY
+    else:
+        managed = {"TANK": ctx.key, "PORT": str(ctx.port),
+                   "DATABASE_URL": f"sqlite:///./data/{ctx.key}.db",
+                   "FRONTEND_ORIGIN": f"https://www.{ctx.domain}",
+                   "R2_BUCKET": f"{ctx.key}-tank-videos",
+                   "R2_PUBLIC_BASE": f"https://videos.{ctx.domain}"}
+        # SSO trust circle — templated from tank.json network.peers (previously
+        # hand-wired, which meant a new peer tank silently shipped with login OFF).
+        peers = (ctx.cfg.get("network") or {}).get("peers") or []
+        peer_domain = peers[0].get("domain") if peers else ""
+        if peers and peer_domain and ctx.sso_secret:
+            managed["SSO_SHARED_SECRET"] = ctx.sso_secret
+            managed["SSO_PEER_API"] = f"https://api.{peer_domain}"
+        elif peers and not ctx.sso_secret:
+            h.warn("tank.json has network.peers but SSO_SHARED_SECRET is not in "
+                   "hatch-secrets — cross-site login stays OFF until it's provided")
+        reconcile = _ENV_RECONCILE_CLONE
+        # JWT: generate ONCE, then preserve forever (rotating logs everyone out).
+        if not existing.get("JWT_SECRET"):
+            jwt = base64.b64encode(secrets.token_bytes(36)).decode().replace("+", "").replace("/", "")[:48]
+            desired["JWT_SECRET"] = jwt
+        # ADMIN_EMAILS: empty on first create (super_admin stays Grant via code);
+        # preserved if an operator later fills it in.
+        if "ADMIN_EMAILS" not in existing:
+            desired["ADMIN_EMAILS"] = ""
+
+    for k in reconcile:
+        if k in managed:
+            desired[k] = managed[k]   # never DELETE keys — only add/refresh
+
+    if desired == existing:
+        h.ok("tank.env converged (unchanged)")
+        return
+    envtxt = "".join(f"{k}={v}\n" for k, v in desired.items())
+    h.ssh_run(vps, f"mkdir -p {tank_dir} && cat > {tank_dir}/tank.env <<'HATCHENV'\n{envtxt}HATCHENV")
+    updated = [k for k in desired if existing.get(k) != desired.get(k)]
+    h.ok(f"tank.env {'created' if not existing else 'converged'} "
+         f"({len(desired)} keys; changed: {', '.join(updated) or 'none'})")
 
 
 def _ensure_nginx(ctx: Ctx, vps: str):
