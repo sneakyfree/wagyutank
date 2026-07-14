@@ -18,6 +18,29 @@ def house_ads() -> list[dict]:
     base = tank.base_url()
     kinds = [p.get("label", "").lower() for p in tank.products() if p.get("label")]
     kinds_txt = ", ".join(kinds[:-1]) + (f", or {kinds[-1]}" if len(kinds) > 1 else (kinds[0] if kinds else "genetics"))
+    # Sale tanks (live cattle / beef) get their own house-ad copy; genetics tanks
+    # fall through to the original set below (wagyu stays byte-identical).
+    if tank.has_family("live") or tank.has_family("beef"):
+        return [
+            dict(headline="Sell your cattle — free", placement="feed", cta="List now",
+                 body=f"List {kinds_txt} in under a minute. Type a registration "
+                      "number and we write the ad for you.", link_url=f"{base}/sell"),
+            dict(headline=f"Every {breed} animal for sale, one place", placement="feed", cta="Browse the Roundup",
+                 body=f"The Roundup gathers live {breed} cattle and direct-from-ranch beef "
+                      "from ranches across the web — with location and price at a glance.",
+                 link_url=f"{base}/roundup"),
+            dict(headline=f"Advertise on {name}", placement="sidebar", cta="See ad options",
+                 body=f"Put your ranch in front of {breed} cattle and beef buyers worldwide.",
+                 link_url=f"{base}/advertise"),
+            dict(headline=f"The marketplace for live {breed} cattle", placement="banner", cta="Get started",
+                 body=f"Buy and sell live {breed} — bulls, cows, bred heifers, cow-calf pairs, "
+                      f"feeders and steers — and find direct-from-ranch {breed} beef near you. Free to list.",
+                 link_url=f"{base}/"),
+            dict(headline="Find beef near you", placement="sidebar", cta="Explore",
+                 body=f"Direct-from-ranch {breed} beef, searchable by state and ZIP — straight "
+                      "from the producer, no middleman.",
+                 link_url=f"{base}/browse"),
+        ]
     ads = [
         dict(headline="Sell your genetics — free", placement="feed", cta="List now",
              body=f"List {kinds_txt} in under a minute. Type a registration "
