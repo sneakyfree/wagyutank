@@ -18,10 +18,10 @@
     },
     "contactEmail": "office@murraygreytank.com",
     "location": "Salt Lake City, Utah, USA",
-    "legal": "Salt Lake City, Utah, USA \u00b7 a Utah company",
-    "titleLong": "MurrayGreyTank \u2014 The Global Marketplace & Knowledge Hub for Murray Grey Genetics",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "MurrayGreyTank — The Global Marketplace & Knowledge Hub for Murray Grey Genetics",
     "footerBlurb": "the world's marketplace for Murray Grey cattle genetics",
-    "description": "Buy and sell Murray Grey cattle genetics \u2014 semen and embryos \u2014 and explore the breed's Australian origin story, foundation bloodlines, a live genetics price index, and translated global news. The central hub for the world's Murray Grey community. Free to list.",
+    "description": "Buy and sell Murray Grey cattle genetics — semen and embryos — and explore the breed's Australian origin story, foundation bloodlines, a live genetics price index, and translated global news. The central hub for the world's Murray Grey community. Free to list.",
     "keywords": [
       "Murray Grey",
       "Murray Grey cattle",
@@ -42,7 +42,7 @@
       "unit": "straw",
       "icon": "sperm",
       "fresh_chilled": false,
-      "glyph": "\ud83e\uddec",
+      "glyph": "🧬",
       "cardTitle": "Semen Straws",
       "blurb": "Conventional & sexed straws from proven Murray Grey sires."
     },
@@ -52,9 +52,9 @@
       "unit": "embryo",
       "icon": "morula",
       "fresh_chilled": false,
-      "glyph": "\ud83e\udd5a",
+      "glyph": "🥚",
       "cardTitle": "Embryos",
-      "blurb": "Full-blood IVF & in-vivo embryos, sire \u00d7 dam pedigrees."
+      "blurb": "Full-blood IVF & in-vivo embryos, sire × dam pedigrees."
     }
   ],
   "features": {
@@ -112,26 +112,41 @@
   },
   "jobs": {
     "vps": [
-      {"module": "app.jobs.news", "schedule": "20 5,17 * * *"},
-      {"module": "app.jobs.watchdog", "schedule": "40 11 * * *"},
-      {"module": "app.jobs.digest", "schedule": "30 14 * * 1"}
+      {
+        "module": "app.jobs.news",
+        "schedule": "20 5,17 * * *"
+      },
+      {
+        "module": "app.jobs.watchdog",
+        "schedule": "40 11 * * *"
+      },
+      {
+        "module": "app.jobs.digest",
+        "schedule": "30 14 * * 1"
+      }
     ],
     "veron": [
-      {"script": "tank-crawl.sh", "schedule": "30 4 * * 0"},
-      {"script": "tank-harvest.sh", "schedule": "30 6 * * 0"}
+      {
+        "script": "tank-crawl.sh",
+        "schedule": "30 4 * * *"
+      },
+      {
+        "script": "tank-harvest.sh",
+        "schedule": "30 6 * * 0"
+      }
     ]
   },
   "copy": {
-    "heroEyebrow": "\ud83d\udc02 THE GLOBAL MURRAY GREY CROSSROADS",
+    "heroEyebrow": "🐂 THE GLOBAL MURRAY GREY CROSSROADS",
     "heroTitle": "The world's marketplace & knowledge hub for Murray Grey genetics",
-    "heroSub": "Buy and sell Murray Grey semen and embryos \u2014 and explore the breed's Australian origin story, foundation bloodlines, a live genetics price index, and translated global news. List in under a minute. Free.",
-    "searchPlaceholder": "Search a stud, sire, or bloodline \u2014 e.g. Willalooka, Monterey\u2026",
+    "heroSub": "Buy and sell Murray Grey semen and embryos — and explore the breed's Australian origin story, foundation bloodlines, a live genetics price index, and translated global news. List in under a minute. Free.",
+    "searchPlaceholder": "Search a stud, sire, or bloodline — e.g. Willalooka, Monterey…",
     "roundupTitle": "Every Murray Grey genetics listing, one feed",
-    "roundupIntro": "The Roundup brings the whole Murray Grey genetics market together: listings posted on MurrayGreyTank plus semen and embryo listings we track from studs' public pages across the web (marked \ud83d\udce1 \u2014 those link straight back to the original seller's page; web sellers pay nothing and can remove a listing anytime).",
-    "theaterTitle": "\ud83c\udfac The Murray Grey Theater",
-    "theaterIntro": "The world's Murray Grey video library \u2014 bulls on film, sale recordings, and how-to. Searchable by registration number.",
+    "roundupIntro": "The Roundup brings the whole Murray Grey genetics market together: listings posted on MurrayGreyTank plus semen and embryo listings we track from studs' public pages across the web (marked 📡 — those link straight back to the original seller's page; web sellers pay nothing and can remove a listing anytime).",
+    "theaterTitle": "🎬 The Murray Grey Theater",
+    "theaterIntro": "The world's Murray Grey video library — bulls on film, sale recordings, and how-to. Searchable by registration number.",
     "foundationTitle": "The foundation animals",
-    "foundationIntro": "Nearly all Murray Greys trace back to the silver calves born at Thologolong on the upper Murray River \u2014 and to Helen Sutherland, who made a breed from them. Meet the animals behind the breed."
+    "foundationIntro": "Nearly all Murray Greys trace back to the silver calves born at Thologolong on the upper Murray River — and to Helen Sutherland, who made a breed from them. Meet the animals behind the breed."
   },
   "substitutions": [
     [

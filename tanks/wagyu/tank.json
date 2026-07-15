@@ -18,10 +18,10 @@
     },
     "contactEmail": "office@wagyutank.com",
     "location": "Salt Lake City, Utah, USA",
-    "legal": "Salt Lake City, Utah, USA \u00b7 a Utah company",
-    "titleLong": "WagyuTank \u2014 The Global Marketplace & Knowledge Hub for Wagyu Genetics",
+    "legal": "Salt Lake City, Utah, USA · a Utah company",
+    "titleLong": "WagyuTank — The Global Marketplace & Knowledge Hub for Wagyu Genetics",
     "footerBlurb": "the world's marketplace for frozen Wagyu genetics",
-    "description": "Buy and sell frozen Wagyu genetics \u2014 semen, embryos, and cloning rights \u2014 and explore the world's deepest Wagyu breed history, a live genetics price index, translated global news, and market data. Free to list.",
+    "description": "Buy and sell frozen Wagyu genetics — semen, embryos, and cloning rights — and explore the world's deepest Wagyu breed history, a live genetics price index, translated global news, and market data. Free to list.",
     "keywords": [
       "Wagyu",
       "Akaushi",
@@ -42,7 +42,7 @@
       "unit": "straw",
       "icon": "sperm",
       "fresh_chilled": false,
-      "glyph": "\ud83e\uddec",
+      "glyph": "🧬",
       "cardTitle": "Semen Straws",
       "blurb": "Conventional & sexed, from proven Wagyu sires worldwide."
     },
@@ -52,9 +52,9 @@
       "unit": "embryo",
       "icon": "morula",
       "fresh_chilled": false,
-      "glyph": "\ud83e\udd5a",
+      "glyph": "🥚",
       "cardTitle": "Embryos",
-      "blurb": "Full-blood IVF & in-vivo embryos, sire \u00d7 dam pedigrees."
+      "blurb": "Full-blood IVF & in-vivo embryos, sire × dam pedigrees."
     },
     {
       "key": "clone_rights",
@@ -62,7 +62,7 @@
       "unit": "right",
       "icon": "helix",
       "fresh_chilled": false,
-      "glyph": "\ud83d\udc02",
+      "glyph": "🐂",
       "cardTitle": "Cloning Rights",
       "blurb": "License the right to clone a banked cell line. Ours alone."
     }
@@ -140,8 +140,14 @@
     "vps": [],
     "vps_note": "LEGACY: wagyu's VPS jobs run as systemd timers (wagyutank-news 3x/day 05/13/21:15, wagyutank-aggregate daily 06:38, wagyutank-digest weekly Mon 14:00 UTC) plus a root cron watchdog at 11:30 — predates the hatchery; managed outside it. The hatchery jobs phase reports their health but does not touch them.",
     "veron": [
-      {"script": "tank-crawl.sh", "schedule": "0 4 * * 0"},
-      {"script": "tank-harvest.sh", "schedule": "0 6 * * 0"}
+      {
+        "script": "tank-crawl.sh",
+        "schedule": "0 4 * * *"
+      },
+      {
+        "script": "tank-harvest.sh",
+        "schedule": "0 6 * * 0"
+      }
     ]
   }
 }

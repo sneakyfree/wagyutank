@@ -167,13 +167,28 @@
   },
   "jobs": {
     "vps": [
-      {"module": "app.jobs.news", "schedule": "20 6,18 * * *"},
-      {"module": "app.jobs.watchdog", "schedule": "50 11 * * *"},
-      {"module": "app.jobs.digest", "schedule": "0 15 * * 1"}
+      {
+        "module": "app.jobs.news",
+        "schedule": "20 6,18 * * *"
+      },
+      {
+        "module": "app.jobs.watchdog",
+        "schedule": "50 11 * * *"
+      },
+      {
+        "module": "app.jobs.digest",
+        "schedule": "0 15 * * 1"
+      }
     ],
     "veron": [
-      {"script": "tank-crawl.sh", "schedule": "0 8 * * 0"},
-      {"script": "tank-harvest.sh", "schedule": "0 9 * * 0"}
+      {
+        "script": "tank-crawl.sh",
+        "schedule": "0 8 * * *"
+      },
+      {
+        "script": "tank-harvest.sh",
+        "schedule": "0 9 * * 0"
+      }
     ]
   },
   "copy": {
@@ -189,12 +204,33 @@
     "beefIntro": "Direct from the ranch to your kitchen or restaurant. Browse Wagyu beef producers by state, buy straight from the source, and taste single-origin, fully-traceable Wagyu — no middleman."
   },
   "substitutions": [
-    ["frozen Wagyu genetics", "live Wagyu cattle & beef"],
-    ["Frozen genetics stay in the facility's tank until you arrange shipping.", "Contact the seller to arrange viewing, transport, or delivery."],
-    ["semen and embryos", "cattle and beef"],
-    ["Kobe beef", "Wagyu beef"],
-    ["Translated Japanese Reporting", "Wagyu Market Reporting"],
-    ["Global Headlines & Translated Japanese", "Wagyu Cattle & Beef Market News"],
-    ["Japanese and Chinese reporting translated, found nowhere else", "Wagyu cattle and beef market news, in one place"]
+    [
+      "frozen Wagyu genetics",
+      "live Wagyu cattle & beef"
+    ],
+    [
+      "Frozen genetics stay in the facility's tank until you arrange shipping.",
+      "Contact the seller to arrange viewing, transport, or delivery."
+    ],
+    [
+      "semen and embryos",
+      "cattle and beef"
+    ],
+    [
+      "Kobe beef",
+      "Wagyu beef"
+    ],
+    [
+      "Translated Japanese Reporting",
+      "Wagyu Market Reporting"
+    ],
+    [
+      "Global Headlines & Translated Japanese",
+      "Wagyu Cattle & Beef Market News"
+    ],
+    [
+      "Japanese and Chinese reporting translated, found nowhere else",
+      "Wagyu cattle and beef market news, in one place"
+    ]
   ]
 }
