@@ -71,6 +71,13 @@ class Ctx:
         # value across the whole trust circle; the hatchery writes it into each
         # peer tank's tank.env so a clone's flywheel login works with no hand-wiring.
         self.sso_secret = h.env("SSO_SHARED_SECRET", "")
+        # extraction/AI lane — local model on Veron's 5090 via WireGuard (compute
+        # doctrine §6a: the Groq free tier caps at 100k tokens/DAY, which one
+        # nightly crawl ingest alone exceeds; the local lane has no ceiling and
+        # no cloud cost). Override per-fleet in hatch-secrets if the model or
+        # host ever moves.
+        self.ai_base = h.env("TANK_AI_BASE_URL", "http://10.10.0.6:11434/v1")
+        self.ai_model = h.env("TANK_AI_MODEL", "qwen2.5:7b-instruct")
         self.mail_host = h.env("HATCH_MAIL_HOST", MAIL_HOST_DEFAULT)
         # the one founder mailbox every tank's mail consolidates into (Stalwart
         # account id). Grant reads all domains under this single Roundcube login.
@@ -203,8 +210,12 @@ def phase_scaffold(ctx: Ctx):
 # preserved untouched.
 _ENV_RECONCILE_CLONE = ["TANK", "PORT", "DATABASE_URL", "FRONTEND_ORIGIN",
                         "R2_BUCKET", "R2_PUBLIC_BASE",
-                        "SSO_SHARED_SECRET", "SSO_PEER_API"]
-_ENV_RECONCILE_LEGACY = ["TANK", "PORT", "DATABASE_URL", "FRONTEND_ORIGIN"]
+                        "SSO_SHARED_SECRET", "SSO_PEER_API",
+                        "AI_PROVIDER", "OPENAI_API_KEY", "OPENAI_BASE_URL",
+                        "OPENAI_ADCOPY_MODEL"]
+_ENV_RECONCILE_LEGACY = ["TANK", "PORT", "DATABASE_URL", "FRONTEND_ORIGIN",
+                         "AI_PROVIDER", "OPENAI_API_KEY", "OPENAI_BASE_URL",
+                         "OPENAI_ADCOPY_MODEL"]
 
 
 def _parse_env(text: str) -> "OrderedDict[str, str]":
@@ -230,14 +241,23 @@ def _ensure_tank_env(ctx: Ctx, vps: str, tank_dir: str):
         # run-tank-job.sh targets the right DB — never a JWT/SSO/R2 override.
         managed = {"TANK": ctx.key, "PORT": str(ctx.port or 8120),
                    "DATABASE_URL": "sqlite:///./wagyutank.db",
-                   "FRONTEND_ORIGIN": f"https://www.{ctx.domain}"}
+                   "FRONTEND_ORIGIN": f"https://www.{ctx.domain}",
+                   # crawl-lane extraction only: legacy wagyu's API/news still run
+                   # off backend/.env (Windy Mind); tank.env is what tank-crawl.sh
+                   # sources, so the token-hungry ingest goes to the local model.
+                   "AI_PROVIDER": "openai", "OPENAI_API_KEY": "ollama",
+                   "OPENAI_BASE_URL": ctx.ai_base,
+                   "OPENAI_ADCOPY_MODEL": ctx.ai_model}
         reconcile = _ENV_RECONCILE_LEGACY
     else:
         managed = {"TANK": ctx.key, "PORT": str(ctx.port),
                    "DATABASE_URL": f"sqlite:///./data/{ctx.key}.db",
                    "FRONTEND_ORIGIN": f"https://www.{ctx.domain}",
                    "R2_BUCKET": f"{ctx.key}-tank-videos",
-                   "R2_PUBLIC_BASE": f"https://videos.{ctx.domain}"}
+                   "R2_PUBLIC_BASE": f"https://videos.{ctx.domain}",
+                   "AI_PROVIDER": "openai", "OPENAI_API_KEY": "ollama",
+                   "OPENAI_BASE_URL": ctx.ai_base,
+                   "OPENAI_ADCOPY_MODEL": ctx.ai_model}
         # SSO trust circle — templated from tank.json network.peers (previously
         # hand-wired, which meant a new peer tank silently shipped with login OFF).
         peers = (ctx.cfg.get("network") or {}).get("peers") or []
