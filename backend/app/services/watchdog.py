@@ -25,9 +25,9 @@ EXPECTED_JOBS = {
     "roundup":        ("Roundup static crawl", "VPS timer · daily"),
     "price_snapshot": ("Genetics price index snapshot", "VPS · daily"),
     "digest":         ("Wagyu Wire weekly digest", "VPS timer · weekly"),
-    "roundup_crawl":  ("Roundup JS-render crawl", "Windy 0 · weekly Sun 4am"),
-    "reaper":         ("Stale-link reaper", "Windy 0 · weekly Sun 4am"),
-    "video_harvest":  ("Wagyu Theater video harvest", "Windy 0 · weekly Sun 6am"),
+    "roundup_crawl":  ("Roundup JS-render crawl", "Veron 5090 · nightly"),
+    "reaper":         ("Stale-link reaper", "Veron · nightly (with crawl)"),
+    "video_harvest":  ("Video harvest", "Veron · weekly Sun"),
 }
 
 _STALE_SOURCE_H = 24 * 5   # a source that contributed within 5 days is "fresh"
@@ -156,9 +156,32 @@ def _delta_cell(d, is_value: bool) -> str:
             f"color:{color};text-align:right;font-variant-numeric:tabular-nums'>{txt}</td>")
 
 
+def momentum_line(m: dict | None, window: str = "7d") -> str:
+    """Plain-English 'what moved' over a window — the top few gainers, for the top of
+    the report. e.g. 'This week: Roundup web listings +801, News +98, Animals +60.'"""
+    if not m or not m.get("metrics"):
+        return ""
+    movers = []
+    for it in m["metrics"]:
+        if it["kind"] != "count":
+            continue
+        d = it["deltas"].get(window)
+        if d and d > 0:
+            movers.append((d, it["label"]))
+    movers.sort(reverse=True)
+    if not movers:
+        return ""
+    label = {"1d": "Today", "7d": "This week", "30d": "This month", "1y": "This year"}.get(window, window)
+    bits = ", ".join(f"{lbl} +{int(round(d)):,}" for d, lbl in movers[:3])
+    return f"{label}: {bits}."
+
+
 def render_metrics(m: dict | None) -> str:
     if not m or not m.get("metrics"):
         return ""
+    mom = momentum_line(m, "7d")
+    mom_html = (f"<p style='font-size:13px;color:#2e7d32;margin:16px 0 2px;font-weight:600'>"
+                f"&#9650; {mom}</p>") if mom else ""
     wins = m["windows"]  # [("1d",1),...]
     head = "".join(f"<th style='padding:0 8px 6px;text-align:right;color:#999;font-size:11px'>{k}</th>"
                    for k, _ in wins)
@@ -177,6 +200,7 @@ def render_metrics(m: dict | None) -> str:
         )
     return (
         f"<h3 style='font-size:14px;margin:22px 0 4px'>Platform metrics &mdash; totals &amp; trends</h3>"
+        f"{mom_html}"
         f"<p style='font-size:11px;color:#999;margin:0 0 8px'>Each column is the change over that window "
         f"(reconstructed from record timestamps). Windows longer than the platform's age show its whole "
         f"lifetime so far.</p>"
