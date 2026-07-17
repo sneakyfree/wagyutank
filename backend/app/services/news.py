@@ -365,6 +365,7 @@ def run(db) -> dict:
 
 
 def _highlights_sys() -> str:
+    from .. import tank
     breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
     return (
         f"You are the editor of a global {breed} news brief. From the list of recent {breed} "
