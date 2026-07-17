@@ -15,7 +15,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from ..models import JobRun, SourceHealth
-from . import health
+from . import health, metrics
 
 # job -> (human label, where it runs). Cadence comes from health.JOB_CADENCE_H.
 EXPECTED_JOBS = {
@@ -98,12 +98,18 @@ def assess(db) -> dict:
     else:
         verdict, verdict_word = "green", "All systems go"
 
+    try:
+        metrics_block = metrics.snapshot(db)
+    except Exception:
+        metrics_block = None
+
     return {
         "generated_at": now, "verdict": verdict, "verdict_word": verdict_word,
         "jobs": jobs, "reds": reds, "yellows": yellows,
         "sources": {"total": total_sources, "contributing": contributing,
                     "never": never, "regressed": regressed,
                     "regressed_examples": regressed_examples},
+        "metrics": metrics_block,
     }
 
 
@@ -132,6 +138,54 @@ def _fmt_ago(hrs) -> str:
     if hrs < 48:
         return f"{hrs:.0f}h ago"
     return f"{hrs / 24:.1f}d ago"
+
+
+def _delta_cell(d, is_value: bool) -> str:
+    """A single trend cell: colored signed delta (green up / red down / grey flat / '—' n/a)."""
+    if d is None:
+        return "<td style='padding:6px 8px;border-bottom:1px solid #f0f0f0;color:#ccc;text-align:right'>—</td>"
+    if is_value:
+        txt = ("+" if d >= 0 else "−") + f"${abs(d):,.0f}"
+    else:
+        txt = ("+" if d >= 0 else "−") + f"{abs(int(round(d))):,}"
+    if abs(d) < 0.5:
+        color, txt = "#bbb", "0"
+    else:
+        color = "#2e7d32" if d > 0 else "#c0392b"
+    return (f"<td style='padding:6px 8px;border-bottom:1px solid #f0f0f0;"
+            f"color:{color};text-align:right;font-variant-numeric:tabular-nums'>{txt}</td>")
+
+
+def render_metrics(m: dict | None) -> str:
+    if not m or not m.get("metrics"):
+        return ""
+    wins = m["windows"]  # [("1d",1),...]
+    head = "".join(f"<th style='padding:0 8px 6px;text-align:right;color:#999;font-size:11px'>{k}</th>"
+                   for k, _ in wins)
+    rows = ""
+    for it in m["metrics"]:
+        is_val = it["kind"] == "value"
+        now = it["now"]
+        nowtxt = it.get("fmt", "{:,.0f}").format(now) if is_val else f"{int(now):,}"
+        cells = "".join(_delta_cell(it["deltas"].get(k), is_val) for k, _ in wins)
+        rows += (
+            f"<tr>"
+            f"<td style='padding:6px 8px;border-bottom:1px solid #f0f0f0'>{it['label']}</td>"
+            f"<td style='padding:6px 8px;border-bottom:1px solid #f0f0f0;text-align:right;"
+            f"font-weight:700;font-variant-numeric:tabular-nums'>{nowtxt}</td>"
+            f"{cells}</tr>"
+        )
+    return (
+        f"<h3 style='font-size:14px;margin:22px 0 4px'>Platform metrics &mdash; totals &amp; trends</h3>"
+        f"<p style='font-size:11px;color:#999;margin:0 0 8px'>Each column is the change over that window "
+        f"(reconstructed from record timestamps). Windows longer than the platform's age show its whole "
+        f"lifetime so far.</p>"
+        f"<table style='width:100%;border-collapse:collapse;font-size:13px'>"
+        f"<thead><tr style='text-align:left;color:#999;font-size:11px'>"
+        f"<th style='padding:0 8px 6px'>MEASURE</th>"
+        f"<th style='padding:0 8px 6px;text-align:right'>TOTAL</th>{head}</tr></thead>"
+        f"<tbody>{rows}</tbody></table>"
+    )
 
 
 def render_html(report: dict, actions: list[str] | None = None) -> str:
@@ -192,6 +246,7 @@ def render_html(report: dict, actions: list[str] | None = None) -> str:
         f"<th style='padding:0 8px 6px'>SPIDER / JOB</th><th style='padding:0 8px 6px'>STATUS</th>"
         f"<th style='padding:0 8px 6px'>LAST RUN</th><th style='padding:0 8px 6px'>YIELD</th></tr></thead>"
         f"<tbody>{rows}</tbody></table>"
+        f"{render_metrics(report.get('metrics'))}"
         f"<h3 style='font-size:14px;margin:20px 0 4px'>Source fleet ({s['total']} spiders)</h3>"
         f"{src_bar}{regressed}{act}"
         f"<p style='font-size:11px;color:#aaa;margin-top:18px'>Generated {gen} · {_tank_name()} daily watchdog. "
