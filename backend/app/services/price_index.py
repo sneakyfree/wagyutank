@@ -3,12 +3,63 @@
 A defensible, ownable data product: nobody else publishes a live semen price
 index. `compute()` reads current listings; `snapshot()` (called by the daily job)
 records values so the ticker can show a real trend over time."""
+import re
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..models import AggregatedListing, PriceSnapshot, ProductType
+
+# --- price hygiene -----------------------------------------------------------
+# The Roundup crawl is high-volume and noisy: it scrapes ownership shares, bull
+# packages, embryo (ET) lots and prices in many currencies, all of which used to
+# pollute a naive mean and blow the semen index up to nonsense ($1,100+/straw).
+# The index now normalizes to USD, keeps only genuine per-straw prices, guards
+# outliers, and reports the MEDIAN (robust to the few that slip through).
+
+# Approximate FX to USD — a directional market gauge, not an FX desk. Refresh
+# occasionally; being off a few % never changes the story a median tells.
+_FX_USD = {"USD": 1.0, "EUR": 1.08, "GBP": 1.27, "AUD": 0.66, "CAD": 0.73,
+           "JPY": 0.0067, "NZD": 0.61, "BRL": 0.18, "MXN": 0.055, "ZAR": 0.055}
+
+# Markers that a "price" is NOT a single conventional straw: ownership shares,
+# "% interest", packages/lots, subscriptions, or embryo/IVF rows mislabeled semen.
+_NON_STRAW = re.compile(
+    r"interest|%|ownership|\bshare\b|package|\blot\b|\bflush\b|per\s*month|per\s*year|"
+    r"/mo\b|/yr\b|\bembryo|\bivf\b|\(et\)|embryo transfer|\bpair\b|\bpackage\b", re.I)
+
+_STRAW_CEILING_USD = 5000.0    # a single conventional straw above this is a mis-parse
+_EMBRYO_CEILING_USD = 60000.0  # embryos legitimately run high, but guard the wild ones
+
+
+def _to_usd(price, currency):
+    return price * _FX_USD.get((currency or "USD").strip().upper(), 1.0)
+
+
+def _median(xs):
+    xs = sorted(xs)
+    n = len(xs)
+    if not n:
+        return None
+    mid = n // 2
+    return xs[mid] if n % 2 else (xs[mid - 1] + xs[mid]) / 2
+
+
+def _clean_prices(rows, ceiling):
+    """rows: (price, currency, price_unit, title, animal_name). Returns clean USD list."""
+    out = []
+    for price, cur, unit, title, name in rows:
+        if not price or price <= 0:
+            continue
+        blob = " ".join(str(x or "") for x in (unit, title, name))
+        if _NON_STRAW.search(blob):
+            continue
+        usd = _to_usd(price, cur)
+        if usd <= 0 or usd > ceiling:
+            continue
+        out.append(round(usd, 2))
+    return out
 
 # Marquee sires people actually trade — matched by name fragment (case-insensitive).
 MARQUEE = [
@@ -39,17 +90,22 @@ def _semen_q(db: Session):
     )
 
 
+_SEMEN_COLS = (AggregatedListing.price, AggregatedListing.currency,
+               AggregatedListing.price_unit, AggregatedListing.title,
+               AggregatedListing.animal_name)
+
+
 def _sire_stats(db: Session, fragments: list[str]):
     q = _semen_q(db)
     clause = None
     for f in fragments:
         c = func.lower(AggregatedListing.animal_name).like(f"%{f}%")
         clause = c if clause is None else (clause | c)
-    rows = q.filter(clause).with_entities(AggregatedListing.price).all()
-    prices = [r[0] for r in rows if r[0]]
+    rows = q.filter(clause).with_entities(*_SEMEN_COLS).all()
+    prices = _clean_prices(rows, _STRAW_CEILING_USD)
     if not prices:
         return None
-    return {"count": len(prices), "avg": round(sum(prices) / len(prices), 2),
+    return {"count": len(prices), "avg": _median(prices),
             "min": round(min(prices), 2), "max": round(max(prices), 2)}
 
 
@@ -67,11 +123,14 @@ def _trend(db: Session, key: str, current_avg: float | None):
 
 
 def compute(db: Session) -> dict:
-    semen = [r[0] for r in _semen_q(db).with_entities(AggregatedListing.price).all() if r[0]]
-    embryo = [r[0] for r in db.query(AggregatedListing.price).filter(
-        AggregatedListing.status == "active", AggregatedListing.product_type == ProductType.EMBRYO,
-        AggregatedListing.price != None).all() if r[0]]  # noqa: E711
-    market_avg = round(sum(semen) / len(semen), 2) if semen else None
+    # Semen index: per-straw USD prices only, outliers guarded, reported as MEDIAN.
+    semen = _clean_prices(_semen_q(db).with_entities(*_SEMEN_COLS).all(), _STRAW_CEILING_USD)
+    embryo_rows = db.query(*_SEMEN_COLS).filter(
+        AggregatedListing.status == "active",
+        AggregatedListing.product_type == ProductType.EMBRYO,
+        AggregatedListing.price != None).all()  # noqa: E711
+    embryo = _clean_prices(embryo_rows, _EMBRYO_CEILING_USD)
+    market_avg = _median(semen)
 
     # Foundation-sire prices come from the CURATED reference table — NOT scrape
     # averages, which conflate a foundation bull with cheap namesake descendants
@@ -93,10 +152,12 @@ def compute(db: Session) -> dict:
         })
     return {
         "market": {
+            # semen_avg is the MEDIAN per-straw price in USD (robust to scrape outliers).
             "semen_avg": market_avg, "semen_min": round(min(semen), 2) if semen else None,
             "semen_max": round(max(semen), 2) if semen else None, "semen_count": len(semen),
-            "embryo_avg": round(sum(embryo) / len(embryo), 2) if embryo else None,
-            "embryo_count": len(embryo),
+            "semen_mean": round(sum(semen) / len(semen), 2) if semen else None,
+            "embryo_avg": _median(embryo), "embryo_count": len(embryo),
+            "currency": "USD", "basis": "median per straw",
             "trend": _trend(db, "market:semen", market_avg),
         },
         "sires": sires,
