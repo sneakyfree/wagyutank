@@ -432,6 +432,39 @@ def _extract(text: str, source_url: str) -> list[dict]:
     return data
 
 
+# Strong textual signals used to CORRECT the LLM's product_type at ingest. The
+# crawl is high-volume and the model routinely mislabels embryo (ET) rows as semen
+# and lets ownership-share / "% interest" rows through as semen — which polluted
+# the price index and the Roundup product filters. This deterministic pass fixes
+# it at the source. Genetics tanks only; live/beef tanks keep their own logic.
+_RX_OWNERSHIP = re.compile(r"%\s*interest|percent interest|ownership|syndicate|"
+                           r"\bshares?\b|partnership interest|\bstud fee\b", re.I)
+_RX_EMBRYO = re.compile(r"\bembryos?\b|\bivf\b|\bivp\b|\(et\)|embryo transfer|"
+                        r"\bflush\b|\bimplant", re.I)
+_RX_CLONE = re.compile(r"\bclone|cloning|cell[- ]?line", re.I)
+_RX_SEMEN = re.compile(r"\bsemen\b|\bstraws?\b|ampoule|ampule|insemination|sexed|"
+                       r"conventional semen|\bai sire\b", re.I)
+
+
+def _refine_product(pt: str | None, text: str) -> ProductType | None:
+    """Deterministic correction of the LLM product_type for GENETICS tanks. Returns
+    a corrected ProductType, or None to REJECT the row (ownership shares / '%
+    interest' aren't a straw/embryo/clone product and don't belong in the Roundup)."""
+    base = _product(pt)
+    if not tank.has_family("genetics"):
+        return base  # live/beef tanks keep their own classification untouched
+    t = text or ""
+    if _RX_OWNERSHIP.search(t):
+        return None
+    if _RX_EMBRYO.search(t):
+        return ProductType.EMBRYO
+    if _RX_CLONE.search(t):
+        return ProductType.CLONE_RIGHTS
+    if _RX_SEMEN.search(t):
+        return ProductType.SEMEN
+    return base
+
+
 def _product(pt: str | None) -> ProductType | None:
     try:
         return ProductType((pt or "").strip().lower())
@@ -548,7 +581,8 @@ def _live_beef_fields(li: dict) -> dict:
 
 
 def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
-    product = _product(li.get("product_type"))
+    _sig = f"{li.get('title', '')} {li.get('animal_name', '')} {li.get('price_unit', '')} {li.get('quantity', '')}"
+    product = _refine_product(li.get("product_type"), _sig)
     if not product:
         return False
     animal = (li.get("animal_name") or "").strip() or None
