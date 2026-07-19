@@ -30,7 +30,9 @@ _NON_STRAW = re.compile(
     r"/mo\b|/yr\b|\bembryo|\bivf\b|\(et\)|embryo transfer|\bpair\b|\bpackage\b", re.I)
 
 _STRAW_CEILING_USD = 5000.0    # a single conventional straw above this is a mis-parse
+_STRAW_FLOOR_USD = 12.0        # below this is a deposit / shipping / per-something mis-parse
 _EMBRYO_CEILING_USD = 60000.0  # embryos legitimately run high, but guard the wild ones
+_EMBRYO_FLOOR_USD = 100.0
 
 
 def _to_usd(price, currency):
@@ -46,7 +48,7 @@ def _median(xs):
     return xs[mid] if n % 2 else (xs[mid - 1] + xs[mid]) / 2
 
 
-def _clean_prices(rows, ceiling):
+def _clean_prices(rows, ceiling, floor=0.0):
     """rows: (price, currency, price_unit, title, animal_name). Returns clean USD list."""
     out = []
     for price, cur, unit, title, name in rows:
@@ -56,7 +58,7 @@ def _clean_prices(rows, ceiling):
         if _NON_STRAW.search(blob):
             continue
         usd = _to_usd(price, cur)
-        if usd <= 0 or usd > ceiling:
+        if usd < floor or usd > ceiling:
             continue
         out.append(round(usd, 2))
     return out
@@ -102,7 +104,7 @@ def _sire_stats(db: Session, fragments: list[str]):
         c = func.lower(AggregatedListing.animal_name).like(f"%{f}%")
         clause = c if clause is None else (clause | c)
     rows = q.filter(clause).with_entities(*_SEMEN_COLS).all()
-    prices = _clean_prices(rows, _STRAW_CEILING_USD)
+    prices = _clean_prices(rows, _STRAW_CEILING_USD, _STRAW_FLOOR_USD)
     if not prices:
         return None
     return {"count": len(prices), "avg": _median(prices),
@@ -124,12 +126,12 @@ def _trend(db: Session, key: str, current_avg: float | None):
 
 def compute(db: Session) -> dict:
     # Semen index: per-straw USD prices only, outliers guarded, reported as MEDIAN.
-    semen = _clean_prices(_semen_q(db).with_entities(*_SEMEN_COLS).all(), _STRAW_CEILING_USD)
+    semen = _clean_prices(_semen_q(db).with_entities(*_SEMEN_COLS).all(), _STRAW_CEILING_USD, _STRAW_FLOOR_USD)
     embryo_rows = db.query(*_SEMEN_COLS).filter(
         AggregatedListing.status == "active",
         AggregatedListing.product_type == ProductType.EMBRYO,
         AggregatedListing.price != None).all()  # noqa: E711
-    embryo = _clean_prices(embryo_rows, _EMBRYO_CEILING_USD)
+    embryo = _clean_prices(embryo_rows, _EMBRYO_CEILING_USD, _EMBRYO_FLOOR_USD)
     market_avg = _median(semen)
 
     # Foundation-sire prices come from the CURATED reference table — NOT scrape
