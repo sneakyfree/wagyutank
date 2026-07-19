@@ -23,11 +23,14 @@ from ..models import AggregatedListing, PriceSnapshot, ProductType
 _FX_USD = {"USD": 1.0, "EUR": 1.08, "GBP": 1.27, "AUD": 0.66, "CAD": 0.73,
            "JPY": 0.0067, "NZD": 0.61, "BRL": 0.18, "MXN": 0.055, "ZAR": 0.055}
 
-# Markers that a "price" is NOT a single conventional straw: ownership shares,
-# "% interest", packages/lots, subscriptions, or embryo/IVF rows mislabeled semen.
-_NON_STRAW = re.compile(
+# A "price" that is NOT a single sellable unit of ANY genetics product: ownership
+# shares, "% interest", packages/lots, or subscriptions.
+_NON_UNIT = re.compile(
     r"interest|%|ownership|\bshare\b|package|\blot\b|\bflush\b|per\s*month|per\s*year|"
-    r"/mo\b|/yr\b|\bembryo|\bivf\b|\(et\)|embryo transfer|\bpair\b|\bpackage\b", re.I)
+    r"/mo\b|/yr\b|\bpair\b", re.I)
+# Embryo/IVF markers — reject these from the SEMEN index only (they belong to the
+# embryo index). Passing reject_embryo=True to _clean_prices applies this.
+_EMBRYO_MARK = re.compile(r"\bembryos?\b|\bivf\b|\bivp\b|\(et\)|embryo transfer|implant", re.I)
 
 _STRAW_CEILING_USD = 5000.0    # a single conventional straw above this is a mis-parse
 _STRAW_FLOOR_USD = 12.0        # below this is a deposit / shipping / per-something mis-parse
@@ -48,14 +51,17 @@ def _median(xs):
     return xs[mid] if n % 2 else (xs[mid - 1] + xs[mid]) / 2
 
 
-def _clean_prices(rows, ceiling, floor=0.0):
-    """rows: (price, currency, price_unit, title, animal_name). Returns clean USD list."""
+def _clean_prices(rows, ceiling, floor=0.0, reject_embryo=False):
+    """rows: (price, currency, price_unit, title, animal_name). Returns clean USD list.
+    reject_embryo drops embryo/ET rows (used for the semen index, not the embryo one)."""
     out = []
     for price, cur, unit, title, name in rows:
         if not price or price <= 0:
             continue
         blob = " ".join(str(x or "") for x in (unit, title, name))
-        if _NON_STRAW.search(blob):
+        if _NON_UNIT.search(blob):
+            continue
+        if reject_embryo and _EMBRYO_MARK.search(blob):
             continue
         usd = _to_usd(price, cur)
         if usd < floor or usd > ceiling:
@@ -104,7 +110,7 @@ def _sire_stats(db: Session, fragments: list[str]):
         c = func.lower(AggregatedListing.animal_name).like(f"%{f}%")
         clause = c if clause is None else (clause | c)
     rows = q.filter(clause).with_entities(*_SEMEN_COLS).all()
-    prices = _clean_prices(rows, _STRAW_CEILING_USD, _STRAW_FLOOR_USD)
+    prices = _clean_prices(rows, _STRAW_CEILING_USD, _STRAW_FLOOR_USD, reject_embryo=True)
     if not prices:
         return None
     return {"count": len(prices), "avg": _median(prices),
@@ -126,7 +132,7 @@ def _trend(db: Session, key: str, current_avg: float | None):
 
 def compute(db: Session) -> dict:
     # Semen index: per-straw USD prices only, outliers guarded, reported as MEDIAN.
-    semen = _clean_prices(_semen_q(db).with_entities(*_SEMEN_COLS).all(), _STRAW_CEILING_USD, _STRAW_FLOOR_USD)
+    semen = _clean_prices(_semen_q(db).with_entities(*_SEMEN_COLS).all(), _STRAW_CEILING_USD, _STRAW_FLOOR_USD, reject_embryo=True)
     embryo_rows = db.query(*_SEMEN_COLS).filter(
         AggregatedListing.status == "active",
         AggregatedListing.product_type == ProductType.EMBRYO,
