@@ -8,14 +8,24 @@ import sys
 from .. import models  # noqa: F401
 from ..config import settings
 from ..db import Base, SessionLocal, engine
-from ..models import Campaign, User
+from ..models import Campaign, Subscriber, User
 from ..security import create_unsubscribe_token
 from ..services import digest, email as mail, settings_store
 
-def _subject() -> str:
+def _subject(db=None, lang: str = "en") -> str:
+    """The masthead. Kept in English even on translated editions — it is the
+    publication's name, and a consistent subject line is what makes the archive
+    searchable years later."""
     from .. import tank
     breed = (tank.brand().get("breed") or "Wagyu").split(" & ")[0].strip()
-    return f"The State of the {breed} — this week from {tank.brand().get('name', 'WagyuTank')}"
+    return f"The State of the {breed} Weekly — {tank.brand().get('name', 'WagyuTank')}"
+
+
+def _archive_recipients() -> list[str]:
+    """Addresses that receive every edition regardless of subscriber list — the
+    permanent archive mailbox. Comma-separated admin setting."""
+    raw = settings_store.get("digest_archive_recipients", "") or ""
+    return [e.strip() for e in raw.split(",") if e.strip()]
 
 
 def _unsub(uid: int) -> str:
@@ -42,20 +52,50 @@ def main():
 
         users = db.query(User).filter(User.account_status == "active",
                                       User.marketing_opt_in == True).all()  # noqa: E712
+        subs = db.query(Subscriber).filter(Subscriber.status == "active").all()
+
+        # One body per language, built once and reused — translation is cached,
+        # so a six-language send is six short LLM calls, not six hundred.
+        def _unsub_sub(t: str) -> str:
+            from .. import tank
+            return f"{tank.api_base_url()}/api/newsletter/unsubscribe?token={t}"
+
+        recipients: list[tuple[str, str, str]] = []   # (email, lang, unsubscribe)
+        for u in users:
+            recipients.append((u.email, (u.newsletter_lang or "en"), _unsub(u.id)))
+        for sb in subs:
+            recipients.append((sb.email, sb.lang or "en", _unsub_sub(sb.token)))
+
+        bodies = {"en": body}
+        for _, lg, _u in recipients:
+            if lg not in bodies:
+                bodies[lg] = digest.build_body(db, lg)
+
+        messages = [{"to": em, "subject": _subject(),
+                     "html": mail.campaign_html(bodies.get(lg, body), un),
+                     "unsubscribe_url": un} for em, lg, un in recipients]
+
+        # Archive copies — every edition lands in the office mailbox forever.
+        for arch in _archive_recipients():
+            messages.append({"to": arch, "subject": _subject(),
+                             "html": mail.campaign_html(body, _unsub(0)),
+                             "unsubscribe_url": _unsub(0)})
+
         camp = Campaign(subject=_subject(), body_html=body, segment="all",
-                        recipients=len(users), status="sending")
+                        recipients=len(messages), status="sending")
         db.add(camp); db.commit()
-        messages = [{"to": u.email, "subject": _subject(),
-                     "html": mail.campaign_html(body, _unsub(u.id)),
-                     "unsubscribe_url": _unsub(u.id)} for u in users]
         from datetime import datetime, timezone
         from ..services import health
         t0 = datetime.now(timezone.utc).replace(tzinfo=None)
         sent = mail.send_bulk(messages)
         camp.sent = sent; camp.status = "sent"; db.commit()
         health.record_job(db, "digest", started=t0, ok=True, added=sent,
-                          detail={"recipients": len(users)})
-        print(f"Wagyu Wire: sent to {sent}/{len(users)} recipients (campaign {camp.id}).")
+                          detail={"recipients": len(messages),
+                                  "members": len(users), "subscribers": len(subs),
+                                  "languages": sorted(bodies)})
+        print(f"State of the Wagyu Weekly: sent {sent}/{len(messages)} "
+              f"({len(users)} members, {len(subs)} subscribers, "
+              f"langs {sorted(bodies)}, campaign {camp.id}).")
     finally:
         db.close()
 

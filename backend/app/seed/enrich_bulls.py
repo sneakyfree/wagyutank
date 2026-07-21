@@ -21,6 +21,12 @@ _NEW_COLUMNS = {
     "marbling_note": "TEXT",
     "photo_note": "VARCHAR(300)",
     "bred_outside_japan": "BOOLEAN DEFAULT 0",
+    "birth_country": "VARCHAR(2)",
+    "conceived_in_japan": "BOOLEAN DEFAULT 0",
+    "blend": "JSON",
+    "blend_group": "VARCHAR(2)",
+    "blend_total": "FLOAT",
+    "blend_source": "VARCHAR(120)",
 }
 
 
@@ -87,6 +93,12 @@ def main():
                 photo_url=photos[0] if photos else None,
                 photo_note=b.get("photo_note") or None,
                 bred_outside_japan=bool(b.get("bred_outside_japan")),
+                birth_country=b.get("birth_country") or None,
+                conceived_in_japan=bool(b.get("conceived_in_japan")),
+                blend=b.get("blend") or None,
+                blend_group=b.get("blend_group") or None,
+                blend_total=b.get("blend_total"),
+                blend_source=b.get("blend_source") or None,
                 source=AnimalSource.FOUNDATION,
                 confidence=b.get("confidence"),
             ))

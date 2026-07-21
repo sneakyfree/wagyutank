@@ -9,7 +9,7 @@ from .db import Base, engine, get_db
 from .routers import (
     admin, ads, aggregated, animals, auth, catalog, claim, config as config_router, discussions,
     events, facilities, listings,
-    canon, directory, feeding, help, market, news, orders, payments, sale_events, sales, search, users, videos, wantads, zenkyo,
+    canon, directory, feeding, help, market, news, newsletter, orders, payments, sale_events, sales, search, users, videos, wantads, zenkyo,
 )
 
 app = FastAPI(
@@ -45,6 +45,7 @@ def on_startup() -> None:
 
 
 app.include_router(auth.router)
+app.include_router(newsletter.router)
 app.include_router(users.router)
 app.include_router(animals.router)
 app.include_router(facilities.router)

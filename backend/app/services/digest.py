@@ -49,7 +49,33 @@ def _section(title, inner):
             f"color:{GOLD()};margin-bottom:10px'>{title}</div>{inner}</div>")
 
 
-def _news(db) -> str:
+
+def _t(db, text: str, lang: str) -> str:
+    """Prose only. Falls back to English on any failure — a translation outage
+    must never cost someone their newsletter."""
+    if not text or lang == "en":
+        return text
+    # Headings lead with an emoji the model tends to eat. Hold it back, translate
+    # the words, put it in front again — the mastheads stay visually identical
+    # across all six editions.
+    import re as _re
+    m = _re.match(r"^([^\w\s]+\s+)(.*)$", text, _re.UNICODE)
+    if m and m.group(2).strip():
+        return m.group(1) + _t(db, m.group(2), lang)
+    try:
+        from . import translate as _tr
+        out = (_tr.translate(db, text, lang) or "").strip()
+    except Exception:
+        return text
+    # Guard only against a gutted result (a heading reduced to punctuation), NOT
+    # against a merely shorter one — Japanese and Chinese render the same meaning
+    # in a fraction of the characters, and a length test rejects them wrongly.
+    if sum(c.isalnum() for c in out) < 2 and sum(c.isalnum() for c in text) >= 2:
+        return text
+    return out or text
+
+
+def _news(db, lang: str = "en") -> str:
     rows = (db.query(NewsArticle).filter(NewsArticle.status == "active")
             .order_by(NewsArticle.published_at.desc().nullslast(), NewsArticle.first_seen_at.desc())
             .limit(4).all())
@@ -62,10 +88,10 @@ def _news(db) -> str:
         f"<div style='color:#999;font-size:12px'>{flag.get(a.region,'🌍')} {a.source_name}"
         f"{' · 🌐 translated' if a.is_translated else ''}</div></div>"
         for a in rows)
-    return _section(f"📰 This week in {_breed()}", items)
+    return _section(_t(db, f"📰 This week in {_breed()}", lang), items)
 
 
-def _market(db) -> str:
+def _market(db, lang: str = "en") -> str:
     idx = price_index.compute(db)
     m = idx.get("market", {})
     if not m.get("semen_avg"):
@@ -81,10 +107,10 @@ def _market(db) -> str:
         + (f"<div style='color:#555;font-size:13px;margin-top:6px'>{sire_html}</div>" if sire_html else "")
         + (f"<div style='color:#555;font-size:13px;margin-top:6px'>Choice boxed beef cutout: <b>{_money(cut.value)}/cwt</b></div>" if cut and cut.value else "")
         + f"<a href='{BASE()}/market/' style='color:{GOLD()};font-size:13px;font-weight:700'>See the data center →</a></div>")
-    return _section("📈 Market pulse", inner)
+    return _section(_t(db, "📈 Market pulse", lang), inner)
 
 
-def _listings(db) -> str:
+def _listings(db, lang: str = "en") -> str:
     rows = (db.query(Listing).filter(Listing.status == ListingStatus.ACTIVE,
                                      Listing.is_sample == False)  # noqa: E712
             .order_by(Listing.created_at.desc()).limit(4).all())
@@ -95,10 +121,10 @@ def _listings(db) -> str:
         return (f"<a href='{BASE()}/listing/?id={li.id}' style='display:block;color:#1a1a1a;"
                 f"text-decoration:none;padding:8px 0;border-bottom:1px solid #eee'>"
                 f"<b style='font-size:14px'>{li.title}</b>{price}</a>")
-    return _section("🧬 Fresh on the marketplace", "".join(_row(li) for li in rows))
+    return _section(_t(db, "🧬 Fresh on the marketplace", lang), "".join(_row(li) for li in rows))
 
 
-def _record(db) -> str:
+def _record(db, lang: str = "en") -> str:
     s = (db.query(NotableSale).filter(NotableSale.is_record == True)  # noqa: E712
          .order_by(NotableSale.usd_approx.desc()).first())
     if not s:
@@ -107,10 +133,10 @@ def _record(db) -> str:
     price = f"{sym}{s.price/1e6:.0f}M" if s.currency == "JPY" else f"{sym}{s.price:,.0f}"
     inner = (f"<div style='font-size:15px'><b style='color:{GOLD()}'>{price}</b> {s.unit or ''} — {s.headline}</div>"
              f"<a href='{BASE()}/sales/' style='color:{GOLD()};font-size:13px;font-weight:700'>The Hall of Records →</a>")
-    return _section("🏆 From the record books", inner)
+    return _section(_t(db, "🏆 From the record books", lang), inner)
 
 
-def _editorial(db) -> str:
+def _editorial(db, lang: str = "en") -> str:
     """LLM-written 'State of the Wagyu' editor's letter from the week's data."""
     week_ago = utcnow() - timedelta(days=7)
     arts = (db.query(NewsArticle).filter(NewsArticle.status == "active")
@@ -152,12 +178,15 @@ def _editorial(db) -> str:
             continue
     if not letter or len(letter.strip()) < 80:
         return ""
+    letter = _t(db, letter, lang)
     paras = "".join(f"<p style='font-size:15px;color:#333;line-height:1.65;margin:0 0 14px'>{p.strip()}</p>"
                     for p in letter.split("\n\n") if p.strip())
-    return _section(f"🖋 The State of the {_breed()}", paras)
+    return _section(_t(db, f"🖋 The State of the {_breed()}", lang), paras)
 
 
-def build_body(db) -> str:
-    intro = (f"<p style='font-size:15px;color:#444'>Your weekly window into the world of {_breed()} — "
-             "the news, the market, and the genetics moving right now.</p>")
-    return intro + _editorial(db) + _news(db) + _market(db) + _listings(db) + _record(db)
+def build_body(db, lang: str = "en") -> str:
+    intro = _t(db, f"Your weekly window into the world of {_breed()} — "
+                   "the news, the market, and the genetics moving right now.", lang)
+    intro_html = f"<p style='font-size:15px;color:#444'>{intro}</p>"
+    return (intro_html + _editorial(db, lang) + _news(db, lang) + _market(db, lang)
+            + _listings(db, lang) + _record(db, lang))

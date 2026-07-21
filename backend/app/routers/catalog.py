@@ -21,7 +21,49 @@ _DEFAULTS = {
 }
 
 
+def _auto_edition() -> dict:
+    """Derive the open edition from today's date.
+
+    Two editions a year, named for the calving program they serve rather than a
+    hemisphere — a Northern breeder ignores anything labelled "Southern", though
+    the fall book is exactly what an autumn-calving herd needs:
+      * Spring-Calving — entries close 1 Feb, mails March
+      * Fall-Calving   — entries close 1 Sep, mails October
+    Whichever deadline comes next is the one accepting entries. Derived rather
+    than stored, because a hand-set edition silently advertises a deadline that
+    lapsed months ago.
+    """
+    from datetime import date
+    today = date.today()
+    y = today.year
+    if today < date(y, 2, 1):
+        key = f"{y}-spring-calving"; label = "Spring-Calving Program Edition"
+        dl = date(y, 2, 1); mail = f"March {y}"
+    elif today < date(y, 9, 1):
+        key = f"{y}-fall-calving"; label = "Fall-Calving Program Edition"
+        dl = date(y, 9, 1); mail = f"October {y}"
+    else:
+        key = f"{y + 1}-spring-calving"; label = "Spring-Calving Program Edition"
+        dl = date(y + 1, 2, 1); mail = f"March {y + 1}"
+    return {
+        "catalog_edition_key": key,
+        "catalog_edition_label": f"{dl.year} {label}",
+        "catalog_deadline": f"{dl.strftime('%B')} {dl.day}, {dl.year}",
+        "catalog_mail_month": mail,
+        "catalog_submit_open": True,
+    }
+
+
 def _edition() -> dict:
+    """Admin settings still win when pinned, so an edition can be frozen or closed
+    by hand; otherwise the calendar decides."""
+    auto_on = str(settings_store.get("catalog_auto_edition", "true")).lower()
+    if auto_on in ("1", "true", "yes"):
+        ed = _auto_edition()
+        closed = settings_store.get("catalog_submit_open", None)
+        if closed is not None and str(closed).lower() in ("0", "false", "no"):
+            ed["catalog_submit_open"] = False
+        return ed
     return {k: settings_store.get(k, v) for k, v in _DEFAULTS.items()}
 
 

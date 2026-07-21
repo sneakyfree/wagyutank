@@ -15,15 +15,25 @@ def list_facilities(
     q: str | None = None,
     service: str | None = None,
     country: str | None = None,
+    has_logo: bool | None = None,
     limit: int = 25,
     db: Session = Depends(get_db),
 ):
-    """Typeahead directory. `q` matches the start of a facility name (e.g. 'Ha' -> Hawkeye)."""
+    """Typeahead directory. `q` matches the start of a facility name (e.g. 'Ha' -> Hawkeye).
+
+    Each row carries `logo_url` -- the mark captured from the facility's own site
+    by scripts/capture_ranch_marks.py -- or null when we found nothing usable.
+    `has_logo=true` narrows to the rows that have one, for card grids that would
+    look ragged with holes in them."""
     query = db.query(Facility)
     if q:
         query = query.filter(func.lower(Facility.name).like(f"{q.lower()}%"))
     if country:
         query = query.filter(Facility.country == country)
+    if has_logo is True:
+        query = query.filter(Facility.logo_url.isnot(None), Facility.logo_url != "")
+    elif has_logo is False:
+        query = query.filter((Facility.logo_url.is_(None)) | (Facility.logo_url == ""))
     rows = query.order_by(Facility.name).limit(min(limit, 100)).all()
     if service:
         rows = [f for f in rows if service in (f.services or [])]

@@ -16,14 +16,63 @@
  "AF6808": {
   "primary": "/foundation/AF6808.jpg",
   "gallery": [
-   {"src": "/foundation/AF6808-reeves.jpg", "caption": "Rare alternate photograph — from the wall of Washington-state Wagyu breeder Mr. Reeves"}
+   {
+    "src": "/foundation/AF6808-reeves.jpg",
+    "caption": "Rare alternate photograph — from the wall of Washington-state Wagyu breeder Mr. Reeves"
+   }
   ]
  },
  "FB16684": {
   "primary": "/foundation/FB16684.jpg",
   "gallery": [
-   {"src": "/foundation/FB16684-2.jpg", "caption": "TAJIMAX on pasture — Whitmer Cattle Co."},
-   {"src": "/foundation/FB16684-3.jpg", "caption": "TAJIMAX working cows at collection"}
+   {
+    "src": "/foundation/FB16684-2.jpg",
+    "caption": "TAJIMAX on pasture — Whitmer Cattle Co."
+   },
+   {
+    "src": "/foundation/FB16684-3.jpg",
+    "caption": "TAJIMAX working cows at collection"
+   }
+  ]
+ },
+ "Itohana 2": {
+  "primary": "/foundation/itohana-2.jpg"
+ },
+ "Shigefuku": "/foundation/shigefuku.jpg",
+ "Donarudo": "/foundation/donarudo.jpg",
+ "Kage": "/foundation/kage.jpg",
+ "SR Y13 Sanji": "/foundation/sr-y13-sanji.jpg",
+ "UKB Dia 6 Kitaseki": "/foundation/ukb-dia6-kitaseki.jpg",
+ "RSC Fuku-Yasu 2613": "/foundation/rsc-fukuyasu-2613.jpg",
+ "Bar R Sanjirou 44K": "/foundation/bar-r-sanjirou-44k.jpg",
+ "Z278 Hirashigetayasu": "/foundation/z278-hirashigetayasu.jpg",
+ "Kalanga Red Star C402": "/foundation/kalanga-red-star-c402.jpg",
+ "UKB Mr. Ume Homaru": "/foundation/ukb-mr-ume-homaru.jpg",
+ "FB2100": {
+  "primary": "/foundation/FB2100.jpg",
+  "gallery": [
+   {
+    "src": "/foundation/FB2100-primevalley.jpg",
+    "caption": "Alternate portrait — Prime Valley Farms"
+   }
+  ]
+ },
+ "FB2102": {
+  "primary": "/foundation/FB2102.jpg",
+  "gallery": [
+   {
+    "src": "/foundation/FB2102-vbarv.jpg",
+    "caption": "Alternate portrait — V-Bar-V Semen Services Fall 2009 Sire Directory"
+   }
+  ]
+ },
+ "005 Shigefuku 13M": {
+  "primary": "/foundation/shigefuku-005.jpg",
+  "gallery": [
+   {
+    "src": "/foundation/shigefuku-005-son.jpg",
+    "caption": "A son of 005 Shigefuku 13M — V-Bar-V Semen Services Fall 2009 Sire Directory"
+   }
   ]
  }
 }

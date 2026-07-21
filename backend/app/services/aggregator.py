@@ -300,9 +300,151 @@ def _shopify_products(base_url: str) -> list[dict] | None:
                 "location": None, "country": country, "css_status": "unknown", "export_regions": [],
                 "_url": f"{root}/products/{pr.get('handle')}",
                 "_updated_at": _parse_date(pr.get("updated_at")), "_date_type": "shopify",
+                # Shopify hands us the product's own gallery — the most reliable
+                # animal photo available anywhere in the pipeline.
+                "_images": [{"url": im.get("src")} for im in (pr.get("images") or [])[:2]
+                            if im.get("src")],
             })
         time.sleep(1)
     return listings
+
+
+def _abs_img(src: str, base_url: str) -> str | None:
+    src = (src or "").strip()
+    if not src or src.startswith("data:"):
+        return None
+    if src.startswith("//"):
+        src = "https:" + src
+    elif src.startswith("/"):
+        src = urljoin(base_url, src)
+    elif not src.startswith("http"):
+        src = urljoin(base_url, src)
+    return src if src.startswith("http") else None
+
+
+# Sprites, badges, payment icons and social chrome — never the animal.
+_IMG_JUNK = re.compile(
+    r"(logo|icon|sprite|badge|banner|placeholder|avatar|favicon|pixel|spacer|"
+    r"paypal|visa|mastercard|stripe|facebook|instagram|twitter|youtube|cart|"
+    r"arrow|chevron|loader|spinner|1x1|blank|header|screenshot)", re.I)
+
+
+def _is_site_branding(url: str, base_url: str) -> bool:
+    """True when the file is named after the seller -- wagyugenes.com serving
+    'Wagyu-Genes.png' is showing us its own wordmark, not one of its bulls."""
+    label = urlparse(base_url).netloc.lower().removeprefix("www.").split(".")[0]
+    label = re.sub(r"[^a-z0-9]", "", label)
+    stem = url.rsplit("/", 1)[-1].rsplit(".", 1)[0].lower()
+    stem = re.sub(r"[-_]\d+x\d+$", "", stem)      # WordPress size suffix
+    fname = re.sub(r"[^a-z0-9]", "", stem)
+    # Only when the filename is essentially JUST the seller's name. A photo
+    # called 'z6cattle-yujirou.jpg' is still a photograph of Yujirou.
+    return len(label) > 4 and label in fname and len(fname) - len(label) <= 3
+
+
+def _page_images(html: str, base_url: str, limit: int = 2) -> list[dict]:
+    """The listing's own photographs, as URLs on the seller's server.
+
+    Open Graph first (a product page's og:image is the thing being sold), then
+    reasonable inline images. Returns [{"url": ...}] — no label, because from
+    HTML alone we cannot honestly say which animal a photo shows.
+    """
+    out: list[str] = []
+
+    for m in re.finditer(
+            r'<meta[^>]+(?:property|name)=["\']og:image(?::secure_url)?["\'][^>]*content=["\']([^"\']+)',
+            html, re.I):
+        u = _abs_img(m.group(1), base_url)
+        # A site whose og:image is its own logo would otherwise have that logo
+        # presented as a photograph of the animal.
+        if u and u not in out and not _IMG_JUNK.search(u) and not _is_site_branding(u, base_url):
+            out.append(u)
+
+    if len(out) < limit:
+        for m in re.finditer(r'<img[^>]+?src=["\']([^"\']+)["\']', html, re.I):
+            raw = m.group(1)
+            if _IMG_JUNK.search(raw):
+                continue
+            u = _abs_img(raw, base_url)
+            if not u or u in out:
+                continue
+            if not re.search(r"\.(jpe?g|png|webp)(\?|$)", u, re.I):
+                continue
+            if _is_site_branding(u, base_url):
+                continue
+            out.append(u)
+            if len(out) >= limit * 3:
+                break
+
+    return [{"url": u} for u in out[:limit]]
+
+
+_A_TAG = re.compile(r"""<a[^>]+href=["']([^"']+)["'][^>]*>(.*?)</a>""", re.I | re.S)
+_IMG_EXT = re.compile(r"\.(jpe?g|png|webp)(\?|$)", re.I)
+# WooCommerce/Shopify/Squarespace all shape a single product's URL this way.
+_PRODUCT_PATH = re.compile(r"/(product|products|listing|item|shop)/[^/]", re.I)
+# How many product pages we will open per source in one run, so adding photos
+# never turns a polite crawl into a hammering.
+# Kept small on purpose: in testing, every photo this rule actually won came
+# from a link that WAS the image (free). Opening product pages is the unproven
+# half, so it stays a bounded trial rather than a per-listing fetch storm.
+_PRODUCT_FETCH_BUDGET = 6
+
+
+def _name_tokens(name: str) -> list[str]:
+    """The words of an animal's name distinctive enough to match a link on.
+
+    Short fragments ('ET', 'JR', '2') match half a page, so they are dropped --
+    if nothing distinctive is left we would rather match nothing at all.
+    """
+    return [t for t in re.split(r"[^a-z0-9]+", (name or "").lower()) if len(t) > 3]
+
+
+def _named_anchor_images(html: str, base_url: str, listings: list[dict],
+                         fetch_budget: int = _PRODUCT_FETCH_BUDGET) -> None:
+    """Attach `_images` to listings the page links to by name. Mutates in place."""
+    site = urlparse(base_url).netloc.lower().removeprefix("www.")
+    anchors = []
+    for href, inner in _A_TAG.findall(html or ""):
+        if href.lower().startswith(("mailto:", "tel:", "javascript:")):
+            continue
+        absu = _abs_img(href, base_url)
+        if not absu:
+            continue
+        if urlparse(absu).netloc.lower().removeprefix("www.") != site:
+            continue  # a link out to a registry is not the seller's photograph
+        text = re.sub(r"<[^>]+>", " ", inner)
+        anchors.append((absu, f"{absu} {text}".lower()))
+    if not anchors:
+        return
+
+    spent = 0
+    for li in listings:
+        if li.get("_images"):
+            continue
+        toks = _name_tokens(li.get("animal_name") or "")
+        if not toks:
+            continue
+        hits = [u for u, hay in anchors if all(t in hay for t in toks)]
+        # Distinct targets only: two links to the same page are one match.
+        hits = list(dict.fromkeys(hits))
+        if len(hits) != 1:
+            continue  # nothing, or ambiguous -- either way, do not guess
+        target = hits[0]
+        if _IMG_EXT.search(target) and not _IMG_JUNK.search(target):
+            li["_images"] = [{"url": target}]          # the link IS the photo
+        elif _PRODUCT_PATH.search(target) and spent < fetch_budget:
+            spent += 1
+            try:
+                if not _robots_ok(target):
+                    continue
+                phtml, _ = _fetch(target)
+                time.sleep(1)
+                imgs = _page_images(phtml or "", target)
+                if imgs:
+                    li["_images"] = imgs
+            except Exception:  # noqa: BLE001 — a missing photo must never fail a crawl
+                pass
 
 
 def _pagination_links(html: str, base_url: str) -> list[str]:
@@ -616,6 +758,10 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         for f, v in lb.items():  # live/beef facts: backfill when the source now states them
             if v is not None and getattr(row, f) in (None, ""):
                 setattr(row, f, v)
+        # Photos: refresh whenever the source still offers them, so a seller who
+        # swaps or removes an image is reflected here on the next crawl.
+        if li.get("_images"):
+            row.listing_images = li["_images"]
         return False
     db.add(AggregatedListing(
         dedup_key=key, product_type=product,
@@ -632,6 +778,7 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         css_status=css, export_regions=regions,
         source_updated_at=updated_at, source_date_type=date_type,
         source_site=source_site, source_url=source_url,
+        listing_images=(li.get("_images") or []),
         first_seen_at=now, last_seen_at=now, status="active",
         **lb,  # live-cattle/beef facts (all None on genetics listings)
     ))
@@ -726,7 +873,19 @@ def _crawl_source(db, start_url: str, visited: set, budget: list) -> tuple[int, 
             if not html:
                 continue
             ok = True
-            for li in _extract(_html_to_text(html), url):
+            _page_li = _extract(_html_to_text(html), url)
+            # Only a single-listing page can have its photo attributed honestly.
+            # On a catalog page showing twelve bulls we cannot tell which image
+            # belongs to which listing, so we attach nothing rather than guess.
+            _imgs = _page_images(html, url) if len(_page_li) == 1 else []
+            if _imgs:
+                for li in _page_li:
+                    li["_images"] = _imgs
+            else:
+                # A catalog page: the only honest association is a link that
+                # names the animal itself.
+                _named_anchor_images(html, url, _page_li)
+            for li in _page_li:
                 seen += 1
                 # freshness: prefer a date stated in the ad, else the page's Last-Modified
                 if not li.get("_updated_at") and last_mod:
@@ -789,6 +948,48 @@ def ingest_rendered_pages(db, pages: list[dict]) -> dict:
     return {"pages": len(pages), "seen": seen, "added": added, "sites": len(touched_sites)}
 
 
+# An image reused across this many of a seller's listings is site furniture (a
+# header photo, a stock banner) even when we cannot tell the animals apart.
+_CHROME_REUSE = 3
+
+
+def _drop_site_chrome(db) -> int:
+    """Clear images that repeat across a seller's listings.
+
+    A photograph of a specific bull appears on that bull's listing. An image that
+    turns up on four of a seller's listings is their page header, and captioning
+    it as the animal would be a small lie told at scale. Cleared, not hidden, so
+    the next crawl can pick up a real photo if the seller adds one.
+    """
+    from collections import defaultdict
+    rows = db.query(AggregatedListing).filter(
+        AggregatedListing.status == "active").all()
+    uses: dict[tuple[str, str], int] = defaultdict(int)
+    animals: dict[tuple[str, str], set] = defaultdict(set)
+    for r in rows:
+        for u in {im.get("url") for im in (r.listing_images or []) if isinstance(im, dict)}:
+            if u:
+                uses[(r.source_site, u)] += 1
+                animals[(r.source_site, u)].add((r.animal_name or "").strip().lower())
+    # One photograph across two listings for the SAME sire is legitimate -- his
+    # semen lot and his embryo lot both picture him. The same photograph across
+    # two DIFFERENT animals cannot be a photograph of either.
+    banned = {k for k, n in uses.items()
+              if n >= _CHROME_REUSE or len(animals[k] - {""}) > 1}
+    if not banned:
+        return 0
+    cleared = 0
+    for r in rows:
+        imgs = r.listing_images or []
+        keep = [im for im in imgs
+                if isinstance(im, dict) and (r.source_site, im.get("url")) not in banned]
+        if len(keep) != len(imgs):
+            r.listing_images = keep
+            cleared += 1
+    db.commit()
+    return cleared
+
+
 def run(db, sources: list[str] | None = None, delist: bool = True,
         discover: bool = True, max_sources: int = 70,
         page_budget: int = DEFAULT_PAGE_BUDGET) -> dict:
@@ -846,5 +1047,11 @@ def run(db, sources: list[str] | None = None, delist: bool = True,
             row.status = "delisted"
             delisted += 1
         db.commit()
+    chrome_cleared = 0
+    try:
+        chrome_cleared = _drop_site_chrome(db)
+    except Exception:  # noqa: BLE001 — a photo cleanup must never fail the crawl
+        pass
     return {"sources": len(srcs), "discovered": discovered, "ok_sites": len(ok_sites),
-            "pages": pages, "seen": seen, "added": added, "delisted": delisted}
+            "pages": pages, "seen": seen, "added": added, "delisted": delisted,
+            "chrome_cleared": chrome_cleared}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from .models import (
     ProductType,
@@ -78,6 +78,8 @@ class FacilityOut(BaseModel):
     export_qualified: bool
     website: str
     notes: str
+    logo_url: str | None = None
+    logo_captured_at: datetime | None = None
 
 
 class FacilityCreate(BaseModel):
@@ -115,6 +117,13 @@ class AnimalOut(BaseModel):
     registry: str | None
     importer: str | None
     prefecture: str | None = None
+    import_year: int | None = None
+    birth_country: str | None = None
+    conceived_in_japan: bool = False
+    blend: dict | None = None
+    blend_group: str | None = None
+    blend_total: float | None = None
+    blend_source: str | None = None
     is_foundation: bool
     is_legend: bool = False
     notable: str | None
@@ -343,8 +352,18 @@ class AggregatedOut(BaseModel):
     css_status: str = "unknown"
     export_regions: list = []
     source_site: str
+    # Hotlinked seller photographs — [{"url": str}]. The browser loads these
+    # from the seller's own server; we never copy the file.
+    listing_images: list = []
     outbound_clicks: int
     first_seen_at: datetime
     last_seen_at: datetime
     source_updated_at: datetime | None = None
     source_date_type: str | None = None
+
+    @field_validator("listing_images", mode="before")
+    @classmethod
+    def _no_images_is_empty(cls, v):
+        # Rows that predate the column read back as NULL from SQLite; that means
+        # "no photographs", not a malformed row.
+        return v or []

@@ -122,6 +122,7 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(String(32))
     recovery_email: Mapped[str | None] = mapped_column(String(255))
     marketing_opt_in: Mapped[bool] = mapped_column(Boolean, default=True)
+    newsletter_lang: Mapped[str | None] = mapped_column(String(5))
 
     # Two-factor (TOTP)
     totp_secret: Mapped[str | None] = mapped_column(String(64))
@@ -174,6 +175,10 @@ class Facility(Base):
     website: Mapped[str] = mapped_column(String(300), default="")
     notes: Mapped[str] = mapped_column(Text, default="")
     seller_added: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Captured visual mark (logo / hero clip) from the facility website.
+    # Populated by scripts/capture_ranch_marks.py; NULL when nothing usable was found.
+    logo_url: Mapped[str | None] = mapped_column(String(500))
+    logo_captured_at: Mapped[datetime | None] = mapped_column(DateTime)
 
 
 # ---------------------------------------------------------------------------
@@ -204,6 +209,17 @@ class Animal(Base):
     importer: Mapped[str | None] = mapped_column(String(160))
     import_year: Mapped[int | None] = mapped_column(Integer)
     prefecture: Mapped[str | None] = mapped_column(String(60))     # Japanese prefecture of origin
+    # ISO-2 country the animal was BORN in ("JP"/"US"/"AU"). Distinct from
+    # import_year/importer, which describe the shipment its genetics arrived on.
+    birth_country: Mapped[str | None] = mapped_column(String(2))
+    # Travelled in utero: conceived in Japan, born after the shipment landed.
+    conceived_in_japan: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Official 16/16 bloodline analysis: {"Tajima": 8, "Kedaka": 4, ...} in units
+    # out of 16, plus the A-D group letter and the source it was transcribed from.
+    blend: Mapped[dict | None] = mapped_column(JSON)
+    blend_group: Mapped[str | None] = mapped_column(String(2))
+    blend_total: Mapped[float | None] = mapped_column(Float)
+    blend_source: Mapped[str | None] = mapped_column(String(120))
     is_foundation: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     is_legend: Mapped[bool] = mapped_column(Boolean, default=False, index=True)  # encyclopedia great sire/dam (may not be exported)
     notable: Mapped[str | None] = mapped_column(Text)              # one-line significance
@@ -645,6 +661,21 @@ class Comment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 
+class Subscriber(Base):
+    """A newsletter reader who has NOT created an account. The weekly digest was
+    previously reachable only by registering, which put a sign-up wall in front of
+    the single best reason to visit."""
+    __tablename__ = "subscribers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    lang: Mapped[str] = mapped_column(String(5), default="en")
+    source: Mapped[str | None] = mapped_column(String(40))   # where they signed up
+    status: Mapped[str] = mapped_column(String(20), default="active", index=True)
+    token: Mapped[str] = mapped_column(String(64), index=True)  # one-click unsubscribe
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class PriceSnapshot(Base):
     """Daily snapshot of the Wagyu Genetics Price Index (from Roundup data), so the
     ticker can show a real trend over time."""
@@ -787,6 +818,11 @@ class AggregatedListing(Base):
 
     source_site: Mapped[str] = mapped_column(String(120), index=True)  # domain / name
     source_url: Mapped[str] = mapped_column(String(600))               # link back to original
+    # Seller photographs are HOTLINKED, never copied: we keep the URL and the
+    # browser loads it from their server. That honours the no-rehost rule above,
+    # keeps the credit and the traffic with them, and means a photo they change
+    # or pull disappears here too. [{"url": str, "label": str|None}]
+    listing_images: Mapped[list] = mapped_column(JSON, default=list)
 
     first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
