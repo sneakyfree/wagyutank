@@ -80,7 +80,11 @@ def browse(
     if product_type:
         query = query.filter(AggregatedListing.product_type == product_type)
     if bloodline:
-        query = query.filter(AggregatedListing.bloodline == bloodline)
+        # A dozen sellers type the same word a dozen ways. The facet chips merge
+        # those variants into one, so the filter has to match them all or the
+        # chip would promise a count it cannot deliver.
+        query = query.filter(func.lower(func.trim(AggregatedListing.bloodline))
+                             == bloodline.strip().lower())
     if region:
         query = query.filter(AggregatedListing.region == region.upper())
     if country:
