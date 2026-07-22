@@ -1,3 +1,5 @@
+import re
+
 from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
@@ -32,9 +34,14 @@ def find_animal(db: Session, reg_or_name: str) -> Animal | None:
     a = db.query(Animal).filter(func.lower(Animal.name) == key.lower()).first()
     if a:
         return a
-    # slug fallback — reg-less foundation animals are addressed by slugified name
+    # slug fallback — reg-less foundation animals are addressed by slugified name.
+    # Also match the slugified name of animals that HAVE a reg, so an old
+    # name-slug URL keeps working after a reg is backfilled (big-al -> AF11).
+    kslug = re.sub(r"[^a-z0-9]+", "-", key.lower()).strip("-")
     for cand in db.query(Animal).filter((Animal.is_foundation == True) | (Animal.is_legend == True)).all():  # noqa: E712
         if cand.slug.lower() == key.lower():
+            return cand
+        if kslug and re.sub(r"[^a-z0-9]+", "-", (cand.name or "").lower()).strip("-") == kslug:
             return cand
     # alias contains (JSON stored as text on SQLite) — best-effort
     return db.query(Animal).filter(Animal.aliases.contains(key)).first()

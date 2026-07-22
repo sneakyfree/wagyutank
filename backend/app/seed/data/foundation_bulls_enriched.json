@@ -1666,16 +1666,17 @@
     "notes": "Added 2026-07-21 after catching that these photos and this catalogue text had been wrongly attached to his sire, Shigefuku (ETJ 005). Birth country recorded as Australia on the strength of the Westholme dam and a sire that only ever reached Australia as semen — an inference, not a sourced fact; confirm before relying on it."
   },
   {
-    "registration_no": null,
+    "registration_no": "AF11",
     "name": "Big Al",
     "aliases": [
-      "Big Al (1994 Wood import group)"
+      "Big Al (1994 Wood import group)",
+      "Mitsuaki (registered name)"
     ],
     "animal_type": "bull",
     "breed": "Akaushi (Japanese Red)",
     "bloodline": "Kumamoto (Akaushi)",
     "bloodline_detail": "By the Japanese AI sire Dai 10 Mitsumaru out of the imported foundation cow Akiko — both sides Kumamoto Akaushi.",
-    "birth_year": null,
+    "birth_year": 1995,
     "importer": "Al & Marie Wood",
     "import_year": 1994,
     "prefecture": "Kumamoto",
