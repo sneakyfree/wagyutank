@@ -39,7 +39,7 @@ The story of Wagyu outside Japan begins not with a shipment of thousands but wit
 
 Decades later, at a Wagyu auction in April 2017, we recorded **Fred Hildebrandt** — the Texas rancher who came to own all four of the 1976 foundation bulls — telling the story in his own words. As far as we know, it is the only firsthand account of the 1976 import preserved on tape. Listen:
 
-!audio[Fred Hildebrandt on the 1976 Wagyu import — recorded April 22, 2017 (~21 min)](/history/hildebrandt-1976-import.m4a)
+!audio[Fred Hildebrandt on the 1976 Wagyu import — recorded April 22, 2017 (~21 min)](https://api.wagyutank.com/media/history/hildebrandt-1976-import.m4a)
 
 In Hildebrandt's telling: Morris Whitney, a real-estate man, went to Japan and was able to buy the bulls — Wagyu being a recognized national treasure — with the purchase bank-financed. He is emphatic on a detail the popular story gets wrong: the bulls **did not come through Mexico.** Blocked from direct U.S. import by USDA restrictions, they were held in island quarantine, then admitted into **Canada** (accepted for roughly five or six months), brought into **Montana**, and eventually down to **Texas**. And their true nature was settled at a blood-typing lab in **College Station**, where the chromosomes showed these cattle to be *neither Bos taurus nor Bos indicus, but a genetic breed all their own* — Wagyu.
 

@@ -147,12 +147,20 @@ def compute(db: Session) -> dict:
     refs = (db.query(FoundationReferencePrice)
             .filter(FoundationReferencePrice.semen_usd != None)  # noqa: E711
             .order_by(FoundationReferencePrice.semen_usd.desc()).all())
+    from ..models import Animal
     sires = []
     for r in refs:
         key = f"ref:{r.registration_no or r.sire}"
+        # Only emit a slug when a real profile exists to land on — a chip that
+        # links to a reg with no animal behind it is a guaranteed 404.
+        a = None
+        if r.registration_no:
+            a = db.query(Animal).filter(Animal.registration_no == r.registration_no).first()
+        if a is None:
+            a = db.query(Animal).filter(func.lower(Animal.name) == r.sire.lower()).first()
         sires.append({
             "sire": r.sire, "registration_no": r.registration_no,
-            "slug": r.registration_no or r.sire.lower().replace(" ", "-"),
+            "slug": a.slug if a else None,
             "avg": r.semen_usd, "min": r.semen_low, "max": r.semen_high,
             "embryo": r.embryo_usd, "as_of": r.as_of_year, "availability": r.availability,
             "confidence": r.confidence, "source": r.source_name, "verified": True,

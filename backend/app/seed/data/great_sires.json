@@ -1,822 +1,824 @@
 {
- "attribution": "This encyclopedia is WagyuTank's own reference work — written by our team to organize the documented facts of the Wagyu breed's genetic history: the sires and dams, their bloodlines, their records, and their place in the pedigrees of the world's herds. It is inspired by, and indebted to, the scholarship of Kenichi Ono, whose four-volume Japanese series Nihon Meigyu Hyakusen (日本名牛百選, \"100 Greatest Wagyu of Japan\", Nikugyu Shinposha, 1999–2012) remains the definitive record. Where we cite Ono's rankings, we cite them as the documented facts they are. We strongly encourage serious breeders to seek out Ono's original volumes — there is no substitute for the source.",
- "sires": [
-  {
-   "name": "Yasufuku",
-   "name_jp": "安福",
-   "reg": "J930",
-   "era": "born 1980",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": 1,
-   "epithet": "The most balanced sire ever measured",
-   "registry_reg": null,
-   "bio": "Widely regarded as the single greatest and most balanced Wagyu sire ever produced, Yasufuku J930 was born in Hyogo in 1980 and stands atop Kenichi Ono's ranking of the breed. In Japan's 2001 national sire evaluation his sons swept the highest marbling scores, and his bloodline overwhelmed the 9th Zenkyo (Tottori, 2007), where he sired one champion and was grandsire to two more. Only two of his sons were ever exported — Yasufuku Jr. and the lesser-used Kousyun — which makes his direct influence in Western herds scarce and prized. Descendant carcasses from his line have sold for tens of thousands of dollars at Japanese auction.",
-   "key_facts": [
-    "Kenichi Ono — ranked #1",
-    "Sired the top three marbling sires in Japan's 2001 evaluation",
-    "Only 2 sons exported"
-   ]
-  },
-  {
-   "name": "Dai 7 Itozakura",
-   "name_jp": "第7糸桜",
-   "reg": "J65",
-   "era": "born 1970",
-   "line": "Itozakura / Fujiyoshi",
-   "prefecture": "Shimane",
-   "ono_rank": 2,
-   "epithet": "The founder whose face went on a phone card",
-   "registry_reg": "FB3685",
-   "bio": "Born in Shimane in 1970 from the joining of a Fujiyoshi sire to a Tajima dam, Dai 7 Itozakura founded the modern Itozakura line — prized for frame, growth, and a famously gentle temperament, with marbling reported at several times that of his contemporaries. He became a national celebrity, his portrait issued on a Japanese telephone card. Ranked #2 by Kenichi Ono, he is a foundational ancestor of a whole branch of exported genetics: grandsire of the rare Itozurudoi TF151 and of Kitaguni Jr., and an ancestor of Kenhanafuji, Itomichi, and Kikuhana. His line brought size and growth to complement the concentrated marbling of the Tajima strain.",
-   "key_facts": [
-    "Kenichi Ono — ranked #2",
-    "Founder of the modern Itozakura line",
-    "Portrait issued on a Japanese phone card"
-   ]
-  },
-  {
-   "name": "Shigeshigenami",
-   "name_jp": "重重浪",
-   "reg": "10632",
-   "era": "born 1972",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": 4,
-   "epithet": "The marbling powerhouse behind Itoshigenami",
-   "registry_reg": null,
-   "bio": "A Tajima marbling powerhouse born in Hyogo in 1972, Shigeshigenami is ranked #4 by Kenichi Ono and was so commercially dominant that he sired roughly a third of all Wagyu calves in Miyagi Prefecture at his peak. His single exported son, Itoshigenami TF148, is considered one of the three most important bulls ever to leave Japan and a marbling cornerstone of Western fullblood herds. Through that one son, Shigeshigenami's influence on marbling outside Japan is difficult to overstate.",
-   "key_facts": [
-    "Kenichi Ono — ranked #4",
-    "Sired ~30% of Miyagi's Wagyu calves",
-    "Sire of Itoshigenami TF148"
-   ]
-  },
-  {
-   "name": "Kikutani",
-   "name_jp": "菊谷",
-   "reg": null,
-   "era": "born May 1980",
-   "line": "Fujiyoshi",
-   "prefecture": "Iwate (born Hyogo)",
-   "ono_rank": 6,
-   "epithet": "The pride of Iwate, Ono's number six",
-   "registry_reg": null,
-   "bio": "Kikutani is the foundation sire of Iwate Prefecture's Wagyu and sits at rank six in Kenichi Ono's canon. Born in May 1980 on a farm in Muraoka Town, Hyogo, he was bought as a yearling by an Iwate agricultural cooperative and became the pride of that prefecture's breeding program. His indirect progeny test in 1985 returned strong figures for daily gain, marbling and loin-eye area, and his offspring placed in the top three at Japan's National Beef Carcass Competition every year from 1989 through 1995. He is the sire of Fujitani and the maternal grandsire of Okutani, tying him into several exported lines. As a Fujiyoshi-influenced bull, he blended marbling with the growth Iwate breeders wanted.",
-   "key_facts": [
-    "Ono rank #6; foundation sire of Iwate Prefecture",
-    "Born Muraoka Town, Hyogo, May 1980; progeny top-3 at Nationals 1989-1995",
-    "Sire of Fujitani; maternal grandsire of Okutani"
-   ]
-  },
-  {
-   "name": "Monjiro",
-   "name_jp": "紋次郎",
-   "reg": "J11550",
-   "era": "born 1981",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": 7,
-   "epithet": "The sire behind Michifuku and Haruki 2",
-   "registry_reg": null,
-   "bio": "Born in 1981, Monjiro is ranked #7 by Kenichi Ono and holds a special place in the Western foundation story: he is the sire of both Michifuku and Haruki 2, two pillar bulls exported to the United States and Australia. At just one year old he earned a young-bull Honorable Prize at the 4th Zenkyo in Fukushima (1982) — the earliest documented show credential in the exported lineage. Prized for fine marbling and balanced, easy-calving progeny, he produced over 400,000 units of semen in his lifetime and stands as a direct ancestor of a large share of the world's fullblood herds.",
-   "key_facts": [
-    "Kenichi Ono — ranked #7",
-    "Honorable Prize, 4th Zenkyo (Fukushima 1982)",
-    "Sire of Michifuku and Haruki 2"
-   ]
-  },
-  {
-   "name": "Tanifuku Doi",
-   "name_jp": "谷福土井",
-   "reg": "J1606",
-   "era": "20th century",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": 11,
-   "epithet": "Called Japan's number-one Tajima sire",
-   "registry_reg": null,
-   "bio": "Tanifuku Doi is widely cited as the number-one Tajima sire in Japan and sits at rank eleven in Kenichi Ono's canon. A son of Yasutani Doi, he anchors the Tajima-Hyogo complex that gives Kobe and Tajima beef its marbling reputation. For breeders outside Japan his importance is almost entirely indirect: his only export-available line runs through his son Kikutsuru Doi TF146, bred over the famous Hyogo Cow. Detailed English-language records of his own progeny and career are thin, so much of his standing rests on his placement in Ono's first volume and on the quality of the descendants he left inside Japan. He remains a foundational reference point for pure Tajima marbling genetics.",
-   "key_facts": [
-    "Ono rank #11; called the #1 Tajima sire in Japan",
-    "Son of Yasutani Doi; part of the Tajima-Hyogo/Yasutani-Doi complex",
-    "Reaches export breeders only through his son Kikutsuru Doi TF146"
-   ]
-  },
-  {
-   "name": "Yasumi Doi",
-   "name_jp": "安美土",
-   "reg": "J10328",
-   "era": "foundational Tajima",
-   "line": "Tajima (Tajiri)",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "The blood behind nearly every great Tajima",
-   "registry_reg": null,
-   "bio": "One of the most famous Wagyu in Japan, Yasumi Doi is a foundational Tajima (Tajiri) sire prized for outstanding carcass quality and a gentle temperament. His importance is structural: the great Yasufuku J930 is linebred to him, and his name recurs throughout the exported foundation pedigrees, appearing multiple times behind Michifuku, Sanjirou, Fukutsuru 068, Itozurudoi, Yasufuku Jr. and others. He is arguably the single most concentrated Tajima influence underlying both Japan's modern show winners and the Western fullblood herd — a bull whose blood you carry whether you know it or not.",
-   "key_facts": [
-    "Foundational Tajima (Tajiri) sire",
-    "Yasufuku J930 is linebred to him",
-    "Recurs across the exported foundation pedigrees"
-   ]
-  },
-  {
-   "name": "Michifuku",
-   "name_jp": "美津福",
-   "reg": "FB1615",
-   "era": "born 1990s",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "The best carcass bull to leave Japan",
-   "registry_reg": "FB1615",
-   "bio": "Sired by Monjiro out of the cow Michiko, Michifuku is widely called the finest overall carcass bull ever exported from Japan, and once ranked #1 for marbling in the U.S. Wagyu Sire Summary. His pedigree stacks the elite Tajima names — Yasumi Doi appears twice — and in large F1 progeny tests his calves averaged exceptional daily gain with the overwhelming majority grading at the top of the marbling scale. He sired Sanjirou, and his descendants have commanded five-figure prices. For most Western breeders, Michifuku is where the modern fullblood story begins.",
-   "key_facts": [
-    "Once #1 marbling, U.S. Sire Summary",
-    "Sired by Monjiro; sire of Sanjirou",
-    "A pillar of Western fullblood herds"
-   ]
-  },
-  {
-   "name": "Itoshigenami",
-   "name_jp": "糸重浪",
-   "reg": "TF148",
-   "era": "exported",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "A marbling cornerstone of the West",
-   "registry_reg": "TF148",
-   "bio": "The only exported son of the #4-ranked Shigeshigenami, Itoshigenami TF148 is counted among the three most important bulls ever to leave Japan. A heavily proven terminal marbling sire, his straws remain in wide use and his descendants number in the thousands across Australia and North America. He is the bull most responsible for carrying the extreme Tajima marbling of the Shigeshigenami line into Western herds, and his name appears in a remarkable share of high-marbling pedigrees worldwide.",
-   "key_facts": [
-    "Son of Shigeshigenami",
-    "One of the top 3 bulls exported",
-    "5,000+ Australian registrations"
-   ]
-  },
-  {
-   "name": "Fukutsuru 068",
-   "name_jp": "福鶴068",
-   "reg": "FB2101",
-   "era": "exported",
-   "line": "Tajima (100%)",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "Sixteen straight years atop the marbling summary",
-   "registry_reg": "FB2101",
-   "bio": "A 100% Tajima foundation sire, Fukutsuru 068 topped Washington State University's marbling sire summaries continuously from 2001 to 2016 — an unmatched run. His pedigree traces twice to the celebrated 'Hyogo Cow' Kikutsuru and twice to Yasumi Doi, concentrating the purest Tajima marbling genetics available in the West. He remains a key reference sire for breeders chasing maximum intramuscular fat.",
-   "key_facts": [
-    "#1 marbling, WSU summaries 2001–2016",
-    "100% Tajima",
-    "Traces twice to Yasumi Doi"
-   ]
-  },
-  {
-   "name": "Kitaguni 7-8",
-   "name_jp": "北国7の8",
-   "reg": "J1530",
-   "era": "born 1990s",
-   "line": "Fujiyoshi / Itozakura",
-   "prefecture": "Shimane",
-   "ono_rank": null,
-   "epithet": "Sire of a Zenkyo Grand Champion",
-   "registry_reg": "FB2422",
-   "bio": "The most famous son of Dai 7 Itozakura, Kitaguni 7-8 sired the Grand Champion of the 7th Zenkyo (Iwate, 1997) and dominated Japan's national carcass competitions four years running. His own exported son, Kitaguni Jr., became a widely used outcross sire in the West, carrying the Dai 7 Itozakura package of frame, growth, and yield to breeders looking to balance concentrated Tajima marbling blood.",
-   "key_facts": [
-    "Sired the 7th Zenkyo (1997) Grand Champion",
-    "Won national carcass contests 1997–2000",
-    "Sire of the exported Kitaguni Jr."
-   ]
-  },
-  {
-   "name": "Itozurudoi",
-   "name_jp": "糸鶴土",
-   "reg": "TF151",
-   "era": "exported",
-   "line": "Tajima / Fujiyoshi / Kedaka",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "The rarest and most valuable of the exports",
-   "registry_reg": "FB3685",
-   "bio": "The rarest and most expensive of the exported foundation sires, and the only Wagyu bull cloned multiple times, Itozurudoi TF151 blends Tajima, Fujiyoshi and Kedaka blood — with Dai 7 Itozakura as grandsire and the foundational Yasumi Doi as maternal grandsire. By some accounts he outperformed even Michifuku across measured traits. His pedigree concentrates two of Japan's most decorated lines, making him a genetic bridge to that champion blood for the small number of Western programs able to access him.",
-   "key_facts": [
-    "Rarest exported foundation sire",
-    "Only Wagyu cloned multiple times",
-    "Grandsire Dai 7 Itozakura; MGS Yasumi Doi"
-   ],
-   "photo": "/foundation/TF151.jpg"
-  },
-  {
-   "name": "Kikuyasu-400",
-   "name_jp": "菊安400",
-   "reg": "FB2100",
-   "era": "exported",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "The largest Tajima ever to leave Japan",
-   "registry_reg": "FB2100",
-   "bio": "At roughly 1,980 pounds, Kikuyasu-400 was the largest, heaviest Tajima bull ever exported from Japan — a famed eye-muscle sire whose sire was credited with producing a grand-champion group at a Japanese national competition. He brought size and muscling to the Tajima strain, and his progeny have posted some of the highest marbling scores on record. His limited original inventory keeps genuine Kikuyasu-400 straws scarce and sought after.",
-   "key_facts": [
-    "~1,980 lb — largest Tajima exported",
-    "Renowned eye-muscle sire",
-    "Progeny graded at the top of the scale"
-   ]
-  },
-  {
-   "name": "Hirashigekatsu",
-   "name_jp": "平茂勝",
-   "reg": "Kagoshima",
-   "era": "born 1990",
-   "line": "Kedaka (non-Tajima)",
-   "prefecture": "Kagoshima",
-   "ono_rank": null,
-   "epithet": "The non-Tajima bull who won twice",
-   "registry_reg": null,
-   "bio": "Born in Kagoshima in 1990 from the Kedaka line, Hirashigekatsu is one of the rare multi-event Zenkyo champions — and remarkably, he did it from outside the marbling-famous Tajima strain. He took the Honor Prize at the 6th Zenkyo (Oita, 1992) with dominant results and added an excellence award at the 7th (Iwate, 1997), pioneering the 'quality and quantity in one' ideal. He lived 18 years and sired roughly 250,000–300,000 calves and over 300 breeding sons, including Miyazaki's celebrated Tadafuji.",
-   "key_facts": [
-    "Honor Prize, 6th Zenkyo (Oita 1992)",
-    "Excellence award, 7th Zenkyo (1997)",
-    "A rare non-Tajima (Kedaka) champion"
-   ]
-  },
-  {
-   "name": "Dai 20 Hirashige",
-   "name_jp": "第20平茂",
-   "reg": "J287",
-   "era": "Kedaka founder",
-   "line": "Kedaka",
-   "prefecture": "Tottori",
-   "ono_rank": null,
-   "epithet": "The Kedaka growth engine",
-   "registry_reg": "FB670",
-   "bio": "A Tottori Kedaka-line sire recognized for growth rate, meat quality, fine hair and loose skin, Dai 20 Hirashige was honored with Ikushu-Toroku, Japan's highest breeding registration. He anchors the Kedaka growth genetics that complement Tajima marbling. His exported son Hirashigetayasu carried the line abroad, and through his son Hirashigekatsu he is grandsire of the Miyazaki sire Tadafuji — placing him at the head of one of the most successful non-Tajima pedigrees in show history.",
-   "key_facts": [
-    "Awarded Ikushu-Toroku (top breeding honor)",
-    "Sire of exported Hirashigetayasu",
-    "Grandsire of Hirashigekatsu"
-   ]
-  },
-  {
-   "name": "Sanjirou",
-   "name_jp": "三次郎",
-   "reg": "FB2501",
-   "era": "exported",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "Michifuku's son, a carcass sire in his own right",
-   "registry_reg": "FB2501",
-   "bio": "Sired by Michifuku out of Suzutani — regarded by many as the best carcass female exported from Japan — Sanjirou is a linebred Yasumi Doi Tajima sire prized for large ribeye, thick rib and high yield. In large F1 tests his calves posted strong gain with the great majority grading at the top of the scale, and he placed third for marbling in the 2006 U.S. Sire Summary. He remains a heavily used carcass sire in Western fullblood and F1 programs.",
-   "key_facts": [
-    "Sire Michifuku; dam Suzutani",
-    "3rd marbling, 2006 U.S. Sire Summary",
-    "Linebred to Yasumi Doi"
-   ],
-   "photo": "/foundation/FB2501.jpg"
-  },
-  {
-   "name": "Kikutsuru Doi",
-   "name_jp": "菊鶴土井",
-   "reg": "TF146",
-   "era": "late 20th century",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "Small-framed pure Tajima marbling concentrator",
-   "registry_reg": "FB3615",
-   "bio": "Kikutsuru Doi is a small-framed, exceptionally high-marbling Tajima bull whose value lies in concentration rather than size. He is one of only two sons of Tanifuku Doi J1606 - widely called the number-one Tajima sire in Japan - available to breeders outside the country, and his dam side double-crosses the famous Hyogo Cow, Kikutsuru J978542, through her daughter Kikutsuru 8. That intense linebreeding on Yasutani Doi and Kuro Iku produces an inbreeding coefficient near twenty-four percent, and breeders deploy him deliberately to push marbling into larger, growthier herds. Exported as FB3615, he tests SCD AA with a mature weight around 1,320 pounds. His semen remains scarce and expensive, prized wherever fine marbling matters more than carcass weight.",
-   "key_facts": [
-    "Son of Tanifuku Doi J1606; double-crosses the Hyogo Cow via Kikutsuru 8",
-    "~24% inbreeding coefficient; ~1,320 lb mature weight; SCD AA",
-    "One of only two Tanifuku Doi sons available outside Japan"
-   ]
-  },
-  {
-   "name": "Kitateruyasudoi",
-   "name_jp": "北照安土井",
-   "reg": "J2810",
-   "era": "born March 1993",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "Westholme foundation bull, marbling with low birthweight",
-   "registry_reg": "FB686",
-   "bio": "Kitateruyasudoi is a linebred Kikuteru Doi bull and the only son of Terunaga Doi J1472 to leave Japan, exported as a four-year-old to become one of Chris Walker's three Westholme foundation sires. Born in Hyogo in March 1993, he combines a larger frame and a notably luxurious coat with the marbling depth of his Tajima ancestry, tracing to Yasumi Doi J10328 three separate times. In US Wagyu evaluations he has ranked around the fourth-best marbling sire while also sitting in the top two percent for low birth weight, a rare pairing that makes him useful on heifers. His progeny reach the A5 grade in Japan. An F11 carrier, he is otherwise free of the known genetic defects.",
-   "key_facts": [
-    "Born Hyogo March 1993; only Terunaga Doi J1472 son exported",
-    "One of three Westholme foundation bulls; ~4th-best US marbling sire",
-    "Traces Yasumi Doi J10328 three times; top 2% low birth weight; F11 carrier"
-   ]
-  },
-  {
-   "name": "Yasufuku Jr (World K's)",
-   "name_jp": "安福久",
-   "reg": "FB5061",
-   "era": "born 1990s",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "Yasufuku son carrying fine-marbling export line",
-   "registry_reg": "FB5061",
-   "bio": "In Western registries Yasufuku Jr is documented as a bull, not the celebrated dam his name sometimes suggests, and he carries forward the genetics of his sire, the legendary Yasufuku J930. Exported as FB5061, he traces Yasumi Doi J10328 three times, concentrating the Tajima marbling that made his father the most important sire in Japanese Black history. His progeny are known for very fine marbling paired with respectable growth, averaging daily gains near 1.9 pounds, and he has left many influential sons in the export herd as a dependable terminal marbling sire. He tests SCD AA. Note the naming overlap: in Japan the Yasufuku female line also produced famous dams, but the exported 'Yasufuku Jr' is a sire.",
-   "key_facts": [
-    "Son of Yasufuku J930; exported as FB5061 (a sire, not a dam)",
-    "Traces Yasumi Doi J10328 three times; progeny ADG ~1.9 lb",
-    "Very fine marbling; many influential export sons; SCD AA"
-   ]
-  },
-  {
-   "name": "Tajiri (Tajiri-go)",
-   "name_jp": "田尻号",
-   "reg": null,
-   "era": "born ~1939 (approximate)",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "Foundation bull of nearly all Japanese Black",
-   "registry_reg": null,
-   "bio": "Tajiri is the single foundation bull of the modern Tajima line and, through it, of most Japanese Black cattle alive today. Born in the remote Ojiro district of Kami in the mountains of northern Hyogo, he was discovered in an isolated pocket where centuries of closed breeding had preserved unusually consistent marbling and temperament. Over a working life of roughly fifteen years he sired more than 1,400 calves, and the National Wagyu Registry credits close to all Kuroge Washu in Japan with tracing back to him. Because Hyogo's cattle were bred in near-isolation, Tajiri became the concentrated source of the fine, evenly distributed marbling that later defined Kobe beef. His exact birth year is cited variously and should be treated as approximate.",
-   "key_facts": [
-    "Foundation Tajima sire from Ojiro, Kami, northern Hyogo",
-    "Sired 1,463 calves over a ~15-year working life",
-    "Nearly all Japanese Black cattle trace to him (National Wagyu Registry)"
-   ]
-  },
-  {
-   "name": "Dai 13 Hanayama",
-   "name_jp": "第十三花山",
-   "reg": null,
-   "era": "active c. 1922",
-   "line": "Fujiyoshi",
-   "prefecture": "Okayama",
-   "ono_rank": null,
-   "epithet": "Origin sire of the Okayama Fujiyoshi strain",
-   "registry_reg": null,
-   "bio": "Dai 13 Hanayama is the original founding sire of the Okayama Fujiyoshi line, the bloodline that would later supply frame, growth and maternal ability to the modern Itozakura cross. He won the ninth Chugoku regional Wagyu competition in 1922 and went on to sire roughly 780 offspring before dying at the age of thirteen. Japan's agriculture ministry designated him a foundation sire for national herd improvement, recognizing his large frame and strong marbling at a time when systematic Wagyu breeding was only beginning to be formalized. His genetics spread from Okayama into Shimane and beyond, seeding the Fujiyoshi strain that runs through Dai 6 Fujiyoshi, Dai 14 Shigeru and ultimately Dai 7 Itozakura. He stands at the headwaters of an entire line.",
-   "key_facts": [
-    "Won the 9th Chugoku Wagyu competition, 1922",
-    "Sired ~780 offspring; died at age 13",
-    "MAFF-designated foundation sire; origin of the Fujiyoshi strain"
-   ]
-  },
-  {
-   "name": "Dai 6 Fujiyoshi",
-   "name_jp": "第六藤良",
-   "reg": null,
-   "era": "mid-20th century",
-   "line": "Fujiyoshi",
-   "prefecture": "Okayama",
-   "ono_rank": null,
-   "epithet": "Namesake Fujiyoshi sire, grandfather of Itozakura",
-   "registry_reg": null,
-   "bio": "Dai 6 Fujiyoshi is the namesake foundation sire of the Fujiyoshi line, an Akebono-strain bull from Okayama valued for combining superior meat quality with strong growth and good milking ability. Descended ultimately from Dai 13 Hanayama, he sired five representative bulls, among them Dai 6 Fujimori, a key growth sire behind the Australian herd. His greatest historical importance, though, is as the grandfather of Dai 7 Itozakura, the bull that founded the modern Itozakura line by crossing Fujiyoshi frame and maternal traits onto Tajima marbling. Where pure Tajima bulls run small, Fujiyoshi genetics were the classic corrective, adding size and mothering ability, and Dai 6 sits at the center of that contribution. He corrects the common assumption that Fujiyoshi is a Tajima line: it is Okayama.",
-   "key_facts": [
-    "Namesake Fujiyoshi foundation sire; Akebono strain, Okayama (not Tajima)",
-    "Sired five representative bulls including Dai 6 Fujimori",
-    "Grandfather of Dai 7 Itozakura J65"
-   ]
-  },
-  {
-   "name": "Dai 14 Shigeru",
-   "name_jp": "第十四茂重",
-   "reg": null,
-   "era": "mid-20th century",
-   "line": "Fujiyoshi",
-   "prefecture": "Okayama",
-   "ono_rank": null,
-   "epithet": "Fujiyoshi sire of the founding Itozakura cross",
-   "registry_reg": null,
-   "bio": "Dai 14 Shigeru is the Fujiyoshi-line bull whose cross onto a Tajima dam created the modern Itozakura line. Bred from the Okayama Fujiyoshi genetics that traced back through Dai 6 Fujiyoshi to Dai 13 Hanayama, he was used in Shimane over the Tajima cow Dai 9 Itozakura, and their son Dai 7 Itozakura J65 became one of the most influential sires of the twentieth century. Dai 14 Shigeru's contribution was the Fujiyoshi package: larger frame, steady weight gain, docile temperament and the maternal traits that make good breeding females. Those characteristics carried forward through Dai 7 and into descendants such as Mitsuhikokura, giving the Fujiyoshi and Itozakura herds their reputation for growth and mothering ability.",
-   "key_facts": [
-    "Fujiyoshi sire; father of Dai 7 Itozakura J65",
-    "Used over Tajima dam Dai 9 Itozakura in Shimane",
-    "Contributed frame, growth, docility and maternal traits"
-   ]
-  },
-  {
-   "name": "Kitaguni Jr",
-   "name_jp": "北国 Jr",
-   "reg": "FB2422",
-   "era": "born 1994",
-   "line": "Itozakura",
-   "prefecture": "Shimane",
-   "ono_rank": null,
-   "epithet": "Balanced Itozakura outcross that adds frame",
-   "registry_reg": "FB2422",
-   "bio": "Kitaguni Jr is a balanced foundation sire built from the Itozakura line, out of the celebrated carcass bull Kitaguni 7-8 J1530 and a dam that made him a great-grandson of Dai 7 Itozakura. His pedigree is a deliberate blend - roughly thirty-seven percent Tajima with the balance drawn from Itozakura, Kedaka, Shimane and Okayama - and that mix shows in his progeny. Crossed onto Tajima heifers, his F1 calves gain frame and growth while still grading from Prime up through the highest marbling scores, which made him a popular outcross in North America and Australia. By 2019 he had several hundred registered progeny on each continent. Breeders reach for him when they want size added without losing carcass grade.",
-   "key_facts": [
-    "Son of Kitaguni 7-8 J1530; great-grandson of Dai 7 Itozakura",
-    "~37% Tajima; balance Itozakura/Kedaka/Shimane/Okayama",
-    "F1 calves add frame and growth while grading Prime and up"
-   ]
-  },
-  {
-   "name": "Kedaka",
-   "name_jp": "気高",
-   "reg": null,
-   "era": "born 1959",
-   "line": "Kedaka",
-   "prefecture": "Tottori",
-   "ono_rank": null,
-   "epithet": "Foundation bull of the Tottori Kedaka line",
-   "registry_reg": null,
-   "bio": "Kedaka is the foundation bull of the modern Kedaka, or Tottori, line and one of the pillars of twentieth-century Wagyu breeding. Born in Tottori in 1959, a grandson of the district sire Eiko and carrying Hyogo blood on his dam's side, he won first place for meat-production ability at the first National Japanese Beef Ability Competition, held in Okayama in 1966. He left more than nine thousand descendants, and roughly ninety percent of Tottori's Wagyu trace to him. The Kedaka line he founded is known for large frame, strong toplines, good growth and superior females - 'the Kedaka female is best' is a common breeder maxim. His most celebrated son, Dai 20 Hirashige, branched the influential Hirashige line directly off him.",
-   "key_facts": [
-    "Born Tottori 1959; won the 1st National Beef Ability Competition, 1966",
-    "Left 9,000+ descendants; ~90% of Tottori Wagyu trace to him",
-    "Sire of Dai 20 Hirashige; line noted for frame, growth, superior females"
-   ]
-  },
-  {
-   "name": "Takazakura",
-   "name_jp": "高桜",
-   "reg": "FB2892",
-   "era": "20th century",
-   "line": "Tajima",
-   "prefecture": "Japan",
-   "ono_rank": null,
-   "epithet": "Yasufuku-descended sire, once US number-four marbling",
-   "registry_reg": "FB2892",
-   "bio": "Takazakura is a Tajima-derived export sire that once ranked fourth in marbling in the United States, valued for pairing high carcass quality with sound growth and a calm disposition. Descending through Takaei 1412 with the great Yasufuku J930 as his grandsire, he transmits the marbling of the Tajima line reliably: about sixty-eight percent of his F1 progeny graded nine or better on the Australian marbling scale. He accumulated a couple hundred registered progeny in the United States and several hundred in Australia, testing SCD VA with a tenderness score of eight. Although sometimes grouped with the outcross lines, his genetic base is squarely Tajima through Yasufuku, and breeders used him wherever marbling was the priority.",
-   "key_facts": [
-    "Grandsire Yasufuku J930 (via Takaei 1412); Tajima base",
-    "Once ranked #4 in marbling in the US; 68% of F1 graded 9+ (AUS)",
-    "SCD VA, tenderness 8; calm temperament"
-   ],
-   "photo": "/foundation/FB2892.jpg"
-  },
-  {
-   "name": "Mitsuhikokura",
-   "name_jp": "光彦蔵",
-   "reg": "TF149",
-   "era": "20th century",
-   "line": "Fujiyoshi",
-   "prefecture": "Shimane",
-   "ono_rank": null,
-   "epithet": "Highest-Shimane maternal sire, 'thickest' in the breed",
-   "registry_reg": "TF149",
-   "bio": "Mitsuhikokura carries the highest percentage of Shimane genetics of any sire available outside Japan and is often described as the 'thickest' bull in the breed. A Fujiyoshi-line animal carrying the sire Dai 14 Shigeru, he is a specialist in growth, milk and maternal ability, consistently producing outstanding breeding females - exactly the traits the Fujiyoshi and Shimane lines are prized for. That strength comes with a clear trade-off: his carcass and marbling qualities run below breed average, so breeders use him to build cow-herd frame and mothering ability rather than to chase marbling. Exported under the code TF149, he left a modest but influential number of progeny in the United States and Australia, valued specifically as a maternal outcross to marbling-heavy Tajima herds.",
-   "key_facts": [
-    "Highest Shimane percentage of any exported sire; called 'thickest' in the breed",
-    "Carries Fujiyoshi sire Dai 14 Shigeru; excels at growth, milk, maternal traits",
-    "Below-average marbling; used as a maternal/frame outcross"
-   ]
-  },
-  {
-   "name": "Shigefuku 005",
-   "name_jp": "茂福",
-   "reg": "FB6538",
-   "era": "20th century",
-   "line": "Kedaka",
-   "prefecture": "Tottori",
-   "ono_rank": null,
-   "epithet": "Only pure Kedaka/Tottori sire exported abroad",
-   "registry_reg": "FB6538",
-   "bio": "Shigefuku is marketed as the only pure Kedaka, or Tottori, sire available outside Japan, roughly three-quarters Kedaka and one-quarter Tottori, and prized for early growth and mature size. Only his semen was exported; the bull himself remained in Japan, and he is sometimes called the 'fifth Westholme bull' for his role alongside that program's four physical imports. He represents the Tottori line's signature contribution - large frame and strong toplines - which breeders use to outcross the smaller, marbling-focused Tajima animals. He left a few hundred registered progeny across the United States and Australia. For anyone building frame and growth into a fullblood herd while keeping the genetics one hundred percent traditional, he is a rare and specific tool.",
-   "key_facts": [
-    "Only 100% Kedaka/Tottori sire exported (semen only)",
-    "~75% Kedaka / 25% Tottori; prized for early growth and mature size",
-    "Called the '5th Westholme bull'"
-   ],
-   "photo": "/foundation/FB6538.jpg"
-  },
-  {
-   "name": "Kinto",
-   "name_jp": "金藤",
-   "reg": "TF39",
-   "era": "20th century",
-   "line": "Itozakura",
-   "prefecture": "Japan",
-   "ono_rank": null,
-   "epithet": "Clean linebred Itozakura source, occasionally high-strung",
-   "registry_reg": "TF39",
-   "bio": "Kinto is an Itozakura-line foundation sire, less widely used than some of his contemporaries but valued for being free of the known genetic recessive disorders. His pedigree traces the influential Dai 7 Itozakura three times, with a maternal line running back to the Ezokinto line, concentrating Fujiyoshi and Itozakura genetics for breeders seeking that outcross outside Japan. He was among the black bulls in Takeda Farms' foundational 1995 US shipment. His offspring sometimes show a high-strung disposition, which tempered his popularity, but as a clean, linebred Itozakura source he retained a place in early fullblood programs. He left roughly sixty registered progeny in the United States.",
-   "key_facts": [
-    "Itozakura line; pedigree traces Dai 7 Itozakura three times",
-    "Free of known genetic recessive disorders; ~60 US-registered progeny",
-    "Offspring can be high-strung; part of the 1995 Takeda Farms import"
-   ]
-  },
-  {
-   "name": "Hirashigetayasu",
-   "name_jp": "平茂勝安",
-   "reg": "J2351",
-   "era": "modern",
-   "line": "Kedaka",
-   "prefecture": "Japan",
-   "ono_rank": null,
-   "epithet": "Three-line Kedaka sire, 80% of steers A5",
-   "registry_reg": "FB670",
-   "bio": "Hirashigetayasu is a Kedaka-line sire whose name sometimes causes it to be mistaken for a cow; it is a bull. A son of the great Dai 20 Hirashige J287 out of Dai 5 Yuruhime, he is unusual in carrying all three of the original Westholme import lines - Kedaka, Fujiyoshi and Tajima - within one pedigree. His official Japanese progeny test showed at least eighty percent of his steers reaching the top A5 grade, and he became a heavily used export sire, with several hundred registered progeny in the United States and several thousand in Australia by 2019. He produces easy-calving but larger calves, and his daughters milk well with good udders. He tests SCD AA and passes a balanced frame and temperament.",
-   "key_facts": [
-    "Son of Dai 20 Hirashige J287; carries Kedaka, Fujiyoshi and Tajima lines",
-    "At least 80% of his steers graded A5 in Japanese progeny testing",
-    "Easy-calving larger calves; daughters milk well; SCD AA"
-   ]
-  },
-  {
-   "name": "Itohana 2",
-   "name_jp": "糸花2",
-   "reg": "TF38",
-   "era": "imported 1995",
-   "line": "Itozakura",
-   "prefecture": "Japan",
-   "ono_rank": null,
-   "epithet": "High-marbling Itozakura son, a sire not a dam",
-   "registry_reg": "TF38",
-   "bio": "Itohana 2 is a bull, not a dam - a common point of confusion given his name - and one of the higher-marbling linebred sons of Dai 7 Itozakura. He arrived in the United States among the five black bulls in Takeda Farms' foundational 1995 shipment, alongside thirty-five heifers, and became an important tool for adding frame size, maternal ability and milking to Tajima-heavy herds. His progeny are noted for good mothering and udders while still carrying respectable carcass quality, reflecting the Fujiyoshi and Itozakura genetics behind him. Registered TF38, he sits close to the source of the modern Itozakura line and helped establish its reputation for producing excellent breeding females outside Japan.",
-   "key_facts": [
-    "A sire, not a dam; linebred son of Dai 7 Itozakura",
-    "Part of Takeda Farms' 1995 US foundation import",
-    "Adds frame, maternal ability and milking; good carcass quality"
-   ]
-  },
-  {
-   "name": "Kikuhana",
-   "name_jp": "菊花",
-   "reg": "TF37",
-   "era": "imported 1995",
-   "line": "Itozakura",
-   "prefecture": "Japan",
-   "ono_rank": null,
-   "epithet": "Growth-and-maternal Itozakura sire, marbling below average",
-   "registry_reg": "FB2127",
-   "bio": "Kikuhana is a bull despite the floral name, a sire from the Itozakura line whose grandsire is Dai 7 Itozakura J65. Sired by Itohana, he transmits growth and maternal ability rather than marbling: his offspring tend to be larger and faster-growing with good phenotype, and his daughters make good mothers, but his marbling, marbling fineness and ribeye area run below breed average. He was one of the black bulls in Takeda Farms' 1995 US export shipment. Breeders used him, like other Fujiyoshi-influenced sires, to build cow-herd frame and mothering ability, accepting the carcass trade-off. Registered TF37 and also carried as FB2127, he remains a recognizable early-import maternal sire.",
-   "key_facts": [
-    "A sire, not a dam; sired by Itohana, grandsire Dai 7 Itozakura",
-    "Growth and maternal traits strong; marbling and ribeye below average",
-    "Part of the 1995 Takeda Farms US import"
-   ]
-  },
-  {
-   "name": "Haruki 2 (World K's)",
-   "name_jp": "春樹2",
-   "reg": "FB1614",
-   "era": "1990s",
-   "line": "Tajima",
-   "prefecture": "Japan",
-   "ono_rank": null,
-   "epithet": "Monjiro son, Michifuku's half-brother, a Black bull",
-   "registry_reg": "FB1614",
-   "bio": "Haruki 2 is a Tajima-based export sire and a half-brother of Michifuku, both sons of Monjiro 11550. Registered FB1614 and roughly fifty-six percent Tajima, he was among the early World K's imports and became a valued growth-and-marbling sire in North America. Bred to the famous export cow Suzutani he produced Shigeshigetani, and he sired Suzuharu in Canada, extending several influential maternal lines. Note a persistent confusion in the record: the 'Haruki 2' associated with the black Wagyu imports is a Japanese Black bull, not an Akaushi, and was not part of the Red Wagyu foundation herd. His role complements his half-brother Michifuku, adding frame while retaining Monjiro's marbling.",
-   "key_facts": [
-    "Half-brother of Michifuku; both by Monjiro 11550; ~56% Tajima",
-    "Bred to Suzutani produced Shigeshigetani; sired Suzuharu (CAN)",
-    "A Japanese Black bull, not an Akaushi (common misclassification)"
-   ]
-  },
-  {
-   "name": "Namimaru",
-   "name_jp": "波丸",
-   "reg": null,
-   "era": "elite AI sire early 1990s",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "Kumamoto cow-maker behind the American Akaushi dams",
-   "registry_reg": null,
-   "bio": "Namimaru is one of the two elite Japanese Akaushi sires whose semen was used to breed the heifers before the 1994 importation that founded the American Red Wagyu herd. The bull himself never physically left Japan; his genetics crossed the Pacific through artificial insemination and through pregnant imported females. Renowned in Kumamoto as a 'cow maker,' he sired the foundation dams Akiko, Namiko, Kazutomo and Ringo 117, and his daughter Akiko produced Big Al, the first fullblood Akaushi bull born outside Japan. That makes Namimaru a maternal grandsire of the American foundation. He was also the paternal half-brother of Shigemaru, one of the three bulls physically imported in 1994, tying him tightly to the founding nucleus.",
-   "key_facts": [
-    "Elite Kumamoto Akaushi 'cow maker'; reached the US via AI/semen",
-    "Sired foundation dams Akiko, Namiko, Kazutomo, Ringo 117",
-    "Maternal grandsire of Big Al; half-brother of Shigemaru"
-   ],
-   "photo": "/foundation/namimaru.jpg"
-  },
-  {
-   "name": "Big Al (HeartBrand)",
-   "name_jp": null,
-   "reg": "AAA AF11",
-   "era": "born January 1995",
-   "line": "Akaushi",
-   "prefecture": "USA (Texas)",
-   "ono_rank": null,
-   "epithet": "First fullblood Akaushi bull born outside Japan",
-   "registry_reg": "FB2998",
-   "bio": "Big Al holds a landmark distinction: he was the first fullblood Akaushi bull born outside Japan, calved in Texas in January 1995 from the imported heifer Akiko, who arrived pregnant in the 1994 importation. His sire was Dai 10 Mitsumaru and his dam a daughter of the great cow-maker Namimaru, a cross often regarded as the breed's premier sire-and-dam combination. He served for many years as a mainstay herd sire for HeartBrand, and Australian Wagyu Association data placed him as the only foundation Akaushi bull ranking in the top thirty across every growth EBV category, from 200-day weight through mature and carcass weight. He reportedly lived to around seventeen.",
-   "key_facts": [
-    "First fullblood Akaushi bull born outside Japan (Texas, Jan 1995)",
-    "By Dai 10 Mitsumaru out of a Namimaru daughter (Akiko)",
-    "Top-30 across all growth EBV categories (Australian Wagyu Assoc.)"
-   ]
-  },
-  {
-   "name": "Rueshaw",
-   "name_jp": null,
-   "reg": "AAA AF6808",
-   "era": "imported 1976",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "1975 Japanese Red champion, only champion exported",
-   "registry_reg": null,
-   "bio": "Rueshaw was one of the first two Akaushi bulls ever to leave Japan, imported to Texas in 1976, and he carried a distinction no other exported Wagyu can claim: he was the 1975 Japanese Red National Champion Bull, reportedly the only national champion of the breed ever allowed out of the country. From Kumamoto, the heartland of the Japanese Brown, he was sired by Ruemei H39 out of Kikutama 1285. His rare outcross genetics became extraordinarily valuable to later breeders working with the narrow 1994 foundation, and straws of his semen have reportedly been valued at twenty thousand dollars or more. He remains a touchstone of Akaushi history in the United States.",
-   "key_facts": [
-    "One of the first two Akaushi bulls to leave Japan (Texas, 1976)",
-    "1975 Japanese Red National Champion - only national champion Wagyu exported",
-    "Rare outcross; semen reportedly valued at $20,000+ per straw"
-   ]
-  },
-  {
-   "name": "Judo",
-   "name_jp": null,
-   "reg": "AAA EAF97014",
-   "era": "imported 1976",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "1976 Akaushi import, prized outcross to 1994 blood",
-   "registry_reg": null,
-   "bio": "Judo was the second of the two Akaushi bulls in the historic 1976 first Wagyu export from Japan to the United States, arriving in Texas alongside the champion Rueshaw. A Kumamoto Red Wagyu sired by Shigetakara H40 out of Sakae RK23331, he provided a distinct outcross line to the genetics that would arrive in the much larger 1994 importation. Because that 1994 foundation was so narrow, older, unrelated blood like Judo's became prized for managing inbreeding in American Akaushi herds, though his surviving semen supply is limited. He is registered with the American Akaushi Association. Together with Rueshaw he anchors the earliest chapter of Akaushi in America.",
-   "key_facts": [
-    "One of the first two Akaushi bulls exported to the US (Texas, 1976)",
-    "Kumamoto Red Wagyu; sire Shigetakara H40, dam Sakae RK23331",
-    "Valued outcross to the 1994 foundation; limited semen supply"
-   ]
-  },
-  {
-   "name": "Shigemaru",
-   "name_jp": null,
-   "reg": "AAA AF110",
-   "era": "imported 1994",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "One of three 1994 imported Akaushi foundation bulls",
-   "registry_reg": "FB2124",
-   "bio": "Shigemaru is one of the three Akaushi bulls physically imported to the United States in the 1994 Englewood importation that founded the HeartBrand herd, arriving with Tamamaru and Hikari. Sired by Dai-Ni 2 Shigenami Tokkyu 27 out of Dai-Yon 4 Akibare, he came from Kumamoto and was selected with the guidance of Japanese breeders including Dr. Takuma Fuji. He is the paternal half-brother of Namimaru, the elite cow-maker whose daughters formed much of the imported female foundation, which makes his line central to the breed's American base. As one of only three bulls in an extremely narrow founding nucleus, his genetics carry outsized weight in every American Akaushi pedigree that followed.",
-   "key_facts": [
-    "One of three Akaushi bulls physically imported in 1994",
-    "Paternal half-brother of Namimaru; from Kumamoto",
-    "Sire Dai-Ni 2 Shigenami Tokkyu 27; dam Dai-Yon 4 Akibare"
-   ]
-  },
-  {
-   "name": "Tamamaru",
-   "name_jp": null,
-   "reg": "AAA AF109",
-   "era": "imported 1994",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "Widely used 1994 import, prized for length and structure",
-   "registry_reg": "FB2125",
-   "bio": "Tamamaru is one of the three Akaushi bulls physically imported in the 1994 foundation of the American Red Wagyu herd, alongside Shigemaru and Hikari. Sired by Dai-Go 5 Tamanami Tokkyu 96 out of Dai-Hachi 8 Marunami, he became known as one of the most widely used and predictable Akaushi sires, valued particularly for the length and structural correctness he passed to his offspring. In a founding population of only three bulls and a handful of heifers, dependable transmission of good conformation mattered enormously, and Tamamaru delivered it. He is carried in the Australian Wagyu Association records as FB2125. His genetics remain broadly distributed through the American and international Akaushi herd.",
-   "key_facts": [
-    "One of three Akaushi bulls physically imported in 1994",
-    "Sire Dai-Go 5 Tamanami Tokkyu 96; dam Dai-Hachi 8 Marunami",
-    "Widely used, predictable sire prized for length and structure"
-   ]
-  },
-  {
-   "name": "Hikari",
-   "name_jp": null,
-   "reg": "AAA AF107",
-   "era": "imported 1994",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "1994 import closely tied to Big Al, calving-ease sons",
-   "registry_reg": "FB255",
-   "bio": "Hikari is the third of the three Akaushi bulls physically imported to the United States in 1994, completing the founding trio with Shigemaru and Tamamaru. Sired by Dai-Ju 10 Mitsumaru KO 76 out of Kazutomo, he is closely related to Big Al - both trace to Dai 10 Mitsumaru over a Namimaru-line dam - which makes him one of the most genetically important bulls in the American Red Wagyu base. He sired the foundation bulls Umemaru and Kotsukari, and his sons earned a reputation for calving ease, a valuable trait in a young breed. As part of an extremely narrow founding nucleus, his blood runs through much of the modern Akaushi population.",
-   "key_facts": [
-    "One of three Akaushi bulls physically imported in 1994",
-    "By Dai 10 Mitsumaru; closely related to Big Al; sired Umemaru and Kotsukari",
-    "Sons noted for calving ease"
-   ]
-  }
- ],
- "dams": [
-  {
-   "name": "Suzutani",
-   "name_jp": "鈴谷",
-   "reg": "FB1617",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "epithet": "Regarded as the best carcass female exported",
-   "registry_reg": null,
-   "bio": "Suzutani is regarded by many breeders as the finest carcass female ever exported from Japan. As the dam of Sanjirou — by Michifuku — she sits at the maternal root of one of the most productive carcass lines in Western herds. In a breed where sires get most of the attention, Suzutani is a reminder that the great dams shaped the modern fullblood just as decisively.",
-   "key_facts": [
-    "Dam of Sanjirou",
-    "Considered the top exported carcass female"
-   ]
-  },
-  {
-   "name": "Okutani",
-   "name_jp": "奥谷",
-   "reg": "FB1616",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "epithet": "Dam of the first US-born fullblood",
-   "registry_reg": "FB1616",
-   "bio": "One of the 1993 export females, Okutani is the dam of Fujiko — the first fullblood Wagyu born on American soil — giving her a landmark place in the Western breed's founding. A Tajima female of the marbling-rich Hyogo type, she is part of the small group of dams whose genetics seeded the entire fullblood population outside Japan.",
-   "key_facts": [
-    "Dam of Fujiko, first US-born fullblood",
-    "1993 export female"
-   ]
-  },
-  {
-   "name": "Kikutsuru (the Hyogo Cow)",
-   "name_jp": "菊鶴",
-   "reg": "J978542",
-   "era": "born 1967",
-   "line": "Tajima",
-   "prefecture": "Hyogo",
-   "ono_rank": 12,
-   "epithet": "The Hyogo Cow, Ono's greatest dam",
-   "registry_reg": null,
-   "bio": "Kikutsuru, remembered across Wagyu circles as 'the Hyogo Cow,' is the most celebrated female in the Tajima line and the highest-ranked cow in Kenichi Ono's canon, where she sits at number twelve. Born in Hyogo in 1967, she stayed in production until she was twenty-one, leaving sixteen calves. Bred to Yasumi Doi J10328 she produced Dai 2 Yasutsuru 774, the sire of the marbling benchmark Fukutsuru 068, which makes her his maternal granddam. Ono repeatedly called her the 'ultimate cow' for the economic lift her descendants gave to Tajima carcass quality and frame. Her genetics recur, often doubled, in elite modern pedigrees, and her nickname honors the prefecture that gives Kobe beef its name.",
-   "key_facts": [
-    "Born Hyogo 1967; produced 16 calves over a 21-year breeding life",
-    "Maternal granddam of Fukutsuru 068 via Dai 2 Yasutsuru 774",
-    "Ono's highest-ranked dam (#12); nicknamed 'the Hyogo Cow'"
-   ]
-  },
-  {
-   "name": "Dai 9 Itozakura",
-   "name_jp": "第九糸桜",
-   "reg": null,
-   "era": "20th century",
-   "line": "Itozakura",
-   "prefecture": "Hyogo",
-   "ono_rank": null,
-   "epithet": "Tajima dam of the founding Itozakura cross",
-   "registry_reg": null,
-   "bio": "Dai 9 Itozakura is the Hyogo-bred Tajima cow who supplied the maternal, marbling side of the founding Itozakura cross. Mated to the Fujiyoshi sire Dai 14 Shigeru, she produced Dai 7 Itozakura J65, the bull that gave the modern Itozakura line its name and much of its influence. Over a long reproductive life she left thirteen calves and demonstrated the kind of proven, heritable maternal quality that Japanese breeders prized in a foundation dam. Her role illustrates the classic recipe behind the Itozakura line: Fujiyoshi frame and mothering ability from the sire, Tajima marbling and refinement from the dam. Though far less famous by name than her son, she is genetically indispensable to the line.",
-   "key_facts": [
-    "Tajima dam of Dai 7 Itozakura J65",
-    "Produced 13 calves; proven heritable maternal traits",
-    "Supplied the Tajima marbling side of the founding Itozakura cross"
-   ]
-  },
-  {
-   "name": "Kitaguni 7",
-   "name_jp": "北国7",
-   "reg": null,
-   "era": "before 1984",
-   "line": "Kedaka",
-   "prefecture": "Shimane",
-   "ono_rank": null,
-   "epithet": "Ono's finest Kedaka cow, dam of a champion",
-   "registry_reg": null,
-   "bio": "Kitaguni 7 is a Kedaka-line dam remembered chiefly for one calf: her eighth, the celebrated carcass sire Kitaguni 7-8 J1530, whose name records his position in her calving order. Kenichi Ono singled her out as 'the finest of all Kedaka cows,' a rare distinction for a female in a canon dominated by bulls. That endorsement, together with the show-ring and carcass-contest success of her famous son, cemented her as a foundational maternal figure in the Kedaka line. Detailed records of her own registration and career are limited in English sources, so her fame rests largely on Ono's judgment and on the outsized influence of the bull she produced.",
-   "key_facts": [
-    "Dam of Kitaguni 7-8 J1530 (her 8th calf)",
-    "Ono called her 'the finest of all Kedaka cows'",
-    "Foundational Kedaka maternal figure"
-   ]
-  },
-  {
-   "name": "Michiko",
-   "name_jp": "みち子",
-   "reg": "J655635",
-   "era": "20th century",
-   "line": "Tajima",
-   "prefecture": "Japan",
-   "ono_rank": null,
-   "epithet": "Tajima dam of the great carcass bull Michifuku",
-   "registry_reg": null,
-   "bio": "Michiko is the Tajima dam of Michifuku, the bull many regard as the finest carcass animal ever exported from Japan. Registered J655635 and sired by Tanishige 1526, she carries a maternal line running back through Yasutani Doi J472 and Yasumi Doi J10328 - the core of the Tajima and Tajiri marbling genetics. Bred to Monjiro 11550, she produced the son who would go on to top the US Wagyu Sire Summary for marbling, making her one of the most quietly influential export dams in the breed. Her own record is documented mostly through her offspring, but the concentration of elite Tajima blood on her maternal side is what gave Michifuku his exceptional carcass merit.",
-   "key_facts": [
-    "Dam of Michifuku (FB1615) by Monjiro 11550",
-    "Registered J655635; sired by Tanishige 1526",
-    "Maternal line traces Yasutani Doi J472 and Yasumi Doi J10328"
-   ]
-  },
-  {
-   "name": "Akiko",
-   "name_jp": null,
-   "reg": null,
-   "era": "imported 1994 (pregnant)",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "Namimaru daughter who carried and bore Big Al",
-   "registry_reg": null,
-   "bio": "Akiko is a foundation dam of the American Akaushi herd and a daughter of the elite sire Namimaru. She arrived in the 1994 importation already pregnant, bred to Dai 10 Mitsumaru, and the calf she carried became Big Al, the first fullblood Akaushi bull born outside Japan. Her cross with Dai 10 Mitsumaru is widely regarded as the greatest sire-and-dam combination in the breed's history, and through it she sits at the maternal root of the American foundation. In a founding female nucleus of only a handful of imported heifers, Akiko's contribution - both the calf she was carrying and the line she established - made her one of the most consequential cows in Akaushi history.",
-   "key_facts": [
-    "Foundation dam; daughter of Namimaru",
-    "Arrived pregnant in 1994; produced Big Al (by Dai 10 Mitsumaru)",
-    "Her Mitsumaru cross regarded as the breed's premier sire/dam combination"
-   ]
-  },
-  {
-   "name": "Namiko",
-   "name_jp": null,
-   "reg": null,
-   "era": "imported 1994",
-   "line": "Akaushi",
-   "prefecture": "Kumamoto",
-   "ono_rank": null,
-   "epithet": "Namimaru daughter in the founding maternal nucleus",
-   "registry_reg": null,
-   "bio": "Namiko is one of the small group of Akaushi females imported in the 1994 foundation of the American Red Wagyu herd and, like several of her herdmates, a daughter of the elite cow-maker Namimaru. She belongs to the founding maternal nucleus - listed among imports such as Akiko, Haruko, Fuyuko, Ume, Dai 8 Marunami and Ringo 117 - that, together with just three bulls, established the entire American Akaushi population. Detailed individual records for her are limited, but her importance is structural: in a founding herd that small, every imported daughter of Namimaru became a pillar of the breed's maternal base in the United States.",
-   "key_facts": [
-    "One of the ~7-9 Akaushi foundation females imported in 1994",
-    "Daughter of the elite sire Namimaru",
-    "Part of the founding maternal nucleus of the US herd"
-   ]
-  }
- ]
+  "attribution": "This encyclopedia is WagyuTank's own reference work — written by our team to organize the documented facts of the Wagyu breed's genetic history: the sires and dams, their bloodlines, their records, and their place in the pedigrees of the world's herds. It is inspired by, and indebted to, the scholarship of Kenichi Ono, whose four-volume Japanese series Nihon Meigyu Hyakusen (日本名牛百選, \"100 Greatest Wagyu of Japan\", Nikugyu Shinposha, 1999–2012) remains the definitive record. Where we cite Ono's rankings, we cite them as the documented facts they are. We strongly encourage serious breeders to seek out Ono's original volumes — there is no substitute for the source.",
+  "sires": [
+    {
+      "name": "Yasufuku",
+      "name_jp": "安福",
+      "reg": "J930",
+      "era": "born 1980",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": 1,
+      "epithet": "The most balanced sire ever measured",
+      "registry_reg": null,
+      "bio": "Widely regarded as the single greatest and most balanced Wagyu sire ever produced, Yasufuku J930 was born in Hyogo in 1980 and stands atop Kenichi Ono's ranking of the breed. In Japan's 2001 national sire evaluation his sons swept the highest marbling scores, and his bloodline overwhelmed the 9th Zenkyo (Tottori, 2007), where he sired one champion and was grandsire to two more. Only two of his sons were ever exported — Yasufuku Jr. and the lesser-used Kousyun — which makes his direct influence in Western herds scarce and prized. Descendant carcasses from his line have sold for tens of thousands of dollars at Japanese auction.",
+      "key_facts": [
+        "Kenichi Ono — ranked #1",
+        "Sired the top three marbling sires in Japan's 2001 evaluation",
+        "Only 2 sons exported"
+      ]
+    },
+    {
+      "name": "Dai 7 Itozakura",
+      "name_jp": "第7糸桜",
+      "reg": "J65",
+      "era": "born 1970",
+      "line": "Itozakura / Fujiyoshi",
+      "prefecture": "Shimane",
+      "ono_rank": 2,
+      "epithet": "The founder whose face went on a phone card",
+      "registry_reg": "FB3685",
+      "bio": "Born in Shimane in 1970 from the joining of a Fujiyoshi sire to a Tajima dam, Dai 7 Itozakura founded the modern Itozakura line — prized for frame, growth, and a famously gentle temperament, with marbling reported at several times that of his contemporaries. He became a national celebrity, his portrait issued on a Japanese telephone card. Ranked #2 by Kenichi Ono, he is a foundational ancestor of a whole branch of exported genetics: grandsire of the rare Itozurudoi TF151 and of Kitaguni Jr., and an ancestor of Kenhanafuji, Itomichi, and Kikuhana. His line brought size and growth to complement the concentrated marbling of the Tajima strain.",
+      "key_facts": [
+        "Kenichi Ono — ranked #2",
+        "Founder of the modern Itozakura line",
+        "Portrait issued on a Japanese phone card"
+      ]
+    },
+    {
+      "name": "Shigeshigenami",
+      "name_jp": "重重浪",
+      "reg": "10632",
+      "era": "born 1972",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": 4,
+      "epithet": "The marbling powerhouse behind Itoshigenami",
+      "registry_reg": null,
+      "bio": "A Tajima marbling powerhouse born in Hyogo in 1972, Shigeshigenami is ranked #4 by Kenichi Ono and was so commercially dominant that he sired roughly a third of all Wagyu calves in Miyagi Prefecture at his peak. His single exported son, Itoshigenami TF148, is considered one of the three most important bulls ever to leave Japan and a marbling cornerstone of Western fullblood herds. Through that one son, Shigeshigenami's influence on marbling outside Japan is difficult to overstate.",
+      "key_facts": [
+        "Kenichi Ono — ranked #4",
+        "Sired ~30% of Miyagi's Wagyu calves",
+        "Sire of Itoshigenami TF148"
+      ],
+      "registration_no": "10632"
+    },
+    {
+      "name": "Kikutani",
+      "name_jp": "菊谷",
+      "reg": null,
+      "era": "born May 1980",
+      "line": "Fujiyoshi",
+      "prefecture": "Iwate (born Hyogo)",
+      "ono_rank": 6,
+      "epithet": "The pride of Iwate, Ono's number six",
+      "registry_reg": null,
+      "bio": "Kikutani is the foundation sire of Iwate Prefecture's Wagyu and sits at rank six in Kenichi Ono's canon. Born in May 1980 on a farm in Muraoka Town, Hyogo, he was bought as a yearling by an Iwate agricultural cooperative and became the pride of that prefecture's breeding program. His indirect progeny test in 1985 returned strong figures for daily gain, marbling and loin-eye area, and his offspring placed in the top three at Japan's National Beef Carcass Competition every year from 1989 through 1995. He is the sire of Fujitani and the maternal grandsire of Okutani, tying him into several exported lines. As a Fujiyoshi-influenced bull, he blended marbling with the growth Iwate breeders wanted.",
+      "key_facts": [
+        "Ono rank #6; foundation sire of Iwate Prefecture",
+        "Born Muraoka Town, Hyogo, May 1980; progeny top-3 at Nationals 1989-1995",
+        "Sire of Fujitani; maternal grandsire of Okutani"
+      ]
+    },
+    {
+      "name": "Monjiro",
+      "name_jp": "紋次郎",
+      "reg": "J11550",
+      "era": "born 1981",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": 7,
+      "epithet": "The sire behind Michifuku and Haruki 2",
+      "registry_reg": null,
+      "bio": "Born in 1981, Monjiro is ranked #7 by Kenichi Ono and holds a special place in the Western foundation story: he is the sire of both Michifuku and Haruki 2, two pillar bulls exported to the United States and Australia. At just one year old he earned a young-bull Honorable Prize at the 4th Zenkyo in Fukushima (1982) — the earliest documented show credential in the exported lineage. Prized for fine marbling and balanced, easy-calving progeny, he produced over 400,000 units of semen in his lifetime and stands as a direct ancestor of a large share of the world's fullblood herds.",
+      "key_facts": [
+        "Kenichi Ono — ranked #7",
+        "Honorable Prize, 4th Zenkyo (Fukushima 1982)",
+        "Sire of Michifuku and Haruki 2"
+      ]
+    },
+    {
+      "name": "Tanifuku Doi",
+      "name_jp": "谷福土井",
+      "reg": "J1606",
+      "era": "20th century",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": 11,
+      "epithet": "Called Japan's number-one Tajima sire",
+      "registry_reg": null,
+      "bio": "Tanifuku Doi is widely cited as the number-one Tajima sire in Japan and sits at rank eleven in Kenichi Ono's canon. A son of Yasutani Doi, he anchors the Tajima-Hyogo complex that gives Kobe and Tajima beef its marbling reputation. For breeders outside Japan his importance is almost entirely indirect: his only export-available line runs through his son Kikutsuru Doi TF146, bred over the famous Hyogo Cow. Detailed English-language records of his own progeny and career are thin, so much of his standing rests on his placement in Ono's first volume and on the quality of the descendants he left inside Japan. He remains a foundational reference point for pure Tajima marbling genetics.",
+      "key_facts": [
+        "Ono rank #11; called the #1 Tajima sire in Japan",
+        "Son of Yasutani Doi; part of the Tajima-Hyogo/Yasutani-Doi complex",
+        "Reaches export breeders only through his son Kikutsuru Doi TF146"
+      ]
+    },
+    {
+      "name": "Yasumi Doi",
+      "name_jp": "安美土",
+      "reg": "J10328",
+      "era": "foundational Tajima",
+      "line": "Tajima (Tajiri)",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "The blood behind nearly every great Tajima",
+      "registry_reg": null,
+      "bio": "One of the most famous Wagyu in Japan, Yasumi Doi is a foundational Tajima (Tajiri) sire prized for outstanding carcass quality and a gentle temperament. His importance is structural: the great Yasufuku J930 is linebred to him, and his name recurs throughout the exported foundation pedigrees, appearing multiple times behind Michifuku, Sanjirou, Fukutsuru 068, Itozurudoi, Yasufuku Jr. and others. He is arguably the single most concentrated Tajima influence underlying both Japan's modern show winners and the Western fullblood herd — a bull whose blood you carry whether you know it or not.",
+      "key_facts": [
+        "Foundational Tajima (Tajiri) sire",
+        "Yasufuku J930 is linebred to him",
+        "Recurs across the exported foundation pedigrees"
+      ]
+    },
+    {
+      "name": "Michifuku",
+      "name_jp": "美津福",
+      "reg": "FB1615",
+      "era": "born 1990s",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "The best carcass bull to leave Japan",
+      "registry_reg": "FB1615",
+      "bio": "Sired by Monjiro out of the cow Michiko, Michifuku is widely called the finest overall carcass bull ever exported from Japan, and once ranked #1 for marbling in the U.S. Wagyu Sire Summary. His pedigree stacks the elite Tajima names — Yasumi Doi appears twice — and in large F1 progeny tests his calves averaged exceptional daily gain with the overwhelming majority grading at the top of the marbling scale. He sired Sanjirou, and his descendants have commanded five-figure prices. For most Western breeders, Michifuku is where the modern fullblood story begins.",
+      "key_facts": [
+        "Once #1 marbling, U.S. Sire Summary",
+        "Sired by Monjiro; sire of Sanjirou",
+        "A pillar of Western fullblood herds"
+      ]
+    },
+    {
+      "name": "Itoshigenami",
+      "name_jp": "糸重浪",
+      "reg": "TF148",
+      "era": "exported",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "A marbling cornerstone of the West",
+      "registry_reg": "TF148",
+      "bio": "The only exported son of the #4-ranked Shigeshigenami, Itoshigenami TF148 is counted among the three most important bulls ever to leave Japan. A heavily proven terminal marbling sire, his straws remain in wide use and his descendants number in the thousands across Australia and North America. He is the bull most responsible for carrying the extreme Tajima marbling of the Shigeshigenami line into Western herds, and his name appears in a remarkable share of high-marbling pedigrees worldwide.",
+      "key_facts": [
+        "Son of Shigeshigenami",
+        "One of the top 3 bulls exported",
+        "5,000+ Australian registrations"
+      ]
+    },
+    {
+      "name": "Fukutsuru 068",
+      "name_jp": "福鶴068",
+      "reg": "FB2101",
+      "era": "exported",
+      "line": "Tajima (100%)",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "Sixteen straight years atop the marbling summary",
+      "registry_reg": "FB2101",
+      "bio": "A 100% Tajima foundation sire, Fukutsuru 068 topped Washington State University's marbling sire summaries continuously from 2001 to 2016 — an unmatched run. His pedigree traces twice to the celebrated 'Hyogo Cow' Kikutsuru and twice to Yasumi Doi, concentrating the purest Tajima marbling genetics available in the West. He remains a key reference sire for breeders chasing maximum intramuscular fat.",
+      "key_facts": [
+        "#1 marbling, WSU summaries 2001–2016",
+        "100% Tajima",
+        "Traces twice to Yasumi Doi"
+      ]
+    },
+    {
+      "name": "Kitaguni 7-8",
+      "name_jp": "北国7の8",
+      "reg": "J1530",
+      "era": "born 1990s",
+      "line": "Fujiyoshi / Itozakura",
+      "prefecture": "Shimane",
+      "ono_rank": null,
+      "epithet": "Sire of a Zenkyo Grand Champion",
+      "registry_reg": "FB2422",
+      "bio": "The most famous son of Dai 7 Itozakura, Kitaguni 7-8 sired the Grand Champion of the 7th Zenkyo (Iwate, 1997) and dominated Japan's national carcass competitions four years running. His own exported son, Kitaguni Jr., became a widely used outcross sire in the West, carrying the Dai 7 Itozakura package of frame, growth, and yield to breeders looking to balance concentrated Tajima marbling blood.",
+      "key_facts": [
+        "Sired the 7th Zenkyo (1997) Grand Champion",
+        "Won national carcass contests 1997–2000",
+        "Sire of the exported Kitaguni Jr."
+      ],
+      "registration_no": "J1530"
+    },
+    {
+      "name": "Itozurudoi",
+      "name_jp": "糸鶴土",
+      "reg": "TF151",
+      "era": "exported",
+      "line": "Tajima / Fujiyoshi / Kedaka",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "The rarest and most valuable of the exports",
+      "registry_reg": "FB3685",
+      "bio": "The rarest and most expensive of the exported foundation sires, and the only Wagyu bull cloned multiple times, Itozurudoi TF151 blends Tajima, Fujiyoshi and Kedaka blood — with Dai 7 Itozakura as grandsire and the foundational Yasumi Doi as maternal grandsire. By some accounts he outperformed even Michifuku across measured traits. His pedigree concentrates two of Japan's most decorated lines, making him a genetic bridge to that champion blood for the small number of Western programs able to access him.",
+      "key_facts": [
+        "Rarest exported foundation sire",
+        "Only Wagyu cloned multiple times",
+        "Grandsire Dai 7 Itozakura; MGS Yasumi Doi"
+      ],
+      "photo": "/foundation/TF151.jpg"
+    },
+    {
+      "name": "Kikuyasu-400",
+      "name_jp": "菊安400",
+      "reg": "FB2100",
+      "era": "exported",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "The largest Tajima ever to leave Japan",
+      "registry_reg": "FB2100",
+      "bio": "At roughly 1,980 pounds, Kikuyasu-400 was the largest, heaviest Tajima bull ever exported from Japan — a famed eye-muscle sire whose sire was credited with producing a grand-champion group at a Japanese national competition. He brought size and muscling to the Tajima strain, and his progeny have posted some of the highest marbling scores on record. His limited original inventory keeps genuine Kikuyasu-400 straws scarce and sought after.",
+      "key_facts": [
+        "~1,980 lb — largest Tajima exported",
+        "Renowned eye-muscle sire",
+        "Progeny graded at the top of the scale"
+      ]
+    },
+    {
+      "name": "Hirashigekatsu",
+      "name_jp": "平茂勝",
+      "reg": "Kagoshima",
+      "era": "born 1990",
+      "line": "Kedaka (non-Tajima)",
+      "prefecture": "Kagoshima",
+      "ono_rank": null,
+      "epithet": "The non-Tajima bull who won twice",
+      "registry_reg": null,
+      "bio": "Born in Kagoshima in 1990 from the Kedaka line, Hirashigekatsu is one of the rare multi-event Zenkyo champions — and remarkably, he did it from outside the marbling-famous Tajima strain. He took the Honor Prize at the 6th Zenkyo (Oita, 1992) with dominant results and added an excellence award at the 7th (Iwate, 1997), pioneering the 'quality and quantity in one' ideal. He lived 18 years and sired roughly 250,000–300,000 calves and over 300 breeding sons, including Miyazaki's celebrated Tadafuji.",
+      "key_facts": [
+        "Honor Prize, 6th Zenkyo (Oita 1992)",
+        "Excellence award, 7th Zenkyo (1997)",
+        "A rare non-Tajima (Kedaka) champion"
+      ]
+    },
+    {
+      "name": "Dai 20 Hirashige",
+      "name_jp": "第20平茂",
+      "reg": "J287",
+      "era": "Kedaka founder",
+      "line": "Kedaka",
+      "prefecture": "Tottori",
+      "ono_rank": null,
+      "epithet": "The Kedaka growth engine",
+      "registry_reg": "FB670",
+      "bio": "A Tottori Kedaka-line sire recognized for growth rate, meat quality, fine hair and loose skin, Dai 20 Hirashige was honored with Ikushu-Toroku, Japan's highest breeding registration. He anchors the Kedaka growth genetics that complement Tajima marbling. His exported son Hirashigetayasu carried the line abroad, and through his son Hirashigekatsu he is grandsire of the Miyazaki sire Tadafuji — placing him at the head of one of the most successful non-Tajima pedigrees in show history.",
+      "key_facts": [
+        "Awarded Ikushu-Toroku (top breeding honor)",
+        "Sire of exported Hirashigetayasu",
+        "Grandsire of Hirashigekatsu"
+      ]
+    },
+    {
+      "name": "Sanjirou",
+      "name_jp": "三次郎",
+      "reg": "FB2501",
+      "era": "exported",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "Michifuku's son, a carcass sire in his own right",
+      "registry_reg": "FB2501",
+      "bio": "Sired by Michifuku out of Suzutani — regarded by many as the best carcass female exported from Japan — Sanjirou is a linebred Yasumi Doi Tajima sire prized for large ribeye, thick rib and high yield. In large F1 tests his calves posted strong gain with the great majority grading at the top of the scale, and he placed third for marbling in the 2006 U.S. Sire Summary. He remains a heavily used carcass sire in Western fullblood and F1 programs.",
+      "key_facts": [
+        "Sire Michifuku; dam Suzutani",
+        "3rd marbling, 2006 U.S. Sire Summary",
+        "Linebred to Yasumi Doi"
+      ],
+      "photo": "/foundation/FB2501.jpg"
+    },
+    {
+      "name": "Kikutsuru Doi",
+      "name_jp": "菊鶴土井",
+      "reg": "TF146",
+      "era": "late 20th century",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "Small-framed pure Tajima marbling concentrator",
+      "registry_reg": "FB3615",
+      "bio": "Kikutsuru Doi is a small-framed, exceptionally high-marbling Tajima bull whose value lies in concentration rather than size. He is one of only two sons of Tanifuku Doi J1606 - widely called the number-one Tajima sire in Japan - available to breeders outside the country, and his dam side double-crosses the famous Hyogo Cow, Kikutsuru J978542, through her daughter Kikutsuru 8. That intense linebreeding on Yasutani Doi and Kuro Iku produces an inbreeding coefficient near twenty-four percent, and breeders deploy him deliberately to push marbling into larger, growthier herds. Exported as FB3615, he tests SCD AA with a mature weight around 1,320 pounds. His semen remains scarce and expensive, prized wherever fine marbling matters more than carcass weight.",
+      "key_facts": [
+        "Son of Tanifuku Doi J1606; double-crosses the Hyogo Cow via Kikutsuru 8",
+        "~24% inbreeding coefficient; ~1,320 lb mature weight; SCD AA",
+        "One of only two Tanifuku Doi sons available outside Japan"
+      ]
+    },
+    {
+      "name": "Kitateruyasudoi",
+      "name_jp": "北照安土井",
+      "reg": "J2810",
+      "era": "born March 1993",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "Westholme foundation bull, marbling with low birthweight",
+      "registry_reg": "FB686",
+      "bio": "Kitateruyasudoi is a linebred Kikuteru Doi bull and the only son of Terunaga Doi J1472 to leave Japan, exported as a four-year-old to become one of Chris Walker's three Westholme foundation sires. Born in Hyogo in March 1993, he combines a larger frame and a notably luxurious coat with the marbling depth of his Tajima ancestry, tracing to Yasumi Doi J10328 three separate times. In US Wagyu evaluations he has ranked around the fourth-best marbling sire while also sitting in the top two percent for low birth weight, a rare pairing that makes him useful on heifers. His progeny reach the A5 grade in Japan. An F11 carrier, he is otherwise free of the known genetic defects.",
+      "key_facts": [
+        "Born Hyogo March 1993; only Terunaga Doi J1472 son exported",
+        "One of three Westholme foundation bulls; ~4th-best US marbling sire",
+        "Traces Yasumi Doi J10328 three times; top 2% low birth weight; F11 carrier"
+      ]
+    },
+    {
+      "name": "Yasufuku Jr (World K's)",
+      "name_jp": "安福久",
+      "reg": "FB5061",
+      "era": "born 1990s",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "Yasufuku son carrying fine-marbling export line",
+      "registry_reg": "FB5061",
+      "bio": "In Western registries Yasufuku Jr is documented as a bull, not the celebrated dam his name sometimes suggests, and he carries forward the genetics of his sire, the legendary Yasufuku J930. Exported as FB5061, he traces Yasumi Doi J10328 three times, concentrating the Tajima marbling that made his father the most important sire in Japanese Black history. His progeny are known for very fine marbling paired with respectable growth, averaging daily gains near 1.9 pounds, and he has left many influential sons in the export herd as a dependable terminal marbling sire. He tests SCD AA. Note the naming overlap: in Japan the Yasufuku female line also produced famous dams, but the exported 'Yasufuku Jr' is a sire.",
+      "key_facts": [
+        "Son of Yasufuku J930; exported as FB5061 (a sire, not a dam)",
+        "Traces Yasumi Doi J10328 three times; progeny ADG ~1.9 lb",
+        "Very fine marbling; many influential export sons; SCD AA"
+      ]
+    },
+    {
+      "name": "Tajiri (Tajiri-go)",
+      "name_jp": "田尻号",
+      "reg": null,
+      "era": "born ~1939 (approximate)",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "Foundation bull of nearly all Japanese Black",
+      "registry_reg": null,
+      "bio": "Tajiri is the single foundation bull of the modern Tajima line and, through it, of most Japanese Black cattle alive today. Born in the remote Ojiro district of Kami in the mountains of northern Hyogo, he was discovered in an isolated pocket where centuries of closed breeding had preserved unusually consistent marbling and temperament. Over a working life of roughly fifteen years he sired more than 1,400 calves, and the National Wagyu Registry credits close to all Kuroge Washu in Japan with tracing back to him. Because Hyogo's cattle were bred in near-isolation, Tajiri became the concentrated source of the fine, evenly distributed marbling that later defined Kobe beef. His exact birth year is cited variously and should be treated as approximate.",
+      "key_facts": [
+        "Foundation Tajima sire from Ojiro, Kami, northern Hyogo",
+        "Sired 1,463 calves over a ~15-year working life",
+        "Nearly all Japanese Black cattle trace to him (National Wagyu Registry)"
+      ]
+    },
+    {
+      "name": "Dai 13 Hanayama",
+      "name_jp": "第十三花山",
+      "reg": null,
+      "era": "active c. 1922",
+      "line": "Fujiyoshi",
+      "prefecture": "Okayama",
+      "ono_rank": null,
+      "epithet": "Origin sire of the Okayama Fujiyoshi strain",
+      "registry_reg": null,
+      "bio": "Dai 13 Hanayama is the original founding sire of the Okayama Fujiyoshi line, the bloodline that would later supply frame, growth and maternal ability to the modern Itozakura cross. He won the ninth Chugoku regional Wagyu competition in 1922 and went on to sire roughly 780 offspring before dying at the age of thirteen. Japan's agriculture ministry designated him a foundation sire for national herd improvement, recognizing his large frame and strong marbling at a time when systematic Wagyu breeding was only beginning to be formalized. His genetics spread from Okayama into Shimane and beyond, seeding the Fujiyoshi strain that runs through Dai 6 Fujiyoshi, Dai 14 Shigeru and ultimately Dai 7 Itozakura. He stands at the headwaters of an entire line.",
+      "key_facts": [
+        "Won the 9th Chugoku Wagyu competition, 1922",
+        "Sired ~780 offspring; died at age 13",
+        "MAFF-designated foundation sire; origin of the Fujiyoshi strain"
+      ]
+    },
+    {
+      "name": "Dai 6 Fujiyoshi",
+      "name_jp": "第六藤良",
+      "reg": null,
+      "era": "mid-20th century",
+      "line": "Fujiyoshi",
+      "prefecture": "Okayama",
+      "ono_rank": null,
+      "epithet": "Namesake Fujiyoshi sire, grandfather of Itozakura",
+      "registry_reg": null,
+      "bio": "Dai 6 Fujiyoshi is the namesake foundation sire of the Fujiyoshi line, an Akebono-strain bull from Okayama valued for combining superior meat quality with strong growth and good milking ability. Descended ultimately from Dai 13 Hanayama, he sired five representative bulls, among them Dai 6 Fujimori, a key growth sire behind the Australian herd. His greatest historical importance, though, is as the grandfather of Dai 7 Itozakura, the bull that founded the modern Itozakura line by crossing Fujiyoshi frame and maternal traits onto Tajima marbling. Where pure Tajima bulls run small, Fujiyoshi genetics were the classic corrective, adding size and mothering ability, and Dai 6 sits at the center of that contribution. He corrects the common assumption that Fujiyoshi is a Tajima line: it is Okayama.",
+      "key_facts": [
+        "Namesake Fujiyoshi foundation sire; Akebono strain, Okayama (not Tajima)",
+        "Sired five representative bulls including Dai 6 Fujimori",
+        "Grandfather of Dai 7 Itozakura J65"
+      ]
+    },
+    {
+      "name": "Dai 14 Shigeru",
+      "name_jp": "第十四茂重",
+      "reg": null,
+      "era": "mid-20th century",
+      "line": "Fujiyoshi",
+      "prefecture": "Okayama",
+      "ono_rank": null,
+      "epithet": "Fujiyoshi sire of the founding Itozakura cross",
+      "registry_reg": null,
+      "bio": "Dai 14 Shigeru is the Fujiyoshi-line bull whose cross onto a Tajima dam created the modern Itozakura line. Bred from the Okayama Fujiyoshi genetics that traced back through Dai 6 Fujiyoshi to Dai 13 Hanayama, he was used in Shimane over the Tajima cow Dai 9 Itozakura, and their son Dai 7 Itozakura J65 became one of the most influential sires of the twentieth century. Dai 14 Shigeru's contribution was the Fujiyoshi package: larger frame, steady weight gain, docile temperament and the maternal traits that make good breeding females. Those characteristics carried forward through Dai 7 and into descendants such as Mitsuhikokura, giving the Fujiyoshi and Itozakura herds their reputation for growth and mothering ability.",
+      "key_facts": [
+        "Fujiyoshi sire; father of Dai 7 Itozakura J65",
+        "Used over Tajima dam Dai 9 Itozakura in Shimane",
+        "Contributed frame, growth, docility and maternal traits"
+      ]
+    },
+    {
+      "name": "Kitaguni Jr",
+      "name_jp": "北国 Jr",
+      "reg": "FB2422",
+      "era": "born 1994",
+      "line": "Itozakura",
+      "prefecture": "Shimane",
+      "ono_rank": null,
+      "epithet": "Balanced Itozakura outcross that adds frame",
+      "registry_reg": "FB2422",
+      "bio": "Kitaguni Jr is a balanced foundation sire built from the Itozakura line, out of the celebrated carcass bull Kitaguni 7-8 J1530 and a dam that made him a great-grandson of Dai 7 Itozakura. His pedigree is a deliberate blend - roughly thirty-seven percent Tajima with the balance drawn from Itozakura, Kedaka, Shimane and Okayama - and that mix shows in his progeny. Crossed onto Tajima heifers, his F1 calves gain frame and growth while still grading from Prime up through the highest marbling scores, which made him a popular outcross in North America and Australia. By 2019 he had several hundred registered progeny on each continent. Breeders reach for him when they want size added without losing carcass grade.",
+      "key_facts": [
+        "Son of Kitaguni 7-8 J1530; great-grandson of Dai 7 Itozakura",
+        "~37% Tajima; balance Itozakura/Kedaka/Shimane/Okayama",
+        "F1 calves add frame and growth while grading Prime and up"
+      ]
+    },
+    {
+      "name": "Kedaka",
+      "name_jp": "気高",
+      "reg": null,
+      "era": "born 1959",
+      "line": "Kedaka",
+      "prefecture": "Tottori",
+      "ono_rank": null,
+      "epithet": "Foundation bull of the Tottori Kedaka line",
+      "registry_reg": null,
+      "bio": "Kedaka is the foundation bull of the modern Kedaka, or Tottori, line and one of the pillars of twentieth-century Wagyu breeding. Born in Tottori in 1959, a grandson of the district sire Eiko and carrying Hyogo blood on his dam's side, he won first place for meat-production ability at the first National Japanese Beef Ability Competition, held in Okayama in 1966. He left more than nine thousand descendants, and roughly ninety percent of Tottori's Wagyu trace to him. The Kedaka line he founded is known for large frame, strong toplines, good growth and superior females - 'the Kedaka female is best' is a common breeder maxim. His most celebrated son, Dai 20 Hirashige, branched the influential Hirashige line directly off him.",
+      "key_facts": [
+        "Born Tottori 1959; won the 1st National Beef Ability Competition, 1966",
+        "Left 9,000+ descendants; ~90% of Tottori Wagyu trace to him",
+        "Sire of Dai 20 Hirashige; line noted for frame, growth, superior females"
+      ]
+    },
+    {
+      "name": "Takazakura",
+      "name_jp": "高桜",
+      "reg": "FB2892",
+      "era": "20th century",
+      "line": "Tajima",
+      "prefecture": "Japan",
+      "ono_rank": null,
+      "epithet": "Yasufuku-descended sire, once US number-four marbling",
+      "registry_reg": "FB2892",
+      "bio": "Takazakura is a Tajima-derived export sire that once ranked fourth in marbling in the United States, valued for pairing high carcass quality with sound growth and a calm disposition. Descending through Takaei 1412 with the great Yasufuku J930 as his grandsire, he transmits the marbling of the Tajima line reliably: about sixty-eight percent of his F1 progeny graded nine or better on the Australian marbling scale. He accumulated a couple hundred registered progeny in the United States and several hundred in Australia, testing SCD VA with a tenderness score of eight. Although sometimes grouped with the outcross lines, his genetic base is squarely Tajima through Yasufuku, and breeders used him wherever marbling was the priority.",
+      "key_facts": [
+        "Grandsire Yasufuku J930 (via Takaei 1412); Tajima base",
+        "Once ranked #4 in marbling in the US; 68% of F1 graded 9+ (AUS)",
+        "SCD VA, tenderness 8; calm temperament"
+      ],
+      "photo": "/foundation/FB2892.jpg"
+    },
+    {
+      "name": "Mitsuhikokura",
+      "name_jp": "光彦蔵",
+      "reg": "TF149",
+      "era": "20th century",
+      "line": "Fujiyoshi",
+      "prefecture": "Shimane",
+      "ono_rank": null,
+      "epithet": "Highest-Shimane maternal sire, 'thickest' in the breed",
+      "registry_reg": "TF149",
+      "bio": "Mitsuhikokura carries the highest percentage of Shimane genetics of any sire available outside Japan and is often described as the 'thickest' bull in the breed. A Fujiyoshi-line animal carrying the sire Dai 14 Shigeru, he is a specialist in growth, milk and maternal ability, consistently producing outstanding breeding females - exactly the traits the Fujiyoshi and Shimane lines are prized for. That strength comes with a clear trade-off: his carcass and marbling qualities run below breed average, so breeders use him to build cow-herd frame and mothering ability rather than to chase marbling. Exported under the code TF149, he left a modest but influential number of progeny in the United States and Australia, valued specifically as a maternal outcross to marbling-heavy Tajima herds.",
+      "key_facts": [
+        "Highest Shimane percentage of any exported sire; called 'thickest' in the breed",
+        "Carries Fujiyoshi sire Dai 14 Shigeru; excels at growth, milk, maternal traits",
+        "Below-average marbling; used as a maternal/frame outcross"
+      ]
+    },
+    {
+      "name": "Shigefuku 005",
+      "name_jp": "茂福",
+      "reg": "FB6538",
+      "era": "20th century",
+      "line": "Kedaka",
+      "prefecture": "Tottori",
+      "ono_rank": null,
+      "epithet": "Only pure Kedaka/Tottori sire exported abroad",
+      "registry_reg": "FB6538",
+      "bio": "Shigefuku is marketed as the only pure Kedaka, or Tottori, sire available outside Japan, roughly three-quarters Kedaka and one-quarter Tottori, and prized for early growth and mature size. Only his semen was exported; the bull himself remained in Japan, and he is sometimes called the 'fifth Westholme bull' for his role alongside that program's four physical imports. He represents the Tottori line's signature contribution - large frame and strong toplines - which breeders use to outcross the smaller, marbling-focused Tajima animals. He left a few hundred registered progeny across the United States and Australia. For anyone building frame and growth into a fullblood herd while keeping the genetics one hundred percent traditional, he is a rare and specific tool.",
+      "key_facts": [
+        "Only 100% Kedaka/Tottori sire exported (semen only)",
+        "~75% Kedaka / 25% Tottori; prized for early growth and mature size",
+        "Called the '5th Westholme bull'"
+      ],
+      "photo": "/foundation/FB6538.jpg"
+    },
+    {
+      "name": "Kinto",
+      "name_jp": "金藤",
+      "reg": "TF39",
+      "era": "20th century",
+      "line": "Itozakura",
+      "prefecture": "Japan",
+      "ono_rank": null,
+      "epithet": "Clean linebred Itozakura source, occasionally high-strung",
+      "registry_reg": "TF39",
+      "bio": "Kinto is an Itozakura-line foundation sire, less widely used than some of his contemporaries but valued for being free of the known genetic recessive disorders. His pedigree traces the influential Dai 7 Itozakura three times, with a maternal line running back to the Ezokinto line, concentrating Fujiyoshi and Itozakura genetics for breeders seeking that outcross outside Japan. He was among the black bulls in Takeda Farms' foundational 1995 US shipment. His offspring sometimes show a high-strung disposition, which tempered his popularity, but as a clean, linebred Itozakura source he retained a place in early fullblood programs. He left roughly sixty registered progeny in the United States.",
+      "key_facts": [
+        "Itozakura line; pedigree traces Dai 7 Itozakura three times",
+        "Free of known genetic recessive disorders; ~60 US-registered progeny",
+        "Offspring can be high-strung; part of the 1995 Takeda Farms import"
+      ]
+    },
+    {
+      "name": "Hirashigetayasu",
+      "name_jp": "平茂勝安",
+      "reg": "J2351",
+      "era": "modern",
+      "line": "Kedaka",
+      "prefecture": "Japan",
+      "ono_rank": null,
+      "epithet": "Three-line Kedaka sire, 80% of steers A5",
+      "registry_reg": "FB670",
+      "bio": "Hirashigetayasu is a Kedaka-line sire whose name sometimes causes it to be mistaken for a cow; it is a bull. A son of the great Dai 20 Hirashige J287 out of Dai 5 Yuruhime, he is unusual in carrying all three of the original Westholme import lines - Kedaka, Fujiyoshi and Tajima - within one pedigree. His official Japanese progeny test showed at least eighty percent of his steers reaching the top A5 grade, and he became a heavily used export sire, with several hundred registered progeny in the United States and several thousand in Australia by 2019. He produces easy-calving but larger calves, and his daughters milk well with good udders. He tests SCD AA and passes a balanced frame and temperament.",
+      "key_facts": [
+        "Son of Dai 20 Hirashige J287; carries Kedaka, Fujiyoshi and Tajima lines",
+        "At least 80% of his steers graded A5 in Japanese progeny testing",
+        "Easy-calving larger calves; daughters milk well; SCD AA"
+      ]
+    },
+    {
+      "name": "Itohana 2",
+      "name_jp": "糸花2",
+      "reg": "TF38",
+      "era": "imported 1995",
+      "line": "Itozakura",
+      "prefecture": "Japan",
+      "ono_rank": null,
+      "epithet": "High-marbling Itozakura son, a sire not a dam",
+      "registry_reg": "TF38",
+      "bio": "Itohana 2 is a bull, not a dam - a common point of confusion given his name - and one of the higher-marbling linebred sons of Dai 7 Itozakura. He arrived in the United States among the five black bulls in Takeda Farms' foundational 1995 shipment, alongside thirty-five heifers, and became an important tool for adding frame size, maternal ability and milking to Tajima-heavy herds. His progeny are noted for good mothering and udders while still carrying respectable carcass quality, reflecting the Fujiyoshi and Itozakura genetics behind him. Registered TF38, he sits close to the source of the modern Itozakura line and helped establish its reputation for producing excellent breeding females outside Japan.",
+      "key_facts": [
+        "A sire, not a dam; linebred son of Dai 7 Itozakura",
+        "Part of Takeda Farms' 1995 US foundation import",
+        "Adds frame, maternal ability and milking; good carcass quality"
+      ]
+    },
+    {
+      "name": "Kikuhana",
+      "name_jp": "菊花",
+      "reg": "TF37",
+      "era": "imported 1995",
+      "line": "Itozakura",
+      "prefecture": "Japan",
+      "ono_rank": null,
+      "epithet": "Growth-and-maternal Itozakura sire, marbling below average",
+      "registry_reg": "FB2127",
+      "bio": "Kikuhana is a bull despite the floral name, a sire from the Itozakura line whose grandsire is Dai 7 Itozakura J65. Sired by Itohana, he transmits growth and maternal ability rather than marbling: his offspring tend to be larger and faster-growing with good phenotype, and his daughters make good mothers, but his marbling, marbling fineness and ribeye area run below breed average. He was one of the black bulls in Takeda Farms' 1995 US export shipment. Breeders used him, like other Fujiyoshi-influenced sires, to build cow-herd frame and mothering ability, accepting the carcass trade-off. Registered TF37 and also carried as FB2127, he remains a recognizable early-import maternal sire.",
+      "key_facts": [
+        "A sire, not a dam; sired by Itohana, grandsire Dai 7 Itozakura",
+        "Growth and maternal traits strong; marbling and ribeye below average",
+        "Part of the 1995 Takeda Farms US import"
+      ]
+    },
+    {
+      "name": "Haruki 2 (World K's)",
+      "name_jp": "春樹2",
+      "reg": "FB1614",
+      "era": "1990s",
+      "line": "Tajima",
+      "prefecture": "Japan",
+      "ono_rank": null,
+      "epithet": "Monjiro son, Michifuku's half-brother, a Black bull",
+      "registry_reg": "FB1614",
+      "bio": "Haruki 2 is a Tajima-based export sire and a half-brother of Michifuku, both sons of Monjiro 11550. Registered FB1614 and roughly fifty-six percent Tajima, he was among the early World K's imports and became a valued growth-and-marbling sire in North America. Bred to the famous export cow Suzutani he produced Shigeshigetani, and he sired Suzuharu in Canada, extending several influential maternal lines. Note a persistent confusion in the record: the 'Haruki 2' associated with the black Wagyu imports is a Japanese Black bull, not an Akaushi, and was not part of the Red Wagyu foundation herd. His role complements his half-brother Michifuku, adding frame while retaining Monjiro's marbling.",
+      "key_facts": [
+        "Half-brother of Michifuku; both by Monjiro 11550; ~56% Tajima",
+        "Bred to Suzutani produced Shigeshigetani; sired Suzuharu (CAN)",
+        "A Japanese Black bull, not an Akaushi (common misclassification)"
+      ]
+    },
+    {
+      "name": "Namimaru",
+      "name_jp": "波丸",
+      "reg": null,
+      "era": "elite AI sire early 1990s",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "Kumamoto cow-maker behind the American Akaushi dams",
+      "registry_reg": null,
+      "bio": "Namimaru is one of the two elite Japanese Akaushi sires whose semen was used to breed the heifers before the 1994 importation that founded the American Red Wagyu herd. The bull himself never physically left Japan; his genetics crossed the Pacific through artificial insemination and through pregnant imported females. Renowned in Kumamoto as a 'cow maker,' he sired the foundation dams Akiko, Namiko, Kazutomo and Ringo 117, and his daughter Akiko produced Big Al, the first fullblood Akaushi bull born outside Japan. That makes Namimaru a maternal grandsire of the American foundation. He was also the paternal half-brother of Shigemaru, one of the three bulls physically imported in 1994, tying him tightly to the founding nucleus.",
+      "key_facts": [
+        "Elite Kumamoto Akaushi 'cow maker'; reached the US via AI/semen",
+        "Sired foundation dams Akiko, Namiko, Kazutomo, Ringo 117",
+        "Maternal grandsire of Big Al; half-brother of Shigemaru"
+      ],
+      "photo": "/foundation/namimaru.jpg"
+    },
+    {
+      "name": "Big Al (HeartBrand)",
+      "name_jp": null,
+      "reg": "AAA AF11",
+      "era": "born January 1995",
+      "line": "Akaushi",
+      "prefecture": "USA (Texas)",
+      "ono_rank": null,
+      "epithet": "First fullblood Akaushi bull born outside Japan",
+      "registry_reg": "FB2998",
+      "bio": "Big Al holds a landmark distinction: he was the first fullblood Akaushi bull born outside Japan, calved in Texas in January 1995 from the imported heifer Akiko, who arrived pregnant in the 1994 importation. His sire was Dai 10 Mitsumaru and his dam a daughter of the great cow-maker Namimaru, a cross often regarded as the breed's premier sire-and-dam combination. He served for many years as a mainstay herd sire for HeartBrand, and Australian Wagyu Association data placed him as the only foundation Akaushi bull ranking in the top thirty across every growth EBV category, from 200-day weight through mature and carcass weight. He reportedly lived to around seventeen.",
+      "key_facts": [
+        "First fullblood Akaushi bull born outside Japan (Texas, Jan 1995)",
+        "By Dai 10 Mitsumaru out of a Namimaru daughter (Akiko)",
+        "Top-30 across all growth EBV categories (Australian Wagyu Assoc.)"
+      ]
+    },
+    {
+      "name": "Rueshaw",
+      "name_jp": null,
+      "reg": "AAA AF6808",
+      "era": "imported 1976",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "1975 Japanese Red champion, only champion exported",
+      "registry_reg": null,
+      "bio": "Rueshaw was one of the first two Akaushi bulls ever to leave Japan, imported to Texas in 1976, and he carried a distinction no other exported Wagyu can claim: he was the 1975 Japanese Red National Champion Bull, reportedly the only national champion of the breed ever allowed out of the country. From Kumamoto, the heartland of the Japanese Brown, he was sired by Ruemei H39 out of Kikutama 1285. His rare outcross genetics became extraordinarily valuable to later breeders working with the narrow 1994 foundation, and straws of his semen have reportedly been valued at twenty thousand dollars or more. He remains a touchstone of Akaushi history in the United States.",
+      "key_facts": [
+        "One of the first two Akaushi bulls to leave Japan (Texas, 1976)",
+        "1975 Japanese Red National Champion - only national champion Wagyu exported",
+        "Rare outcross; semen reportedly valued at $20,000+ per straw"
+      ]
+    },
+    {
+      "name": "Judo",
+      "name_jp": null,
+      "reg": "AAA EAF97014",
+      "era": "imported 1976",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "1976 Akaushi import, prized outcross to 1994 blood",
+      "registry_reg": null,
+      "bio": "Judo was the second of the two Akaushi bulls in the historic 1976 first Wagyu export from Japan to the United States, arriving in Texas alongside the champion Rueshaw. A Kumamoto Red Wagyu sired by Shigetakara H40 out of Sakae RK23331, he provided a distinct outcross line to the genetics that would arrive in the much larger 1994 importation. Because that 1994 foundation was so narrow, older, unrelated blood like Judo's became prized for managing inbreeding in American Akaushi herds, though his surviving semen supply is limited. He is registered with the American Akaushi Association. Together with Rueshaw he anchors the earliest chapter of Akaushi in America.",
+      "key_facts": [
+        "One of the first two Akaushi bulls exported to the US (Texas, 1976)",
+        "Kumamoto Red Wagyu; sire Shigetakara H40, dam Sakae RK23331",
+        "Valued outcross to the 1994 foundation; limited semen supply"
+      ]
+    },
+    {
+      "name": "Shigemaru",
+      "name_jp": null,
+      "reg": "AAA AF110",
+      "era": "imported 1994",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "One of three 1994 imported Akaushi foundation bulls",
+      "registry_reg": "FB2124",
+      "bio": "Shigemaru is one of the three Akaushi bulls physically imported to the United States in the 1994 Englewood importation that founded the HeartBrand herd, arriving with Tamamaru and Hikari. Sired by Dai-Ni 2 Shigenami Tokkyu 27 out of Dai-Yon 4 Akibare, he came from Kumamoto and was selected with the guidance of Japanese breeders including Dr. Takuma Fuji. He is the paternal half-brother of Namimaru, the elite cow-maker whose daughters formed much of the imported female foundation, which makes his line central to the breed's American base. As one of only three bulls in an extremely narrow founding nucleus, his genetics carry outsized weight in every American Akaushi pedigree that followed.",
+      "key_facts": [
+        "One of three Akaushi bulls physically imported in 1994",
+        "Paternal half-brother of Namimaru; from Kumamoto",
+        "Sire Dai-Ni 2 Shigenami Tokkyu 27; dam Dai-Yon 4 Akibare"
+      ]
+    },
+    {
+      "name": "Tamamaru",
+      "name_jp": null,
+      "reg": "AAA AF109",
+      "era": "imported 1994",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "Widely used 1994 import, prized for length and structure",
+      "registry_reg": "FB2125",
+      "bio": "Tamamaru is one of the three Akaushi bulls physically imported in the 1994 foundation of the American Red Wagyu herd, alongside Shigemaru and Hikari. Sired by Dai-Go 5 Tamanami Tokkyu 96 out of Dai-Hachi 8 Marunami, he became known as one of the most widely used and predictable Akaushi sires, valued particularly for the length and structural correctness he passed to his offspring. In a founding population of only three bulls and a handful of heifers, dependable transmission of good conformation mattered enormously, and Tamamaru delivered it. He is carried in the Australian Wagyu Association records as FB2125. His genetics remain broadly distributed through the American and international Akaushi herd.",
+      "key_facts": [
+        "One of three Akaushi bulls physically imported in 1994",
+        "Sire Dai-Go 5 Tamanami Tokkyu 96; dam Dai-Hachi 8 Marunami",
+        "Widely used, predictable sire prized for length and structure"
+      ]
+    },
+    {
+      "name": "Hikari",
+      "name_jp": null,
+      "reg": "AAA AF107",
+      "era": "imported 1994",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "1994 import closely tied to Big Al, calving-ease sons",
+      "registry_reg": "FB255",
+      "bio": "Hikari is the third of the three Akaushi bulls physically imported to the United States in 1994, completing the founding trio with Shigemaru and Tamamaru. Sired by Dai-Ju 10 Mitsumaru KO 76 out of Kazutomo, he is closely related to Big Al - both trace to Dai 10 Mitsumaru over a Namimaru-line dam - which makes him one of the most genetically important bulls in the American Red Wagyu base. He sired the foundation bulls Umemaru and Kotsukari, and his sons earned a reputation for calving ease, a valuable trait in a young breed. As part of an extremely narrow founding nucleus, his blood runs through much of the modern Akaushi population.",
+      "key_facts": [
+        "One of three Akaushi bulls physically imported in 1994",
+        "By Dai 10 Mitsumaru; closely related to Big Al; sired Umemaru and Kotsukari",
+        "Sons noted for calving ease"
+      ]
+    }
+  ],
+  "dams": [
+    {
+      "name": "Suzutani",
+      "name_jp": "鈴谷",
+      "reg": "FB1617",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "epithet": "Regarded as the best carcass female exported",
+      "registry_reg": null,
+      "bio": "Suzutani is regarded by many breeders as the finest carcass female ever exported from Japan. As the dam of Sanjirou — by Michifuku — she sits at the maternal root of one of the most productive carcass lines in Western herds. In a breed where sires get most of the attention, Suzutani is a reminder that the great dams shaped the modern fullblood just as decisively.",
+      "key_facts": [
+        "Dam of Sanjirou",
+        "Considered the top exported carcass female"
+      ]
+    },
+    {
+      "name": "Okutani",
+      "name_jp": "奥谷",
+      "reg": "FB1616",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "epithet": "Dam of the first US-born fullblood",
+      "registry_reg": "FB1616",
+      "bio": "One of the 1993 export females, Okutani is the dam of Fujiko — the first fullblood Wagyu born on American soil — giving her a landmark place in the Western breed's founding. A Tajima female of the marbling-rich Hyogo type, she is part of the small group of dams whose genetics seeded the entire fullblood population outside Japan.",
+      "key_facts": [
+        "Dam of Fujiko, first US-born fullblood",
+        "1993 export female"
+      ]
+    },
+    {
+      "name": "Kikutsuru (the Hyogo Cow)",
+      "name_jp": "菊鶴",
+      "reg": "J978542",
+      "era": "born 1967",
+      "line": "Tajima",
+      "prefecture": "Hyogo",
+      "ono_rank": 12,
+      "epithet": "The Hyogo Cow, Ono's greatest dam",
+      "registry_reg": null,
+      "bio": "Kikutsuru, remembered across Wagyu circles as 'the Hyogo Cow,' is the most celebrated female in the Tajima line and the highest-ranked cow in Kenichi Ono's canon, where she sits at number twelve. Born in Hyogo in 1967, she stayed in production until she was twenty-one, leaving sixteen calves. Bred to Yasumi Doi J10328 she produced Dai 2 Yasutsuru 774, the sire of the marbling benchmark Fukutsuru 068, which makes her his maternal granddam. Ono repeatedly called her the 'ultimate cow' for the economic lift her descendants gave to Tajima carcass quality and frame. Her genetics recur, often doubled, in elite modern pedigrees, and her nickname honors the prefecture that gives Kobe beef its name.",
+      "key_facts": [
+        "Born Hyogo 1967; produced 16 calves over a 21-year breeding life",
+        "Maternal granddam of Fukutsuru 068 via Dai 2 Yasutsuru 774",
+        "Ono's highest-ranked dam (#12); nicknamed 'the Hyogo Cow'"
+      ]
+    },
+    {
+      "name": "Dai 9 Itozakura",
+      "name_jp": "第九糸桜",
+      "reg": null,
+      "era": "20th century",
+      "line": "Itozakura",
+      "prefecture": "Hyogo",
+      "ono_rank": null,
+      "epithet": "Tajima dam of the founding Itozakura cross",
+      "registry_reg": null,
+      "bio": "Dai 9 Itozakura is the Hyogo-bred Tajima cow who supplied the maternal, marbling side of the founding Itozakura cross. Mated to the Fujiyoshi sire Dai 14 Shigeru, she produced Dai 7 Itozakura J65, the bull that gave the modern Itozakura line its name and much of its influence. Over a long reproductive life she left thirteen calves and demonstrated the kind of proven, heritable maternal quality that Japanese breeders prized in a foundation dam. Her role illustrates the classic recipe behind the Itozakura line: Fujiyoshi frame and mothering ability from the sire, Tajima marbling and refinement from the dam. Though far less famous by name than her son, she is genetically indispensable to the line.",
+      "key_facts": [
+        "Tajima dam of Dai 7 Itozakura J65",
+        "Produced 13 calves; proven heritable maternal traits",
+        "Supplied the Tajima marbling side of the founding Itozakura cross"
+      ]
+    },
+    {
+      "name": "Kitaguni 7",
+      "name_jp": "北国7",
+      "reg": null,
+      "era": "before 1984",
+      "line": "Kedaka",
+      "prefecture": "Shimane",
+      "ono_rank": null,
+      "epithet": "Ono's finest Kedaka cow, dam of a champion",
+      "registry_reg": null,
+      "bio": "Kitaguni 7 is a Kedaka-line dam remembered chiefly for one calf: her eighth, the celebrated carcass sire Kitaguni 7-8 J1530, whose name records his position in her calving order. Kenichi Ono singled her out as 'the finest of all Kedaka cows,' a rare distinction for a female in a canon dominated by bulls. That endorsement, together with the show-ring and carcass-contest success of her famous son, cemented her as a foundational maternal figure in the Kedaka line. Detailed records of her own registration and career are limited in English sources, so her fame rests largely on Ono's judgment and on the outsized influence of the bull she produced.",
+      "key_facts": [
+        "Dam of Kitaguni 7-8 J1530 (her 8th calf)",
+        "Ono called her 'the finest of all Kedaka cows'",
+        "Foundational Kedaka maternal figure"
+      ]
+    },
+    {
+      "name": "Michiko",
+      "name_jp": "みち子",
+      "reg": "J655635",
+      "era": "20th century",
+      "line": "Tajima",
+      "prefecture": "Japan",
+      "ono_rank": null,
+      "epithet": "Tajima dam of the great carcass bull Michifuku",
+      "registry_reg": null,
+      "bio": "Michiko is the Tajima dam of Michifuku, the bull many regard as the finest carcass animal ever exported from Japan. Registered J655635 and sired by Tanishige 1526, she carries a maternal line running back through Yasutani Doi J472 and Yasumi Doi J10328 - the core of the Tajima and Tajiri marbling genetics. Bred to Monjiro 11550, she produced the son who would go on to top the US Wagyu Sire Summary for marbling, making her one of the most quietly influential export dams in the breed. Her own record is documented mostly through her offspring, but the concentration of elite Tajima blood on her maternal side is what gave Michifuku his exceptional carcass merit.",
+      "key_facts": [
+        "Dam of Michifuku (FB1615) by Monjiro 11550",
+        "Registered J655635; sired by Tanishige 1526",
+        "Maternal line traces Yasutani Doi J472 and Yasumi Doi J10328"
+      ]
+    },
+    {
+      "name": "Akiko",
+      "name_jp": null,
+      "reg": null,
+      "era": "imported 1994 (pregnant)",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "Namimaru daughter who carried and bore Big Al",
+      "registry_reg": null,
+      "bio": "Akiko is a foundation dam of the American Akaushi herd and a daughter of the elite sire Namimaru. She arrived in the 1994 importation already pregnant, bred to Dai 10 Mitsumaru, and the calf she carried became Big Al, the first fullblood Akaushi bull born outside Japan. Her cross with Dai 10 Mitsumaru is widely regarded as the greatest sire-and-dam combination in the breed's history, and through it she sits at the maternal root of the American foundation. In a founding female nucleus of only a handful of imported heifers, Akiko's contribution - both the calf she was carrying and the line she established - made her one of the most consequential cows in Akaushi history.",
+      "key_facts": [
+        "Foundation dam; daughter of Namimaru",
+        "Arrived pregnant in 1994; produced Big Al (by Dai 10 Mitsumaru)",
+        "Her Mitsumaru cross regarded as the breed's premier sire/dam combination"
+      ]
+    },
+    {
+      "name": "Namiko",
+      "name_jp": null,
+      "reg": null,
+      "era": "imported 1994",
+      "line": "Akaushi",
+      "prefecture": "Kumamoto",
+      "ono_rank": null,
+      "epithet": "Namimaru daughter in the founding maternal nucleus",
+      "registry_reg": null,
+      "bio": "Namiko is one of the small group of Akaushi females imported in the 1994 foundation of the American Red Wagyu herd and, like several of her herdmates, a daughter of the elite cow-maker Namimaru. She belongs to the founding maternal nucleus - listed among imports such as Akiko, Haruko, Fuyuko, Ume, Dai 8 Marunami and Ringo 117 - that, together with just three bulls, established the entire American Akaushi population. Detailed individual records for her are limited, but her importance is structural: in a founding herd that small, every imported daughter of Namimaru became a pillar of the breed's maternal base in the United States.",
+      "key_facts": [
+        "One of the ~7-9 Akaushi foundation females imported in 1994",
+        "Daughter of the elite sire Namimaru",
+        "Part of the founding maternal nucleus of the US herd"
+      ]
+    }
+  ]
 }

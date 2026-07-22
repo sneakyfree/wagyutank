@@ -74,6 +74,15 @@ app.include_router(claim.router)
 app.include_router(config_router.router)
 app.include_router(wantads.router)
 
+# Per-tank media (audio recordings etc.). Served from the API rather than the
+# static frontend because Cloudflare Pages does not honor HTTP Range requests,
+# which breaks seeking/progressive playback for long recordings; Starlette
+# serves ranges properly and Cloudflare passes them through for proxied origins.
+_media_dir = Path(__file__).resolve().parent.parent.parent / "tanks" / _tank.key() / "media"
+if _media_dir.is_dir():
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/media", StaticFiles(directory=str(_media_dir)), name="media")
+
 
 @app.get("/api/health", tags=["meta"])
 def health():
