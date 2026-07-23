@@ -1079,12 +1079,14 @@
     "semen_only": true
   },
   {
-    "registration_no": null,
+    "registration_no": "FB6538",
     "name": "Shigefuku",
     "aliases": [
       "005",
       "Westholme 005",
-      "005 Shigefuku"
+      "005 Shigefuku",
+      "Shigefuku 005",
+      "Shigefuku J1822"
     ],
     "animal_type": "bull",
     "breed": "Fullblood Black",
