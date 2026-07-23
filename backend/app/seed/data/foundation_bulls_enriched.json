@@ -1075,7 +1075,8 @@
     "confidence": "low",
     "notes": "Named explicitly in Rocking 711 and Wagyu International chronological histories as the 1991 Lakeside/Canada semen import ('fifth bull'). Registration, sire/dam, birth year and bloodline percentages NOT published — left null/low. Confidence low on genetic detail, high on the import event.",
     "birth_country": "JP",
-    "bred_outside_japan": false
+    "bred_outside_japan": false,
+    "semen_only": true
   },
   {
     "registration_no": null,
@@ -1091,7 +1092,7 @@
     "bloodline_detail": "Main Kedaka line; a son of Dai 20 Hirashige (himself a son of Kedaka), inheriting strongly from Eiko. Growth/frame-type Kedaka genetics rather than marbling-type Tajima.",
     "birth_year": null,
     "importer": "Westholme (semen)",
-    "import_year": 1997,
+    "import_year": 1998,
     "prefecture": "Tottori",
     "sire": "Dai 20 Hirashige",
     "dam": "",
@@ -1112,7 +1113,8 @@
     },
     "blend_total": 16,
     "blend_group": "C",
-    "blend_source": "16/16 Analysis chart (Wagyu International)"
+    "blend_source": "16/16 Analysis chart (Wagyu International)",
+    "semen_only": true
   },
   {
     "registration_no": null,
@@ -1129,7 +1131,7 @@
     "bloodline_detail": "An Itozakura/Tajima cross carrying Tottori/Kedaka growth and maternal traits plus Itozakura (Okayama/Fujiyoshi) size, with Kikunori Doi marbling introduced through Kanehagi. A deliberately composite growth-plus-marbling sire.",
     "birth_year": null,
     "importer": "Westholme (semen)",
-    "import_year": 1997,
+    "import_year": 1998,
     "prefecture": "",
     "sire": "",
     "dam": "",
@@ -1150,7 +1152,8 @@
     },
     "blend_total": 16,
     "blend_group": "C",
-    "blend_source": "16/16 Analysis chart (Wagyu International)"
+    "blend_source": "16/16 Analysis chart (Wagyu International)",
+    "semen_only": true
   },
   {
     "registration_no": null,
@@ -1167,7 +1170,7 @@
     "bloodline_detail": "Tajima Doi line; a son of Dai 2 Yasutsuru Doi (the same sire as JVP Fukutsuru 068) and a direct descendant of the legendary 'Hyogo Cow' Kikutsuru. Concentrated Kikutsuru/Yasutsuru Doi marbling genetics.",
     "birth_year": null,
     "importer": "Westholme (semen)",
-    "import_year": 1997,
+    "import_year": 1998,
     "prefecture": "Hyogo",
     "sire": "Dai 2 Yasutsuru Doi",
     "dam": "",
@@ -1185,7 +1188,8 @@
     },
     "blend_total": 16,
     "blend_group": "B",
-    "blend_source": "16/16 Analysis chart (Wagyu International)"
+    "blend_source": "16/16 Analysis chart (Wagyu International)",
+    "semen_only": true
   },
   {
     "registration_no": "FB2501",

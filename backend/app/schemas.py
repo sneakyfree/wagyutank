@@ -120,6 +120,7 @@ class AnimalOut(BaseModel):
     import_year: int | None = None
     birth_country: str | None = None
     conceived_in_japan: bool = False
+    semen_only: bool = False
     blend: dict | None = None
     blend_group: str | None = None
     blend_total: float | None = None

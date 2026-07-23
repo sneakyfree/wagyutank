@@ -214,6 +214,9 @@ class Animal(Base):
     birth_country: Mapped[str | None] = mapped_column(String(2))
     # Travelled in utero: conceived in Japan, born after the shipment landed.
     conceived_in_japan: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Only the bull's SEMEN was exported -- the animal itself never left Japan.
+    # Distinct from import_year, which for these sires dates the straws, not a shipment of the bull.
+    semen_only: Mapped[bool] = mapped_column(Boolean, default=False)
     # Official 16/16 bloodline analysis: {"Tajima": 8, "Kedaka": 4, ...} in units
     # out of 16, plus the A-D group letter and the source it was transcribed from.
     blend: Mapped[dict | None] = mapped_column(JSON)
