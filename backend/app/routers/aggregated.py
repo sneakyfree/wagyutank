@@ -139,6 +139,11 @@ def stats(db: Session = Depends(get_db)):
     )
     countries = sorted(c[0] for c in db.query(AggregatedListing.country)
                        .filter(active, AggregatedListing.country != None).distinct() if c[0])  # noqa: E711
+    country_counts = dict(
+        db.query(AggregatedListing.country, func.count())
+        .filter(active, AggregatedListing.country != None)  # noqa: E711
+        .group_by(AggregatedListing.country).all()
+    )
     css_export = base.filter(AggregatedListing.css_status == "css").count()
     bloodlines = dict(
         db.query(AggregatedListing.bloodline, func.count())
@@ -146,7 +151,7 @@ def stats(db: Session = Depends(get_db)):
         .group_by(AggregatedListing.bloodline).order_by(func.count().desc()).all()
     )
     return {"active": base.count(), "sources": len(sites), "sites": sorted(sites),
-            "regions": regions, "countries": countries, "css_export_eligible": css_export,
+            "regions": regions, "countries": countries, "country_counts": country_counts, "css_export_eligible": css_export,
             "bloodlines": bloodlines}
 
 

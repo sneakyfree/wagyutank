@@ -33,7 +33,7 @@ Here is the distinction that matters, and that gets muddied constantly: **Akaush
 
 The story of Wagyu outside Japan begins not with a shipment of thousands but with a handful of bulls. According to a 1992 newspaper account — the earliest primary source — the first four Wagyu **arrived in the United States on March 31, 1976**, bought by the Texas cattleman **Morris Whitney** together with a Japanese partner. It was the first Wagyu ever exported from Japan.
 
-!gallery /foundation/founder-mazda.jpg "Mazda — Japanese Black" | /foundation/founder-mtfuji.jpg "Mt. Fuji — Japanese Black" | /foundation/founder-judo.jpg "Judo — Akaushi" | /foundation/founder-rueshaw.jpg "Rueshaw — Akaushi"
+!gallery /foundation/thumb/FB103.jpg "Mazda — Japanese Black" | /foundation/thumb/FB104.jpg "Mt. Fuji — Japanese Black" | /foundation/thumb/EAF97014.jpg "Judo — Akaushi" | /foundation/thumb/AF6808.jpg "Rueshaw — Akaushi"
 
 ### Hear it from the man who owned all four bulls
 
