@@ -237,10 +237,13 @@ def _upsert(db, item: dict) -> bool:
         for (t, ot) in recent:
             if _title_key(ot or t) == tk:
                 return False
+    from .news_geo import classify_country, region_for_country
+    country = classify_country(item["source_name"], item.get("lang"), item.get("region"), item.get("gl"))
+    region = region_for_country(country) or item["region"]
     db.add(NewsArticle(
         dedup_key=key, title=item["title"][:400], original_title=item.get("original_title"),
         summary=item.get("summary"), source_name=item["source_name"][:120],
-        source_url=item["source_url"], region=item["region"], language=item["lang"],
+        source_url=item["source_url"], region=region, country=country, language=item["lang"],
         is_translated=item.get("is_translated", False),
         published_at=item.get("published_at"), first_seen_at=_now(), status="active",
     ))
@@ -267,7 +270,7 @@ def _fetch_feed(f: dict, limit: int = 12) -> list[dict]:
         title = re.sub(r"\s+-\s+" + re.escape(source_name) + r"\s*$", "", title_raw).strip()
         rec = {"region": f["region"], "lang": f["lang"], "source_name": source_name,
                "source_url": link, "published_at": _parse_pubdate(item.findtext("pubDate")),
-               "title": title, "is_translated": False}
+               "title": title, "is_translated": False, "gl": f.get("gl")}
         if f["lang"] != "en":
             rec["original_title"] = title
             translated = _translate(title, f["lang"])

@@ -635,7 +635,8 @@ class NewsArticle(Base):
     summary: Mapped[str | None] = mapped_column(Text)
     source_name: Mapped[str] = mapped_column(String(120))
     source_url: Mapped[str] = mapped_column(String(700))
-    region: Mapped[str] = mapped_column(String(8), index=True)   # US|AU|JP|EU|SA|OTHER
+    region: Mapped[str] = mapped_column(String(8), index=True)   # macro bucket: US|AU|JP|EU|SA|AS|ME|AF
+    country: Mapped[str | None] = mapped_column(String(2), index=True)  # resolved ISO-3166 country of the publisher
     language: Mapped[str] = mapped_column(String(4), default="en")
     is_translated: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     published_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)

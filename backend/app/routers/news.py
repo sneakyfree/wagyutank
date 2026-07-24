@@ -42,8 +42,8 @@ def list_news(region: str | None = None, translated: bool | None = None, q: str 
     rows = query.offset(offset).limit(limit).all()
     return [{"id": r.id, "title": r.title, "original_title": r.original_title,
              "summary": r.summary, "source_name": r.source_name, "region": r.region,
-             "language": r.language, "is_translated": r.is_translated, "clicks": r.clicks,
-             "published_at": r.published_at} for r in rows]
+             "country": r.country, "language": r.language, "is_translated": r.is_translated,
+             "clicks": r.clicks, "published_at": r.published_at} for r in rows]
 
 
 @router.get("/highlights")
@@ -94,7 +94,7 @@ def get_article(article_id: int, lang: str = "en", db: Session = Depends(get_db)
     return {
         "id": a.id, "title": title, "original_title": a.original_title,
         "english_title": a.title, "summary": summary, "source_name": a.source_name,
-        "source_url": a.source_url, "region": a.region, "language": a.language,
+        "source_url": a.source_url, "region": a.region, "country": a.country, "language": a.language,
         "is_translated": a.is_translated, "published_at": a.published_at,
         "lang": lang, "translated": translated, "clicks": a.clicks,
     }
