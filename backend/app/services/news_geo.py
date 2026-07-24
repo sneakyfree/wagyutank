@@ -107,7 +107,14 @@ def classify_country(source_name, language=None, region=None, gl=None):
     if _KANA.search(name):
         return "JP"
     if _HAN.search(name):
-        return "JP" if lang == "ja" else ("KR" if lang == "ko" else "CN")
+        if lang == "zh":
+            return "CN"
+        if lang == "ko":
+            return "KR"
+        if "新闻" in name:          # simplified-Chinese "news" -> mainland source
+            return "CN"
+        return "JP"                 # a kanji-named publisher in a Wagyu feed is Japanese
+                                    # (朝日新聞, 読売新聞 …) even when the feed lang is en
 
     # 2) ccTLD embedded in a domain-style source name
     for suf, cc in _TLD:
