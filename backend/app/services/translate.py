@@ -14,7 +14,7 @@ LANGS = {"es": "Spanish", "pt": "Portuguese (Brazilian)", "de": "German",
 # The cache key also carries the active model, so swapping models (or a bad batch
 # run under a degraded provider) can never freeze garbage in place forever —
 # which is exactly what happened on 2026-07-24 ("Semen Straws" -> 精液管).
-_PROMPT_VERSION = "v2"
+_PROMPT_VERSION = "v3"
 
 
 def _cache_salt() -> str:
@@ -104,9 +104,12 @@ def _system(target: str, is_markdown: bool) -> str:
             f"place and country names; animal names; registration numbers; breed terms ({breed}); "
             f"carcass grades and standards (A5, BMS, USDA Choice/Prime); and market index names "
             f"(e.g. CME Feeder Cattle Index). Leave all of those exactly as written in English.\n"
-            f"Use the correct industry term for a unit of frozen semen — it is a insemination "
+            f"Use the correct industry term for a unit of frozen semen — it is an insemination "
             f"straw (de: Portion; ja: ストロー; es: pajilla; pt: palheta; zh: 细管) — never the word "
-            f"for a drinking straw or for hay, and never an anatomical term.{ja_rule}\n"
+            f"for a drinking straw or for hay, and never an anatomical term.\n"
+            f"These animals are {species}. Use {species} terminology only: a 'sire' is a breeding "
+            f"BULL (de: Bulle/Vatertier — never Deckhengst, which is a stallion), a 'dam' is a cow. "
+            f"Never use horse, pig, sheep or other-species words.{ja_rule}\n"
             f"Return ONLY the translation, nothing else.")
 
 
