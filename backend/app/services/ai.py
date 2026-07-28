@@ -122,13 +122,19 @@ def active_provider_label() -> str:
     return f"{settings.ai_provider}:{prov['adcopy_model']}"
 
 
-def chat(system: str, user: str, max_tokens: int = 1500) -> str | None:
+def chat(system: str, user: str, max_tokens: int = 1500,
+         model: str | None = None) -> str | None:
     """Generic single-shot chat via the active provider (used by the aggregator's
-    extraction step). Returns None if no provider is configured."""
+    extraction step). Returns None if no provider is configured.
+
+    `model` overrides the provider's default for this call. Translation uses it to
+    run on a stronger model than bulk crawl extraction: the extraction lane is
+    token-hungry and deliberately cheap, but its model is weak at Japanese, and
+    translation output is what a Japanese breeder actually reads."""
     prov = _provider()
     if not prov:
         return None
-    model = prov["adcopy_model"]
+    model = model or prov["adcopy_model"]
     if prov["kind"] == "anthropic":
         import anthropic
         client = anthropic.Anthropic(api_key=prov["key"])

@@ -1,6 +1,7 @@
 """Machine translation with a permanent DB cache — translate content once per
 language, then serve from cache forever."""
 import hashlib
+import os
 import re
 import time
 
@@ -17,8 +18,23 @@ LANGS = {"es": "Spanish", "pt": "Portuguese (Brazilian)", "de": "German",
 _PROMPT_VERSION = "v3"
 
 
+def _model() -> str | None:
+    """Optional stronger model for translation only (env TRANSLATE_MODEL).
+
+    Crawl extraction runs on a cheap local model by necessity — it burns ~1M
+    tokens a night. Translation does not: output is cached permanently, so each
+    unique string is paid for once. Pointing this lane at a better model is the
+    difference between "semen straws from a Wagyu sire" rendering correctly in
+    Japanese and rendering as の一部（ストロー）から採取した冷凍精子. Unset = use
+    the provider default, i.e. exactly the current behaviour.
+    """
+    return os.getenv("TRANSLATE_MODEL") or None
+
+
 def _cache_salt() -> str:
-    return f"{_PROMPT_VERSION}|{active_provider_label()}"
+    # The model is part of the key, so switching TRANSLATE_MODEL re-translates
+    # rather than serving the weaker model's cached output forever.
+    return f"{_PROMPT_VERSION}|{_model() or active_provider_label()}"
 
 
 def _key(text: str, lang: str) -> str:
@@ -144,7 +160,7 @@ def translate(db, text: str, lang: str, *, is_markdown: bool = False) -> str:
         out = None
         for attempt in range(2):  # free-tier LLMs rate-limit under burst; back off once
             try:
-                out = chat(system, chunk, max_tokens=2200)
+                out = chat(system, chunk, max_tokens=2200, model=_model())
             except Exception:
                 out = None
             if out:
@@ -220,7 +236,7 @@ def translate_batch(db, items: list[dict], lang: str) -> dict:
         out = None
         for attempt in range(2):
             try:
-                out = chat(system, prompt, max_tokens=1600)
+                out = chat(system, prompt, max_tokens=1600, model=_model())
             except Exception:
                 out = None
             if out:
