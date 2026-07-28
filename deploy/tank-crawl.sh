@@ -38,14 +38,26 @@ TANK_BOT=$(python3 -c "import json,sys;b=json.load(open('$TANKJSON'))['brand'];p
 # or "live_beef" (WagyuSale-style live cattle + beef link classification).
 TANK_CRAWL_MODE=$(python3 -c "import json;print((json.load(open('$TANKJSON')).get('crawl') or {}).get('mode') or 'genetics')" 2>/dev/null) || TANK_CRAWL_MODE="genetics"
 export TANK_TERMS TANK_BOT TANK_CRAWL_MODE
+# Page budget must scale with the seed list, not sit at a flat 500. WagyuSale has
+# 429 seeds and was exhausting the budget at site ~290 every night ("budget -6"),
+# so a third of its sellers were never crawled at all — silently, since the run
+# still reported success. Floor 500, then ~3 pages per seed.
+SEED_COUNT=$(python3 -c "import json;print(len(json.load(open('$SEEDS'))))" 2>/dev/null || echo 0)
+MAX_PAGES=$(( SEED_COUNT * 3 ))
+[ "$MAX_PAGES" -lt 500 ] && MAX_PAGES=500
+echo "Seeds: $SEED_COUNT · page budget: $MAX_PAGES"
 node "$REPO/backend/scripts/crawl_listings.cjs" --seeds "$SEEDS" --out "$OUT" \
-  --per-site 5 --concurrency 8 --goto-timeout 30000 --max-pages 500
+  --per-site 5 --concurrency 8 --goto-timeout 30000 --max-pages "$MAX_PAGES"
 scp -q "$OUT" "$VPS:/root/wagyutank/backend/${KEY}_rendered.json"
+# Ingest, then phone home with the REAL added count. record_run was being called
+# with no argument, so every crawl logged "added=0" on the health dashboard no
+# matter how many listings it actually brought in.
 ssh "$VPS" "cd /root/wagyutank/backend && set -a && . ../tanks/$KEY/tank.env && set +a && \
-  .venv/bin/python -m app.jobs.ingest_rendered ${KEY}_rendered.json && \
+  .venv/bin/python -m app.jobs.ingest_rendered ${KEY}_rendered.json | tee /tmp/${KEY}_ingest.out && \
   .venv/bin/python -m app.jobs.seed_directory && \
   .venv/bin/python -m app.jobs.enrich_directory && \
   .venv/bin/python -m app.jobs.reap_links && \
-  .venv/bin/python -m app.jobs.record_run roundup_crawl"
+  ADDED=\$(sed -n 's/.*added=\([0-9]\+\).*/\1/p' /tmp/${KEY}_ingest.out | tail -1) && \
+  .venv/bin/python -m app.jobs.record_run roundup_crawl \${ADDED:-0}"
 rm -f "$OUT"
 echo "===== $KEY done $(date) ====="

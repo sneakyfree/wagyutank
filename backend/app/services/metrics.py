@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import func
+from sqlalchemy import and_, func, or_
 
 from .. import models
 
@@ -30,24 +30,38 @@ def _count_created_le(db, model, cutoff, ts_attr="created_at", *filters) -> int:
     return int(q.scalar() or 0)
 
 
-def _roundup_active_asof(db, cutoff) -> int:
-    """A web listing was live at instant `cutoff` if it was first seen by then and
-    still being seen at/after then (last_seen_at is bumped every crawl it survives)."""
+def _alive_at(cutoff):
+    """Filter: the listing existed at `cutoff`.
+
+    It was first seen by then AND it had not died by then. Do NOT use
+    `last_seen_at >= cutoff` alone: the crawler re-visits only a slice of pages
+    each night (per-site cap + page budget), so a listing that is alive today may
+    carry a last_seen_at from a week ago. Treating that as "dead at cutoff"
+    undercounted the past and reported wild phantom growth — Dexter's daily email
+    claimed +267 in one day when the true figure was +6, and the 1d delta came out
+    larger than the 7d delta, which is impossible for a monotonic count.
+    A row that is active NOW necessarily existed at any earlier cutoff it predates.
+    """
     A = models.AggregatedListing
-    return int(db.query(func.count()).select_from(A).filter(
-        A.first_seen_at <= cutoff, A.last_seen_at >= cutoff).scalar() or 0)
+    return and_(A.first_seen_at <= cutoff,
+                or_(A.status == "active", A.last_seen_at >= cutoff))
+
+
+def _roundup_active_asof(db, cutoff) -> int:
+    A = models.AggregatedListing
+    return int(db.query(func.count()).select_from(A).filter(_alive_at(cutoff)).scalar() or 0)
 
 
 def _roundup_sources_asof(db, cutoff) -> int:
     A = models.AggregatedListing
     return int(db.query(func.count(func.distinct(A.source_site))).filter(
-        A.first_seen_at <= cutoff, A.last_seen_at >= cutoff).scalar() or 0)
+        _alive_at(cutoff)).scalar() or 0)
 
 
 def _roundup_countries_asof(db, cutoff) -> int:
     A = models.AggregatedListing
     return int(db.query(func.count(func.distinct(A.country))).filter(
-        A.first_seen_at <= cutoff, A.last_seen_at >= cutoff,
+        _alive_at(cutoff),
         A.country.isnot(None)).scalar() or 0)
 
 

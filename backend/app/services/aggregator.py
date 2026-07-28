@@ -660,6 +660,17 @@ def _summary(li: dict, animal: str | None, product: ProductType) -> str:
 _COUNTRY_ALIAS = {"UK": "GB", "EN": "GB", "UAE": "AE"}
 
 
+def _norm_site(host: str) -> str:
+    """Canonical source host: lowercase, no port, no leading www.
+
+    Without this, wagyuhofgenetik.com and www.wagyuhofgenetik.com counted as two
+    separate 'seller sites' — 11 such pairs inflated the advertised source count
+    from 115 to 126 and split the same seller across two Atlas rows.
+    """
+    h = (host or "").strip().lower().split(":")[0]
+    return h[4:] if h.startswith("www.") else h
+
+
 def _country_region(li: dict, source_site: str) -> tuple[str | None, str | None]:
     country = (li.get("country") or "").strip().upper()[:2] or None
     country = _COUNTRY_ALIAS.get(country, country)
@@ -920,7 +931,7 @@ def ingest_rendered_pages(db, pages: list[dict]) -> dict:
     touched_sites: dict[str, int] = {}
     for pg in pages:
         url = (pg.get("source_url") or "").strip()
-        site = (pg.get("source_site") or urlparse(url).netloc).strip()
+        site = _norm_site(pg.get("source_site") or urlparse(url).netloc)
         text = pg.get("text") or ""
         if not url or len(text) < 60:
             continue
