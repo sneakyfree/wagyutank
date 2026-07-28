@@ -95,9 +95,17 @@ def _model_override(key: str, fallback: str) -> str:
         return fallback
 
 
-def _provider() -> dict | None:
-    """Return the active provider's config, or None to use the template fallback."""
-    p = _active_provider_name()
+def _provider(force: str | None = None) -> dict | None:
+    """Return the active provider's config, or None to use the template fallback.
+
+    `force` pins a specific provider regardless of the tank's AI_PROVIDER. This
+    exists because the two AI lanes genuinely want different providers: crawl
+    extraction is token-hungry and runs on the local 5090 via tank.env, while
+    translation is cached-once and belongs on the best model the Windy Mind buffet
+    offers. Before this, pointing extraction at Ollama silently dragged
+    translation along with it — asking for claude-opus-5 got a 404 from Ollama.
+    """
+    p = (force or "").lower() or _active_provider_name()
     if p == "template":
         return None
     if p == "anthropic" and settings.anthropic_api_key:
@@ -115,15 +123,15 @@ def _provider() -> dict | None:
     return None
 
 
-def active_provider_label() -> str:
-    prov = _provider()
+def active_provider_label(force: str | None = None) -> str:
+    prov = _provider(force)
     if not prov:
         return "template (no AI key configured)"
     return f"{settings.ai_provider}:{prov['adcopy_model']}"
 
 
 def chat(system: str, user: str, max_tokens: int = 1500,
-         model: str | None = None) -> str | None:
+         model: str | None = None, provider: str | None = None) -> str | None:
     """Generic single-shot chat via the active provider (used by the aggregator's
     extraction step). Returns None if no provider is configured.
 
@@ -131,7 +139,7 @@ def chat(system: str, user: str, max_tokens: int = 1500,
     run on a stronger model than bulk crawl extraction: the extraction lane is
     token-hungry and deliberately cheap, but its model is weak at Japanese, and
     translation output is what a Japanese breeder actually reads."""
-    prov = _provider()
+    prov = _provider(provider)
     if not prov:
         return None
     model = model or prov["adcopy_model"]

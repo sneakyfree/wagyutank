@@ -66,7 +66,8 @@ def _translate_window(cues, lo, hi, target, model):
 
     want = hi - lo
     for _ in range(2):
-        raw = chat(_system(target), body, max_tokens=2400, model=model)
+        raw = chat(_system(target), body, max_tokens=2400, model=model,
+                   provider=T._provider_for(T.DURABLE))
         if not raw:
             continue
         raw = re.sub(r"^```(?:json)?|```$", "", raw.strip(), flags=re.M).strip()

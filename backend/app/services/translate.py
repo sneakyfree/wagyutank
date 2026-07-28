@@ -64,6 +64,17 @@ def _model(tier: str = BULK) -> str | None:
     return (specific or general) or None
 
 
+def _provider_for(tier: str) -> str | None:
+    """Which provider serves this tier.
+
+    A configured translate model lives on the Windy Mind buffet, so pin the lane
+    there. Otherwise inherit whatever the tank is set to. Without this, a tank
+    whose AI_PROVIDER points at the local 5090 (as every tank.env does, for crawl
+    extraction) sent translation there too and 404'd on claude-opus-5.
+    """
+    return "windymind" if _model(tier) else None
+
+
 def _cache_salt(tier: str = BULK) -> str:
     # The model is part of the key, so switching models re-translates rather than
     # serving the weaker model's cached output forever.
@@ -212,7 +223,7 @@ def translate(db, text: str, lang: str, *, is_markdown: bool = False,
         out = None
         for attempt in range(2):  # free-tier LLMs rate-limit under burst; back off once
             try:
-                out = chat(system, chunk, max_tokens=2200, model=_model(tier))
+                out = chat(system, chunk, max_tokens=2200, model=_model(tier), provider=_provider_for(tier))
             except Exception:
                 out = None
             if out:
@@ -290,7 +301,7 @@ def translate_batch(db, items: list[dict], lang: str, tier: str = BULK) -> dict:
         out = None
         for attempt in range(2):
             try:
-                out = chat(system, prompt, max_tokens=1600, model=_model(tier))
+                out = chat(system, prompt, max_tokens=1600, model=_model(tier), provider=_provider_for(tier))
             except Exception:
                 out = None
             if out:
