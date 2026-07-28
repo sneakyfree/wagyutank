@@ -280,8 +280,13 @@ def detail(listing_id: int, lang: str = "en", db: Session = Depends(get_db)):
     out["product_type"] = row.product_type.value if row.product_type else None
     if lang and lang != "en":
         from ..services import translate as tr
+        # BULK tier, deliberately. Listing text is churn — 2,000+ rows replaced
+        # nightly as sellers add and pull ads — not the durable knowledge base the
+        # top tier exists for. Putting it on the durable lane also starved it:
+        # batch warming and interactive page loads were queueing behind each
+        # other and on-demand requests 429'd, falling back to English.
         for f in ("summary", "details"):
             if out.get(f):
-                out[f] = tr.translate(db, out[f], lang, tier=tr.DURABLE)
+                out[f] = tr.translate(db, out[f], lang, tier=tr.BULK)
         out["translated_to"] = lang
     return out
