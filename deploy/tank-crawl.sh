@@ -89,6 +89,7 @@ ssh "$VPS" "cd /root/wagyutank/backend && set -a && . ../tanks/$KEY/tank.env && 
   .venv/bin/python -m app.jobs.ingest_rendered ${KEY}_rendered.json | tee /tmp/${KEY}_ingest.out && \
   .venv/bin/python -m app.jobs.seed_directory && \
   .venv/bin/python -m app.jobs.discover_sites ${KEY}_candidates.json && \
+  .venv/bin/python -m app.jobs.recanon_bloodlines --apply && \
   .venv/bin/python -m app.jobs.enrich_directory && \
   .venv/bin/python -m app.jobs.reap_links && \
   ADDED=\$(sed -n 's/.*added=\([0-9]\+\).*/\1/p' /tmp/${KEY}_ingest.out | tail -1) && \
