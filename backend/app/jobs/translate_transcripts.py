@@ -84,6 +84,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--langs", default="")
     ap.add_argument("--limit", type=int, default=5, help="videos per run")
+    ap.add_argument("--video", default="", help="a single YouTube id")
     ap.add_argument("--dry", action="store_true")
     args = ap.parse_args()
 
@@ -95,9 +96,11 @@ def main() -> None:
     model = T._model(T.DURABLE)
     db = SessionLocal()
     try:
-        sources = (db.query(VideoTranscript)
-                     .filter(VideoTranscript.is_source == True)  # noqa: E712
-                     .order_by(VideoTranscript.id).all())
+        sq = (db.query(VideoTranscript)
+                .filter(VideoTranscript.is_source == True))  # noqa: E712
+        if args.video:
+            sq = sq.filter(VideoTranscript.video_id == args.video)
+        sources = sq.order_by(VideoTranscript.id).all()
         done_keys = {(r.video_id, r.lang) for r in db.query(VideoTranscript)
                      .filter(VideoTranscript.is_source == False).all()}  # noqa: E712
         todo = [(s, l) for s in sources for l in langs
