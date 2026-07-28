@@ -9,7 +9,17 @@ from ..models import Translation
 from .ai import active_provider_label, chat
 
 LANGS = {"es": "Spanish", "pt": "Portuguese (Brazilian)", "de": "German",
-         "ja": "Japanese", "zh": "Simplified Chinese", "fr": "French", "en": "English"}
+         "ja": "Japanese", "zh": "Simplified Chinese", "fr": "French", "en": "English",
+         # 2026-07-28 expansion to 14. Chosen on where the breed actually trades and
+         # where the English barrier is real — not raw listing counts. Dutch and
+         # Danish were deliberately SKIPPED despite being the two largest uncovered
+         # markets by operation count: those breeders read English comfortably, so a
+         # translation buys nothing. Italian/Turkish/Indonesian punch far above their
+         # counts for the opposite reason. Korean has no listings yet BECAUSE the
+         # site is unreadable there — Hanwoo is a national marbled-beef genetics
+         # programme that mirrors Japan's.
+         "it": "Italian", "ko": "Korean", "tr": "Turkish", "cs": "Czech",
+         "pl": "Polish", "hu": "Hungarian", "id": "Indonesian"}
 
 # Bump when the prompt/guards change so every cached row re-translates itself.
 # The cache key also carries the active model, so swapping models (or a bad batch

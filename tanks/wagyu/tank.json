@@ -171,9 +171,17 @@
     "en",
     "es",
     "pt",
+    "fr",
     "de",
+    "it",
+    "cs",
+    "pl",
+    "hu",
+    "tr",
     "ja",
-    "zh"
+    "ko",
+    "zh",
+    "id"
   ],
   "network": {
     "peers": [
