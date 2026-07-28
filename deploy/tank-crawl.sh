@@ -81,7 +81,11 @@ CANDS="${OUT%.json}-candidates.json"
 # Ingest, then phone home with the REAL added count. record_run was being called
 # with no argument, so every crawl logged "added=0" on the health dashboard no
 # matter how many listings it actually brought in.
+# TANK_TERMS is passed through so discover_sites judges relevance on the tank's
+# full vocabulary (breed + news/video search terms), not just the breed name it
+# can derive from tank.json on its own.
 ssh "$VPS" "cd /root/wagyutank/backend && set -a && . ../tanks/$KEY/tank.env && set +a && \
+  export TANK_TERMS='$TANK_TERMS' && \
   .venv/bin/python -m app.jobs.ingest_rendered ${KEY}_rendered.json | tee /tmp/${KEY}_ingest.out && \
   .venv/bin/python -m app.jobs.seed_directory && \
   .venv/bin/python -m app.jobs.discover_sites ${KEY}_candidates.json && \
