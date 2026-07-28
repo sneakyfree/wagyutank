@@ -18,27 +18,43 @@ LANGS = {"es": "Spanish", "pt": "Portuguese (Brazilian)", "de": "German",
 _PROMPT_VERSION = "v3"
 
 
-def _model() -> str | None:
-    """Optional stronger model for translation only (env TRANSLATE_MODEL).
+# Translation splits into two tiers with very different economics.
+#
+#   DURABLE — the skeleton. Breed history, foundation bios, great sires, FAQ,
+#     feeding, the Japan vocabulary. ~254k chars of prose that is written once and
+#     read forever, and it is what makes the site read as the authority on the
+#     breed. Translating ALL of it into all five languages costs about $32 on the
+#     best available model — one time, permanently cached. There is no reason to
+#     economise here.
+#
+#   BULK — the churn. Listing summaries and news headlines: thousands of rows,
+#     replaced nightly, and the parts that actually matter (sire name, reg number,
+#     price, grade) never go through the translator anyway because they are on the
+#     do-not-translate list. This is where volume lives, so it stays cheap.
+#
+# Both go through Windy Mind — the app never names a provider, it asks the buffet
+# for a model id. To upgrade, add the model to the Windy Mind roster and change
+# the env var; the model is part of the cache key, so everything re-translates
+# itself rather than serving the older model's output forever.
+DURABLE = "durable"
+BULK = "bulk"
 
-    Crawl extraction runs on a cheap local model by necessity — it burns ~1M
-    tokens a night. Translation does not: output is cached permanently, so each
-    unique string is paid for once. Pointing this lane at a better model is the
-    difference between "semen straws from a Wagyu sire" rendering correctly in
-    Japanese and rendering as の一部（ストロー）から採取した冷凍精子. Unset = use
-    the provider default, i.e. exactly the current behaviour.
-    """
-    return os.getenv("TRANSLATE_MODEL") or None
+
+def _model(tier: str = BULK) -> str | None:
+    if tier == DURABLE:
+        return (os.getenv("TRANSLATE_MODEL_DURABLE")
+                or os.getenv("TRANSLATE_MODEL") or None)
+    return os.getenv("TRANSLATE_MODEL_BULK") or os.getenv("TRANSLATE_MODEL") or None
 
 
-def _cache_salt() -> str:
-    # The model is part of the key, so switching TRANSLATE_MODEL re-translates
-    # rather than serving the weaker model's cached output forever.
-    return f"{_PROMPT_VERSION}|{_model() or active_provider_label()}"
+def _cache_salt(tier: str = BULK) -> str:
+    # The model is part of the key, so switching models re-translates rather than
+    # serving the weaker model's cached output forever.
+    return f"{_PROMPT_VERSION}|{_model(tier) or active_provider_label()}"
 
 
-def _key(text: str, lang: str) -> str:
-    raw = f"{_cache_salt()}|{text}"
+def _key(text: str, lang: str, tier: str = BULK) -> str:
+    raw = f"{_cache_salt(tier)}|{text}"
     return hashlib.sha256(raw.encode()).hexdigest()[:32] + ":" + lang
 
 
@@ -142,15 +158,21 @@ def _chunks(text: str) -> list[str]:
     return out
 
 
-def translate(db, text: str, lang: str, *, is_markdown: bool = False) -> str:
+def translate(db, text: str, lang: str, *, is_markdown: bool = False,
+              tier: str = DURABLE) -> str:
     """Return `text` translated to `lang` (cached). English or unknown → unchanged.
-    Long text is translated in chunks so the output never gets truncated."""
+    Long text is translated in chunks so the output never gets truncated.
+
+    Defaults to the DURABLE tier: every caller of this function is long-lived prose
+    the site is judged on — the help centre, the feeding guide, the great-sires
+    encyclopedia, the breed history, the digest. High-volume churn goes through
+    translate_batch() instead, which defaults to BULK."""
     lang = (lang or "en").lower()
     if lang == "en" or lang not in LANGS or not text.strip():
         return text
     if _is_dnt(text):
         return text
-    key = _key(text, lang)
+    key = _key(text, lang, tier)
     row = db.query(Translation).filter(Translation.cache_key == key).first()
     if row:
         return row.text
@@ -160,7 +182,7 @@ def translate(db, text: str, lang: str, *, is_markdown: bool = False) -> str:
         out = None
         for attempt in range(2):  # free-tier LLMs rate-limit under burst; back off once
             try:
-                out = chat(system, chunk, max_tokens=2200, model=_model())
+                out = chat(system, chunk, max_tokens=2200, model=_model(tier))
             except Exception:
                 out = None
             if out:
@@ -195,9 +217,11 @@ def translate_one(db, text: str, lang: str) -> tuple[str, bool]:
     return out, (out != text)
 
 
-def translate_batch(db, items: list[dict], lang: str) -> dict:
+def translate_batch(db, items: list[dict], lang: str, tier: str = BULK) -> dict:
     """Translate many short strings (e.g. headlines) in as few LLM calls as
-    possible. items = [{id, text}]. Returns {id: translated_text} for the ones
+    possible. BULK tier by default — this is the whole-page DOM sweep and the
+    comment feed, thousands of short strings whose highest-visibility members are
+    already covered hand-written in lib/i18n.tsx. items = [{id, text}]. Returns {id: translated_text} for the ones
     that actually translated. Cache-first per item; uncached ones go in one
     numbered-list prompt per ~20."""
     # Unlike translate(), the TARGET here may be English — comments arrive in any
@@ -212,7 +236,7 @@ def translate_batch(db, items: list[dict], lang: str) -> dict:
         _id = it.get("id")
         if not text or _id is None or _is_dnt(text):
             continue
-        row = db.query(Translation).filter(Translation.cache_key == _key(text, lang)).first()
+        row = db.query(Translation).filter(Translation.cache_key == _key(text, lang, tier)).first()
         if row:
             if row.text != text:
                 result[_id] = row.text
@@ -236,7 +260,7 @@ def translate_batch(db, items: list[dict], lang: str) -> dict:
         out = None
         for attempt in range(2):
             try:
-                out = chat(system, prompt, max_tokens=1600, model=_model())
+                out = chat(system, prompt, max_tokens=1600, model=_model(tier))
             except Exception:
                 out = None
             if out:
@@ -259,5 +283,5 @@ def translate_batch(db, items: list[dict], lang: str) -> dict:
             # fragments as "translations" (a headline coming back as "$126").
             if tr and tr != b["text"] and not _looks_bad(b["text"], tr, lang):
                 result[b["id"]] = tr
-                _cache_put(db, _key(b["text"], lang), lang, tr)
+                _cache_put(db, _key(b["text"], lang, tier), lang, tr)
     return result
