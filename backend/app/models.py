@@ -829,7 +829,16 @@ class AggregatedListing(Base):
     listing_images: Mapped[list] = mapped_column(JSON, default=list)
 
     first_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    # Last time the CRAWLER re-extracted this listing from its page (strong
+    # evidence it is still offered). Only a slice of pages is re-crawled nightly,
+    # so this legitimately lags for most rows.
     last_seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+    # Last time the reaper confirmed the source URL still resolves (weaker
+    # evidence, but it runs over EVERY active listing every night). Without it the
+    # cards claimed "still confirmed live" with nothing recording that a check had
+    # ever happened, and 681 of 1,792 listings looked unverified for 7+ days when
+    # in fact their URLs had been probed hours earlier.
+    last_checked_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)
     # Best-available "when was the source listing last updated" signal.
     source_updated_at: Mapped[datetime | None] = mapped_column(DateTime)
     source_date_type: Mapped[str | None] = mapped_column(String(16))  # shopify | stated | page-header

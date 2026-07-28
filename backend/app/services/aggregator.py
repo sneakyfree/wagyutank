@@ -660,6 +660,71 @@ def _summary(li: dict, animal: str | None, product: ProductType) -> str:
 _COUNTRY_ALIAS = {"UK": "GB", "EN": "GB", "UAE": "AE"}
 
 
+def _canon_bloodline(raw: str | None) -> str | None:
+    """Map a free-text bloodline claim onto the breed's canonical lines.
+
+    The LLM returns whatever the seller wrote, which produced a 'Bloodline' facet
+    with 436 distinct values across 1,792 listings — 379 of them appearing exactly
+    once. It offered 'WHITE WAGYU', 'HORNED', 'Sexed Female', 'More Info', raw EBV
+    marketing copy and Swedish pedigree headers as if they were bloodlines. Any
+    breeder reading that knows the site does not understand the breed.
+
+    Canonical lines come from tank.json vocab.bloodlines, so each breed defines its
+    own (and a breed with no meaningful line structure defines none, which hides the
+    facet rather than filling it with noise). The seller's original wording is not
+    lost — _describe() writes it into the listing summary.
+
+    Purity and colour claims ('Fullblood Wagyu', 'Black Wagyu', 'Horned') are NOT
+    bloodlines and resolve to None.
+    """
+    if not raw:
+        return None
+    try:
+        from .. import tank
+        lines = (tank.vocab().get("bloodlines") or [])
+    except Exception:
+        lines = []
+    if not lines:
+        return None
+    text = str(raw).lower()
+    # Every line mentioned, with where it appears and any percentage attached to it.
+    # Sellers routinely state a blend ("75% Tajima, 19% Shimane, 6% Kedaka") and the
+    # dominant line is the answer — matching on longest alias picked Itozakura there,
+    # which would hide a 75% Tajima animal from a breeder filtering on Tajima.
+    hits: list[tuple[int, float | None, str]] = []
+    for row in lines:
+        pos = None
+        for alias in row.get("aliases") or []:
+            a = str(alias).lower()
+            if not a:
+                continue
+            i = text.find(a)
+            if i >= 0 and (pos is None or i < pos[0]):
+                pos = (i, a)
+        if pos is None:
+            continue
+        i, a = pos
+        # Bind a percentage to THIS line only: "75% tajima" immediately before, or
+        # "tajima 55.2%" / "tajima: 14%" immediately after. A loose window either
+        # side picked up the neighbouring line's share and made 41% Tajima beat
+        # 43% Itozakura.
+        pct = None
+        before = re.search(r"(\d{1,3}(?:\.\d+)?)\s*%\s*[a-z ]{0,8}$", text[max(0, i - 14):i])
+        after = re.match(r"[\s:=-]{0,3}(?:[a-z]{0,6}\s)?(\d{1,3}(?:\.\d+)?)\s*%",
+                         text[i + len(a):i + len(a) + 14])
+        if before:
+            pct = float(before.group(1))
+        elif after:
+            pct = float(after.group(1))
+        hits.append((i, pct, row["name"]))
+    if not hits:
+        return None
+    stated = [h for h in hits if h[1] is not None]
+    if stated:
+        return max(stated, key=lambda h: h[1])[2]   # dominant share wins
+    return min(hits, key=lambda h: h[0])[2]          # else the first line named
+
+
 def _norm_site(host: str) -> str:
     """Canonical source host: lowercase, no port, no leading www.
 
@@ -779,7 +844,7 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         title=(li.get("title") or _title(animal, product, li.get("seller_name")))[:240],
         summary=_summary(li, animal, product),
         animal_name=animal, animal_reg=(li.get("registration_no") or None),
-        bloodline=(li.get("bloodline") or None),
+        bloodline=_canon_bloodline(li.get("bloodline")),
         price=price, price_unit=(li.get("price_unit") or None),
         currency=(li.get("currency") or "USD")[:3].upper(),
         quantity_text=(str(li["quantity"]) if li.get("quantity") else None),

@@ -383,6 +383,7 @@ class AggregatedOut(BaseModel):
     outbound_clicks: int
     first_seen_at: datetime
     last_seen_at: datetime
+    last_checked_at: datetime | None = None
     source_updated_at: datetime | None = None
     source_date_type: str | None = None
 

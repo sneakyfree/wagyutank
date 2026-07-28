@@ -83,10 +83,16 @@ def reap(db, *, limit: int | None = None) -> dict:
     with ThreadPoolExecutor(max_workers=_WORKERS) as pool:
         verdicts = list(pool.map(lambda r: (r, _probe(r.source_url)), rows))
 
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     alive = hard = soft = delisted = skipped = 0
     for row, verdict in verdicts:
         if verdict == "alive":
             alive += 1
+            # Record the confirmation. The reaper has always probed every active
+            # listing nightly but never wrote down that it did, so nothing could
+            # substantiate the "still confirmed live" claim on the cards.
+            row.last_checked_at = now
             if row.dead_streak:
                 row.dead_streak = 0
         elif verdict == "hard":

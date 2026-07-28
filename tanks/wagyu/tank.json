@@ -103,7 +103,69 @@
       "Wagyu bull",
       "Akaushi"
     ],
-    "help_nuance": "Use 'Akaushi' rather than 'Red Wagyu'. Wagyu = 'Japanese cattle' (an umbrella); Japanese Black and Akaushi are distinct breeds."
+    "help_nuance": "Use 'Akaushi' rather than 'Red Wagyu'. Wagyu = 'Japanese cattle' (an umbrella); Japanese Black and Akaushi are distinct breeds.",
+    "bloodlines": [
+      {
+        "name": "Tajima",
+        "aliases": [
+          "tajima",
+          "tajiri",
+          "hyogo",
+          "hyōgo",
+          "kobe",
+          "但馬"
+        ]
+      },
+      {
+        "name": "Kedaka",
+        "aliases": [
+          "kedaka",
+          "tottori",
+          "気高"
+        ]
+      },
+      {
+        "name": "Itozakura",
+        "aliases": [
+          "itozakura",
+          "shimane",
+          "糸桜"
+        ]
+      },
+      {
+        "name": "Fujiyoshi",
+        "aliases": [
+          "fujiyoshi",
+          "藤良"
+        ]
+      },
+      {
+        "name": "Okayama",
+        "aliases": [
+          "okayama",
+          "岡山"
+        ]
+      },
+      {
+        "name": "Hiroshima",
+        "aliases": [
+          "hiroshima",
+          "広島"
+        ]
+      },
+      {
+        "name": "Akaushi",
+        "aliases": [
+          "akaushi",
+          "kumamoto",
+          "red wagyu",
+          "japanese brown",
+          "akage",
+          "褐毛",
+          "赤牛"
+        ]
+      }
+    ]
   },
   "langs": [
     "en",

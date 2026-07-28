@@ -262,7 +262,15 @@ def browse(
     if featured:
         now = datetime.now(timezone.utc).replace(tzinfo=None)
         q = q.filter(Listing.featured_until != None, Listing.featured_until > now)  # noqa: E711
-    rows = q.order_by(Listing.created_at.desc()).offset(offset).limit(limit).all()
+    # Real inventory outranks the SAMPLE placeholders. jobs/launch_cleanup seeds a
+    # few clearly-labelled demo listings so a brand-new marketplace never shows an
+    # empty shelf — but they were sorting by date like everything else, so three of
+    # the four cards in the homepage's "Fresh listings" strip were demo data. Push
+    # them to the back: they still fill the shelf when there is nothing else, and
+    # they disappear behind real listings as soon as sellers arrive.
+    is_sample = Listing.title.like("SAMPLE —%")
+    rows = (q.order_by(is_sample.asc(), Listing.created_at.desc())
+             .offset(offset).limit(limit).all())
     return [to_listing_out(x) for x in rows]
 
 
