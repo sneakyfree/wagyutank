@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+import re
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from .models import (
@@ -118,6 +119,8 @@ class AnimalOut(BaseModel):
     importer: str | None
     prefecture: str | None = None
     import_year: int | None = None
+    # The raw, possibly-imprecise value ("1960s", "1905-1915") for display.
+    import_year_text: str | None = Field(default=None, validation_alias="import_year")
     birth_country: str | None = None
     conceived_in_japan: bool = False
     semen_only: bool = False
@@ -138,6 +141,27 @@ class AnimalOut(BaseModel):
     # model's `public_photos` property so only approved/uploaded photos surface.
     photos: list[PhotoOut] = Field(default_factory=list, validation_alias="public_photos")
     source: str
+
+    @field_validator("import_year", mode="before")
+    @classmethod
+    def _year_from_fuzzy(cls, v):
+        """Accept an imprecise import date and keep the numeric field usable.
+
+        Wagyu's exports are documented to the exact year, so this field was typed
+        int — but most breeds aren't. Dexter's foundation records carry "1960s"
+        and "1905-1915", which 500'd /api/animals/foundation on every clone tank.
+        Take the first four-digit year for the numeric field; the original string
+        stays intact in the DB and is surfaced as import_year_text.
+        """
+        if v is None or isinstance(v, int):
+            return v
+        m = re.search(r"\d{4}", str(v))
+        return int(m.group()) if m else None
+
+    @field_validator("import_year_text", mode="before")
+    @classmethod
+    def _keep_fuzzy_text(cls, v):
+        return str(v) if v is not None and not isinstance(v, str) else v
 
 
 class AnimalUpsert(BaseModel):
