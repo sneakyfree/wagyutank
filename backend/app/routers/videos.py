@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import SaleEvent, WagyuVideo
+from ..services import translate as tr
 from .. import tank
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
@@ -23,10 +24,27 @@ CATEGORIES = [
 ]
 
 
-def _out(v: WagyuVideo) -> dict:
+def _display_title(v: WagyuVideo, reader: str | None, db) -> str:
+    """The title as this reader should see it.
+
+    A Japanese video carries its native title plus a translated title_en. English
+    readers get title_en; readers in any other language get title_en translated
+    onward, because English is the only pivot we can rely on having. Runs on the
+    DURABLE tier — a video title is short, permanent, and it is the first thing a
+    breeder reads, so it is worth the good model. Cached like everything else, so
+    each title is paid for once per language.
+    """
+    base = v.title_en or v.title
+    if not reader or reader == "en" or not base:
+        return base or v.title
+    return tr.translate(db, base, reader, tier=tr.DURABLE)
+
+
+def _out(v: WagyuVideo, reader: str | None = None, db=None) -> dict:
+    title = _display_title(v, reader, db) if (reader and db is not None) else v.title
     return {
         "id": v.id, "source": v.source, "video_id": v.video_id,
-        "title": v.title, "title_en": v.title_en, "channel": v.channel, "channel_id": v.channel_id,
+        "title": title, "title_original": v.title, "title_en": v.title_en, "channel": v.channel, "channel_id": v.channel_id,
         "duration": v.duration, "views": v.views, "views_prev": v.views_prev,
         "published_at": v.published_at, "category": v.category, "lang": v.lang,
         "matched_regs": v.matched_regs or [], "matched_animal_reg": v.matched_animal_reg,
@@ -43,8 +61,10 @@ def _base(db: Session):
 
 @router.get("")
 def browse(category: str | None = None, q: str | None = None, reg: str | None = None,
-           lang: str | None = None, sort: str = "views",
+           lang: str | None = None, reader: str | None = None, sort: str = "views",
            limit: int = Query(48, le=120), offset: int = 0, db: Session = Depends(get_db)):
+    # NOTE: `lang` filters by the language SPOKEN in the video; `reader` is the
+    # viewer's own locale and drives title translation. Two different things.
     query = _base(db)
     if category:
         query = query.filter(WagyuVideo.category == category)
@@ -66,11 +86,11 @@ def browse(category: str | None = None, q: str | None = None, reg: str | None = 
     else:
         query = query.order_by(WagyuVideo.views.desc().nullslast())
     rows = query.offset(offset).limit(limit).all()
-    return {"total": total, "videos": [_out(v) for v in rows], "categories": CATEGORIES}
+    return {"total": total, "videos": [_out(v, reader, db) for v in rows], "categories": CATEGORIES}
 
 
 @router.get("/charts")
-def charts(db: Session = Depends(get_db)):
+def charts(reader: str | None = None, db: Session = Depends(get_db)):
     """Top-100 all-time + category leaders — the Billboard of Wagyu."""
     top = _base(db).order_by(WagyuVideo.views.desc().nullslast()).limit(100).all()
     by_cat = {}
@@ -78,7 +98,7 @@ def charts(db: Session = Depends(get_db)):
         rows = (_base(db).filter(WagyuVideo.category == c["key"])
                 .order_by(WagyuVideo.views.desc().nullslast()).limit(8).all())
         if rows:
-            by_cat[c["key"]] = [_out(v) for v in rows]
+            by_cat[c["key"]] = [_out(v, reader, db) for v in rows]
     stats = {
         "total": _base(db).count(),
         "matched_animals": _base(db).filter(WagyuVideo.matched_animal_reg != None).count(),  # noqa: E711
@@ -86,16 +106,16 @@ def charts(db: Session = Depends(get_db)):
         "channels": db.query(func.count(func.distinct(WagyuVideo.channel))).filter(
             WagyuVideo.status == "approved").scalar(),
     }
-    return {"top100": [_out(v) for v in top], "by_category": by_cat,
+    return {"top100": [_out(v, reader, db) for v in top], "by_category": by_cat,
             "categories": CATEGORIES, "stats": stats}
 
 
 @router.get("/{video_id}")
-def detail(video_id: int, db: Session = Depends(get_db)):
+def detail(video_id: int, reader: str | None = None, db: Session = Depends(get_db)):
     v = db.get(WagyuVideo, video_id)
     if not v or v.status not in ("approved", "pending"):
         raise HTTPException(404, "Video not found")
-    d = _out(v)
+    d = _out(v, reader, db)
     d["description"] = (v.description or "")[:800]
     d["editorial"] = v.editorial
     if v.channel_id:
