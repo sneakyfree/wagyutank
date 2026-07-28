@@ -121,8 +121,13 @@ def _looks_bad(src: str, out: str, lang: str) -> bool:
     if not o:
         return True
     # Truncation: a headline that comes back as a fragment ("Beckenham", "$126").
-    # CJK is denser than Latin, so only flag severe loss.
-    floor = 0.25 if lang in ("ja", "zh") else 0.45
+    # CJK is denser than Latin, so only flag severe loss there.
+    # KOREAN BELONGS IN THIS SET. Leaving it out silently discarded good
+    # translations: "Day in the Life of a Japanese Wagyu Beef Farmer" (46 chars)
+    # came back as "와규 목장 농부의 일일 생활" (18) — correct Korean, but under the
+    # 0.45 Latin floor, so it was rejected and the title stayed English. Hangul is
+    # as information-dense as kana/hanzi.
+    floor = 0.25 if lang in ("ja", "zh", "ko") else 0.45
     if len(s) >= 40 and len(o) < len(s) * floor:
         return True
     # Chinese bleeding into Japanese.
@@ -147,6 +152,11 @@ def _system(target: str, is_markdown: bool) -> str:
     ja_rule = (" The target is Japanese: use Japanese script only — never Simplified Chinese "
                "characters or Chinese vocabulary (write クローン not 克隆, 在庫あり not 在库中, "
                "胚 not 胚胎)." if target == "Japanese" else "")
+    if target == "Korean":
+        # Opus reached for Han characters on a Korean title (日本 instead of 일본).
+        # Modern Korean is Hangul; Hanja is archaic outside legal/academic text.
+        ja_rule = (" The target is Korean: write in Hangul. Do not use Han/Chinese "
+                   "characters for ordinary words — 일본, not 日本.")
     return (f"You are a professional translator specializing in {species} genetics and the {breed} "
             f"breed. Translate the user's text into natural, fluent {target}. {fmt}"
             f"NEVER TRANSLATE: the brand name '{brand_name}'; company, ranch, farm and person names; "
