@@ -1030,6 +1030,44 @@ class WagyuVideo(Base):
         return None
 
 
+class VideoTranscript(Base):
+    """A video's transcript in one language — the durable asset behind subtitles.
+
+    Two layers, deliberately separated:
+
+    - The SOURCE transcript (is_source=True) is the video's own spoken language,
+      captured once. This is the thing worth investing in, because everything
+      downstream inherits its quality: translating a bad Japanese ASR pass
+      beautifully still yields nonsense. Best available source wins —
+      creator-uploaded captions > Whisper on the 5090 (primed with the breed
+      glossary) > YouTube's own ASR.
+    - The DERIVED transcripts are translations of it, produced on the durable
+      tier. These are regenerable: the translation cache is keyed on prompt +
+      model, so the whole corpus re-translates itself when a better model lands.
+      Never treat a derived row as precious.
+
+    Cues are stored compactly ([{t: start_seconds, d: duration, x: text}]) because
+    a 13-minute video is ~300 of them and they are read on every player load.
+
+    Coexists with YouTube's own auto-translated captions rather than replacing
+    them: the player shows ours when a row exists for (video, language) and falls
+    back to YouTube's caption layer when it does not, so a video is never worse
+    off for us not having got to it yet."""
+    __tablename__ = "video_transcripts"
+    __table_args__ = (UniqueConstraint("video_id", "lang", name="uq_transcript_video_lang"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    video_id: Mapped[str] = mapped_column(String(24), index=True)   # YouTube id
+    lang: Mapped[str] = mapped_column(String(8), index=True)
+    is_source: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    #: youtube_human | youtube_asr | whisper | translated
+    source: Mapped[str] = mapped_column(String(16), default="youtube_asr")
+    cues: Mapped[list] = mapped_column(JSON, default=list)
+    word_count: Mapped[int | None] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+
 class ChannelClaim(Base):
     """Claim-your-channel — a member asserts a harvested YouTube channel is
     theirs. Admin-approved (small community, manual verification); once

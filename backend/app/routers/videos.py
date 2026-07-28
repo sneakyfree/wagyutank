@@ -6,7 +6,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import SaleEvent, WagyuVideo
+from ..models import SaleEvent, VideoTranscript, WagyuVideo
 from ..services import translate as tr
 from .. import tank
 
@@ -236,3 +236,30 @@ def _claimed_map(db: Session, channel_ids: list) -> dict:
     rows = (db.query(ChannelClaim, User.handle).join(User, ChannelClaim.user_id == User.id)
             .filter(ChannelClaim.status == "approved", ChannelClaim.channel_id.in_(channel_ids)).all())
     return {c.channel_id: h for c, h in rows}
+
+
+@router.get("/{video_id}/transcript")
+def transcript(video_id: int, lang: str = "en", db: Session = Depends(get_db)):
+    """Our own subtitle track for a video, in the reader's language — or 404.
+
+    The 404 is load-bearing. The player asks for this on load and, when it does
+    not exist, simply leaves YouTube's own auto-translated caption layer running.
+    So a video we have not transcribed yet is never WORSE off than before — it
+    just does not get the better track. That is what lets our transcripts land as
+    data, one video and one language at a time, with no code change and no flag
+    day.
+
+    Ours wins where it exists because YouTube is machine-translating machine-
+    transcribed audio with no domain knowledge at all: it does not know 種雄牛 is
+    a breeding bull, that A5 is a grade, or that 但馬 is Tajima.
+    """
+    v = db.query(WagyuVideo).filter(WagyuVideo.id == video_id).first()
+    if not v or not v.video_id:
+        raise HTTPException(status_code=404, detail="No such video")
+    row = (db.query(VideoTranscript)
+             .filter(VideoTranscript.video_id == v.video_id, VideoTranscript.lang == lang)
+             .first())
+    if not row or not row.cues:
+        raise HTTPException(status_code=404, detail="No transcript in that language yet")
+    return {"video_id": v.video_id, "lang": row.lang, "source": row.source,
+            "is_source": row.is_source, "cues": row.cues}
