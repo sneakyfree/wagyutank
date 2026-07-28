@@ -15,7 +15,7 @@ LANGS = {"es": "Spanish", "pt": "Portuguese (Brazilian)", "de": "German",
 # The cache key also carries the active model, so swapping models (or a bad batch
 # run under a degraded provider) can never freeze garbage in place forever —
 # which is exactly what happened on 2026-07-24 ("Semen Straws" -> 精液管).
-_PROMPT_VERSION = "v3"
+_PROMPT_VERSION = "v4"
 
 
 # Translation splits into two tiers with very different economics.
@@ -140,9 +140,12 @@ def _system(target: str, is_markdown: bool) -> str:
     return (f"You are a professional translator specializing in {species} genetics and the {breed} "
             f"breed. Translate the user's text into natural, fluent {target}. {fmt}"
             f"NEVER TRANSLATE: the brand name '{brand_name}'; company, ranch, farm and person names; "
-            f"place and country names; animal names; registration numbers; breed terms ({breed}); "
+            f"animal names; registration numbers; breed terms ({breed}); "
             f"carcass grades and standards (A5, BMS, USDA Choice/Prime); and market index names "
             f"(e.g. CME Feeder Cattle Index). Leave all of those exactly as written in English.\n"
+            f"Country and place names ARE translated when they appear inside a sentence — write "
+            f"them the way a native speaker would (Japanese: 日本, not 'Japan'). Standalone country "
+            f"labels never reach you; they are resolved from a fixed table.\n"
             f"Use the correct industry term for a unit of frozen semen — it is an insemination "
             f"straw (de: Portion; ja: ストロー; es: pajilla; pt: palheta; zh: 细管) — never the word "
             f"for a drinking straw or for hay, and never an anatomical term.\n"
