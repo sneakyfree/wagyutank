@@ -66,6 +66,13 @@ class Settings(BaseSettings):
     windymind_base_url: str = ""
     windymind_vision_model: str = ""
     windymind_adcopy_model: str = ""
+    # Translation model per tier. Crawl extraction must stay cheap (~1M tokens a
+    # night) but translation is cached permanently — each unique string is paid
+    # for once — so the durable tier can afford the best model on the buffet.
+    # Empty = fall back to translate_model, then the provider default.
+    translate_model: str = ""
+    translate_model_durable: str = ""
+    translate_model_bulk: str = ""
 
 
 settings = Settings()

@@ -41,10 +41,17 @@ BULK = "bulk"
 
 
 def _model(tier: str = BULK) -> str | None:
+    # Read through Settings, not os.getenv: this app loads .env via
+    # pydantic-settings, which populates the Settings object and NOT os.environ,
+    # so a bare `python -m app.jobs...` would otherwise never see these.
+    from ..config import settings
+
+    general = settings.translate_model or os.getenv("TRANSLATE_MODEL") or ""
     if tier == DURABLE:
-        return (os.getenv("TRANSLATE_MODEL_DURABLE")
-                or os.getenv("TRANSLATE_MODEL") or None)
-    return os.getenv("TRANSLATE_MODEL_BULK") or os.getenv("TRANSLATE_MODEL") or None
+        specific = settings.translate_model_durable or os.getenv("TRANSLATE_MODEL_DURABLE") or ""
+    else:
+        specific = settings.translate_model_bulk or os.getenv("TRANSLATE_MODEL_BULK") or ""
+    return (specific or general) or None
 
 
 def _cache_salt(tier: str = BULK) -> str:
