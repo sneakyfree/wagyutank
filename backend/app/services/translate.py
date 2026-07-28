@@ -126,6 +126,26 @@ def _is_dnt(text: str) -> bool:
     return False
 
 
+class RateLimited(Exception):
+    """The upstream gateway is refusing on quota, not failing on content.
+
+    Distinguished from an ordinary failure because the right response is
+    opposite: a content failure should fall back to English and move on, but a
+    quota refusal means every subsequent call will fail too. A batch job that
+    cannot tell the difference burns hours logging progress it is not making —
+    which is exactly what happened on 2026-07-28, when a warm run sat on a
+    frozen cache for twenty minutes looking healthy.
+    """
+
+
+def _is_rate_limited(exc: Exception) -> bool:
+    status = getattr(getattr(exc, "response", None), "status_code", None)
+    if status == 429:
+        return True
+    text = str(exc).lower()
+    return "429" in text or "too many requests" in text or "daily limit" in text
+
+
 def _looks_bad(src: str, out: str, lang: str) -> bool:
     """Reject obviously-broken machine output rather than caching it forever."""
     s, o = src.strip(), (out or "").strip()
@@ -200,9 +220,15 @@ def _chunks(text: str) -> list[str]:
 
 
 def translate(db, text: str, lang: str, *, is_markdown: bool = False,
-              tier: str = DURABLE) -> str:
+              tier: str = DURABLE, raise_on_quota: bool = False) -> str:
     """Return `text` translated to `lang` (cached). English or unknown → unchanged.
     Long text is translated in chunks so the output never gets truncated.
+
+    `raise_on_quota` is for BATCH callers only. A page render must always degrade
+    quietly to English, but a warm job needs to know the difference between "this
+    string failed" and "the gateway is refusing everything" — otherwise it spends
+    hours logging progress against a frozen cache, which is exactly what happened
+    on 2026-07-28. Default False keeps every interactive path unchanged.
 
     Defaults to the DURABLE tier: every caller of this function is long-lived prose
     the site is judged on — the help centre, the feeding guide, the great-sires
@@ -224,7 +250,12 @@ def translate(db, text: str, lang: str, *, is_markdown: bool = False,
         for attempt in range(2):  # free-tier LLMs rate-limit under burst; back off once
             try:
                 out = chat(system, chunk, max_tokens=2200, model=_model(tier), provider=_provider_for(tier))
-            except Exception:
+            except Exception as e:
+                # Quota refusal is not a content failure. Surface it so a batch
+                # caller can stop; interactive callers still catch it and fall
+                # back to English, exactly as before.
+                if _is_rate_limited(e) and raise_on_quota:
+                    raise RateLimited(str(e)[:200]) from e
                 out = None
             if out:
                 break

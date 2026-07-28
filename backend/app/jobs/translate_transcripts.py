@@ -66,8 +66,16 @@ def _translate_window(cues, lo, hi, target, model):
 
     want = hi - lo
     for _ in range(2):
-        raw = chat(_system(target), body, max_tokens=2400, model=model,
-                   provider=T._provider_for(T.DURABLE))
+        try:
+            raw = chat(_system(target), body, max_tokens=2400, model=model,
+                       provider=T._provider_for(T.DURABLE))
+        except Exception as e:
+            # Quota refusal means every remaining window fails too — surface it
+            # so the caller stops instead of grinding through a whole transcript
+            # producing nothing.
+            if T._is_rate_limited(e):
+                raise T.RateLimited(str(e)[:200]) from e
+            raise
         if not raw:
             continue
         raw = re.sub(r"^```(?:json)?|```$", "", raw.strip(), flags=re.M).strip()
@@ -120,12 +128,18 @@ def main() -> None:
             if not cues:
                 continue
             out, ok = [], True
-            for lo in range(0, len(cues), WINDOW):
-                hi = min(lo + WINDOW, len(cues))
-                got = _translate_window(cues, lo, hi, T.LANGS[lang], model)
-                if got is None:
-                    ok = False
-                    break
+            try:
+                for lo in range(0, len(cues), WINDOW):
+                    hi = min(lo + WINDOW, len(cues))
+                    got = _translate_window(cues, lo, hi, T.LANGS[lang], model)
+                    if got is None:
+                        ok = False
+                        break
+            except T.RateLimited as e:
+                print(f"\n  QUOTA EXHAUSTED on {src.video_id} → {lang} — stopping.")
+                print(f"    {e}")
+                print("    Re-run when the quota resets; completed videos are skipped.")
+                return
                 out.extend({"t": cues[lo + i]["t"], "d": cues[lo + i]["d"], "x": got[i]}
                            for i in range(hi - lo))
             if not ok:

@@ -122,11 +122,22 @@ def main() -> None:
         for lang in langs:
             for i, s in enumerate(strings, 1):
                 try:
-                    out = T.translate(db, s, lang, tier=T.DURABLE)
+                    out = T.translate(db, s, lang, tier=T.DURABLE, raise_on_quota=True)
                     if out == s and len(s) > 60:
                         failed += 1          # fell back to English
                     else:
                         done += 1
+                except T.RateLimited as e:
+                    # STOP, do not spin. Every remaining call would fail the same
+                    # way, and the job would keep printing progress against a
+                    # cache that is no longer growing — which is how this went
+                    # unnoticed for twenty minutes on 2026-07-28. The job is
+                    # idempotent, so the next run resumes exactly here.
+                    print(f"\n  QUOTA EXHAUSTED at [{lang}] {i}/{len(strings)} — stopping.")
+                    print(f"    {e}")
+                    print(f"    warmed this run: {done} ok, {failed} fell back")
+                    print("    Re-run when the quota resets; it resumes where it left off.")
+                    return
                 except Exception as e:
                     failed += 1
                     print(f"    [{lang}] error on string {i}: {str(e)[:90]}")
