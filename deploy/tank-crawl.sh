@@ -38,6 +38,20 @@ TANK_BOT=$(python3 -c "import json,sys;b=json.load(open('$TANKJSON'))['brand'];p
 # or "live_beef" (WagyuSale-style live cattle + beef link classification).
 TANK_CRAWL_MODE=$(python3 -c "import json;print((json.load(open('$TANKJSON')).get('crawl') or {}).get('mode') or 'genetics')" 2>/dev/null) || TANK_CRAWL_MODE="genetics"
 export TANK_TERMS TANK_BOT TANK_CRAWL_MODE
+# Effective seed list = curated seeds ∪ the Atlas (every operation we've already
+# identified, plus candidates discovered from outbound links on previous runs).
+# Built on the VPS where the tank's DB lives, then pulled here. If anything about
+# that fails we fall back to the curated file — the crawl must never not run.
+EFFECTIVE="/tmp/${KEY}-seeds-effective.json"
+if ssh "$VPS" "cd /root/wagyutank/backend && set -a && . ../tanks/$KEY/tank.env && set +a && \
+     .venv/bin/python -m app.jobs.export_seeds /tmp/${KEY}_seeds.json" \
+   && scp -q "$VPS:/tmp/${KEY}_seeds.json" "$EFFECTIVE" \
+   && [ -s "$EFFECTIVE" ]; then
+  SEEDS="$EFFECTIVE"
+else
+  echo "export_seeds unavailable — falling back to curated seed file"
+fi
+
 # Page budget must scale with the seed list, not sit at a flat 500. WagyuSale has
 # 429 seeds and was exhausting the budget at site ~290 every night ("budget -6"),
 # so a third of its sellers were never crawled at all — silently, since the run
@@ -49,12 +63,15 @@ echo "Seeds: $SEED_COUNT · page budget: $MAX_PAGES"
 node "$REPO/backend/scripts/crawl_listings.cjs" --seeds "$SEEDS" --out "$OUT" \
   --per-site 5 --concurrency 8 --goto-timeout 30000 --max-pages "$MAX_PAGES"
 scp -q "$OUT" "$VPS:/root/wagyutank/backend/${KEY}_rendered.json"
+CANDS="${OUT%.json}-candidates.json"
+[ -f "$CANDS" ] && scp -q "$CANDS" "$VPS:/root/wagyutank/backend/${KEY}_candidates.json" || true
 # Ingest, then phone home with the REAL added count. record_run was being called
 # with no argument, so every crawl logged "added=0" on the health dashboard no
 # matter how many listings it actually brought in.
 ssh "$VPS" "cd /root/wagyutank/backend && set -a && . ../tanks/$KEY/tank.env && set +a && \
   .venv/bin/python -m app.jobs.ingest_rendered ${KEY}_rendered.json | tee /tmp/${KEY}_ingest.out && \
   .venv/bin/python -m app.jobs.seed_directory && \
+  .venv/bin/python -m app.jobs.discover_sites ${KEY}_candidates.json && \
   .venv/bin/python -m app.jobs.enrich_directory && \
   .venv/bin/python -m app.jobs.reap_links && \
   ADDED=\$(sed -n 's/.*added=\([0-9]\+\).*/\1/p' /tmp/${KEY}_ingest.out | tail -1) && \

@@ -118,6 +118,23 @@ async function renderPage(page, url) {
   return { text, links };
 }
 
+// Off-domain links seen while crawling, host -> {n, texts}. These pages are already
+// rendered, so harvesting outbound links costs nothing extra — and it is the only
+// way the seed list ever WIDENS. Without it the crawler can re-crawl the sites it
+// already knows forever but can never find a breeder site that came online last week.
+const external = new Map();
+function noteExternal(href, anchor, fromSite) {
+  const h = hostOf(href);
+  if (!h || h === fromSite) return;
+  const bare = h.replace(/^www\./, "");
+  if (!bare.includes(".")) return;
+  const row = external.get(bare) || { site: bare, hits: 0, anchors: [], from: new Set() };
+  row.hits++;
+  row.from.add(fromSite);
+  if (anchor && row.anchors.length < 6 && !row.anchors.includes(anchor)) row.anchors.push(anchor);
+  external.set(bare, row);
+}
+
 async function crawlSite(browser, seed, budget, out) {
   const site = hostOf(seed.url);
   if (!site) return;
@@ -142,8 +159,8 @@ async function crawlSite(browser, seed, budget, out) {
       if (r.text && r.text.length > 60) out.push({ source_url: url, source_site: site, text: r.text });
       // enqueue same-domain listing/pagination links
       for (const { href, t } of r.links) {
+        if (hostOf(href) !== site) { noteExternal(href, t, site); continue; }
         if (queue.length + visited.size >= PER_SITE + 6) break;
-        if (hostOf(href) !== site) continue;
         const clean = href.split("#")[0];
         if (visited.has(clean) || queue.includes(clean)) continue;
         if (/[<>{}]|%3c|%7b|\?php|esc_url|\{\{/i.test(clean)) continue;  // skip unrendered-template link leaks
@@ -180,4 +197,12 @@ async function pool(items, worker, concurrency) {
   await browser.close();
   fs.writeFileSync(OUT, JSON.stringify(out));
   console.log(`Rendered ${out.length} pages from ${seeds.length} sites → ${OUT}`);
+  // Candidate domains for the discovery pass, written alongside the pages file.
+  const known = new Set(seeds.map((s) => (hostOf(s.url) || "").replace(/^www\./, "")));
+  const cands = [...external.values()]
+    .filter((r) => !known.has(r.site))
+    .map((r) => ({ site: r.site, hits: r.hits, anchors: r.anchors, from: [...r.from].slice(0, 3) }))
+    .sort((a, b) => b.hits - a.hits);
+  fs.writeFileSync(OUT.replace(/\.json$/, "") + "-candidates.json", JSON.stringify(cands));
+  console.log(`Discovery: ${cands.length} off-domain candidate hosts seen`);
 })().catch((e) => { console.error("FATAL", e.message); process.exit(1); });
