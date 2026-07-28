@@ -6,6 +6,19 @@
 #   tank-crawl.sh <tank_key>
 set -e
 KEY="${1:?usage: tank-crawl.sh <tank_key>}"
+
+# One crawler at a time across the whole fleet. The tanks are cron-staggered 30
+# minutes apart, which was ample when a run took ~20 minutes — but the effective
+# seed list is now the Atlas (wagyu went 43 -> 401 sites), so a run can outlast
+# its slot and collide with the next tank. Queue instead of overlapping: Veron
+# runs one crawl, the others wait their turn. Doctrine is one crawler per tank at
+# a time, and an overlapping fleet would thrash the box and the target sites.
+LOCK="/tmp/tank-crawl.lock"
+if [ -z "${TANK_CRAWL_LOCKED:-}" ]; then
+  export TANK_CRAWL_LOCKED=1
+  exec flock -w 21600 "$LOCK" "$0" "$@"
+fi
+
 REPO="$HOME/wagyutank"
 VPS="root@72.60.118.54"
 SEEDS="$REPO/tanks/$KEY/seed/roundup_seeds.json"
