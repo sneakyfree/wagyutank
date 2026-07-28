@@ -510,7 +510,12 @@ def _extract_system() -> str:
     "export_regions (array from ['EU','AUS','CAN','MEX','BR','UK','CN','NZ','JP'] — only the "
     "destinations the page explicitly says it's export-eligible to; [] if unstated), "
     "listing_date (if the ad states when it was posted/updated, as ISO 'YYYY-MM-DD' or "
-    "'YYYY-MM'; else null — do NOT guess)}. "
+    "'YYYY-MM'; else null — do NOT guess), "
+    "details (the seller's own buyer-relevant wording for THIS listing, verbatim and "
+    "condensed to at most ~600 characters — pedigree notes, health/genetic testing, "
+    "shipping and export terms, storage, minimum order, how to make contact. Skip "
+    "navigation, cookie banners, unrelated products and marketing boilerplate. null "
+    "if the page says nothing useful)}. "
     f"Include ONLY genuine for-sale {_breed_short()} genetics listings — skip live animals, meat "
     f"products, general info, and non-{_breed_short()} breeds. If the page has none, return []. "
     "Never invent data; use null/'unknown'/[] for anything not stated."
@@ -557,7 +562,7 @@ def _extract(text: str, source_url: str) -> list[dict]:
         # LLMs sometimes return a scalar text field as a list (e.g. bloodline
         # ["Tajima","Fujiyoshi"]) — SQLite can't bind a list, so coerce every
         # free-text field to a plain string before it reaches the ORM.
-        for f in ("animal_name", "registration_no", "bloodline", "seller_name",
+        for f in ("animal_name", "registration_no", "bloodline", "details", "seller_name",
                   "location", "price_unit", "currency", "title", "quantity", "product_type",
                   "animal_class", "sex", "bred_status", "price_basis", "fulfillment",
                   "state_region"):
@@ -828,6 +833,10 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
             row.region = region
         if not row.country and country:
             row.country = country
+        # Backfill details on re-crawl so listings indexed before this existed
+        # pick it up, and a seller who rewrites their ad is reflected.
+        if li.get("details"):
+            row.details = li["details"]
         if updated_at and (not row.source_updated_at or updated_at > row.source_updated_at):
             row.source_updated_at = updated_at
             row.source_date_type = date_type
@@ -845,6 +854,7 @@ def _upsert(db, li: dict, source_url: str, source_site: str) -> bool:
         summary=_summary(li, animal, product),
         animal_name=animal, animal_reg=(li.get("registration_no") or None),
         bloodline=_canon_bloodline(li.get("bloodline")),
+        details=(li.get("details") or None),
         price=price, price_unit=(li.get("price_unit") or None),
         currency=(li.get("currency") or "USD")[:3].upper(),
         quantity_text=(str(li["quantity"]) if li.get("quantity") else None),

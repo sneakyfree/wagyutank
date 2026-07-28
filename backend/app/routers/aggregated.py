@@ -250,3 +250,38 @@ def takedown_confirm(token: str, db: Session = Depends(get_db)):
     return HTMLResponse(_takedown_page(
         f"Done — {n} listing(s) from <strong>{site}</strong> have been removed from the "
         f"WagyuTank Roundup. Thank you."))
+
+
+@router.get("/{listing_id}/detail")
+def detail(listing_id: int, lang: str = "en", db: Session = Depends(get_db)):
+    """A Roundup listing in full, in the reader's language.
+
+    The problem this solves: the site renders beautifully in Japanese, the buyer
+    clicks a listing, and lands on an English-only seller site in Texas. We cannot
+    translate someone else's website — same-origin forbids it, and proxying their
+    page would mean reproducing their content on our domain, breaking their forms
+    and blinding their analytics. That is the opposite of the good-actor bargain
+    the Roundup runs on.
+
+    So we translate what we already lawfully hold instead. We render 700+ of these
+    pages a night and used to bin the text; `details` now keeps the seller's own
+    buyer-relevant wording (terms, pedigree notes, export conditions, how to make
+    contact). Translated here on the durable tier and cached, so a Japanese buyer
+    arrives at the seller's site already knowing what is on offer — going there to
+    transact, not to read. Cost follows real demand, not corpus size, because a
+    listing is only ever translated the first time someone actually opens it.
+
+    Still our summary of public facts, still linking prominently back to source.
+    """
+    row = db.query(AggregatedListing).filter(AggregatedListing.id == listing_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="No such listing")
+    out = {c.name: getattr(row, c.name) for c in AggregatedListing.__table__.columns}
+    out["product_type"] = row.product_type.value if row.product_type else None
+    if lang and lang != "en":
+        from ..services import translate as tr
+        for f in ("summary", "details"):
+            if out.get(f):
+                out[f] = tr.translate(db, out[f], lang, tier=tr.DURABLE)
+        out["translated_to"] = lang
+    return out

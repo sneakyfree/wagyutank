@@ -790,6 +790,13 @@ class AggregatedListing(Base):
     product_type: Mapped[ProductType] = mapped_column(_enum(ProductType), index=True)
     title: Mapped[str] = mapped_column(String(240))
     summary: Mapped[str | None] = mapped_column(Text)          # our neutral blurb, not their copy
+    # The seller's own buyer-relevant wording, condensed at extraction time.
+    # We crawl and render 700+ of these pages a night and used to discard the
+    # text entirely. Keeping it is what lets a Japanese or Korean buyer read the
+    # terms, pedigree notes and export conditions IN THEIR LANGUAGE before they
+    # click out to an English-only site — translated on demand and cached, so the
+    # cost follows real demand rather than the size of the corpus.
+    details: Mapped[str | None] = mapped_column(Text)
 
     animal_name: Mapped[str | None] = mapped_column(String(160), index=True)  # sire / animal
     animal_reg: Mapped[str | None] = mapped_column(String(40), index=True)
