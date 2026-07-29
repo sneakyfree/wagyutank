@@ -153,6 +153,14 @@ def main() -> None:
             if not ok:
                 print(f"    {src.video_id} → {lang}: window failed, skipped", flush=True)
                 continue
+            # NEVER write an empty transcript. A 0-cue row is worse than no row:
+            # the endpoint stops 404ing, the player switches YouTube's captions
+            # OFF, and the viewer gets silence where they used to at least get
+            # YouTube's rough attempt. Ten of these were written before the guard
+            # existed.
+            if not out:
+                print(f"    {src.video_id} → {lang}: produced nothing, not written", flush=True)
+                continue
             db.add(VideoTranscript(video_id=src.video_id, lang=lang, is_source=False,
                                    source="translated", cues=out,
                                    word_count=sum(len(c["x"]) for c in out)))
