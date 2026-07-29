@@ -97,6 +97,8 @@ def main() -> None:
     ap.add_argument("--langs", default="")
     ap.add_argument("--limit", type=int, default=5, help="videos per run")
     ap.add_argument("--video", default="", help="a single YouTube id")
+    ap.add_argument("--source-lang", default="",
+                    help="only transcripts spoken in this language (e.g. ja)")
     ap.add_argument("--dry", action="store_true")
     args = ap.parse_args()
 
@@ -112,6 +114,8 @@ def main() -> None:
                 .filter(VideoTranscript.is_source == True))  # noqa: E712
         if args.video:
             sq = sq.filter(VideoTranscript.video_id == args.video)
+        if args.source_lang:
+            sq = sq.filter(VideoTranscript.lang == args.source_lang)
         sources = sq.order_by(VideoTranscript.id).all()
         done_keys = {(r.video_id, r.lang) for r in db.query(VideoTranscript)
                      .filter(VideoTranscript.is_source == False).all()}  # noqa: E712
