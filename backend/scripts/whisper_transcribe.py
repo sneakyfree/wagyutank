@@ -50,11 +50,23 @@ def audio_for(video_id: str, dest: str) -> str | None:
     return None
 
 
-def transcribe(path: str, lang: str, model_name: str) -> list[dict]:
+def _load(model_name: str):
+    """GPU if there is room, CPU otherwise. The 5090 is SHARED — Ollama keeps a
+    32B model resident for other platforms and routinely leaves under a gigabyte
+    free, which OOMs every load. Transcription must degrade to CPU rather than
+    fail: slower is fine, a dead nightly job is not. Never evict someone else's
+    model to make room."""
     from faster_whisper import WhisperModel
-    # int8_float16 keeps the footprint small — Ollama already holds most of the
-    # card, and the crawl extraction lane must not be starved.
-    model = WhisperModel(model_name, device="cuda", compute_type="int8_float16")
+    try:
+        return WhisperModel(model_name, device="cuda", compute_type="int8_float16")
+    except Exception as e:
+        print(f"  GPU unavailable ({str(e)[:60]}) — falling back to CPU", flush=True)
+        return WhisperModel(model_name, device="cpu", compute_type="int8",
+                            cpu_threads=os.cpu_count() or 8)
+
+
+def transcribe(path: str, lang: str, model_name: str) -> list[dict]:
+    model = _load(model_name)
     segments, _info = model.transcribe(
         path, language=lang, vad_filter=True,
         initial_prompt=GLOSSARY.get(lang), beam_size=5, condition_on_previous_text=True,
@@ -71,7 +83,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("video_id")
     ap.add_argument("--lang", default="ja")
-    ap.add_argument("--model", default="large-v3")
+    ap.add_argument("--model", default="large-v3-turbo")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
 
