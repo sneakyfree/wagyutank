@@ -77,6 +77,46 @@ _SYS = (
 )
 
 
+def _by_seller(db, listing) -> str | None:
+    """Resolve from the SAME SELLER's other listings. Deterministic, no guessing.
+
+    Strongly preferred over reading the page. Tried the page first and it was
+    confidently wrong: wagyuinternational.co groups animals under country
+    headings that mean "available in/from here", not "the breeder is here", so
+    the model happily filed a German stud (Wagyu Genetics Jerathe) and a South
+    Australian one (Mayura) under Canada. Cross-referencing instead uses a
+    country we already established from that seller's OWN site.
+    """
+    name = (listing.seller_name or "").strip()
+    if len(name) < 4:
+        return None
+    from sqlalchemy import func as _f
+    exact = (db.query(AggregatedListing.country, _f.count())
+               .filter(AggregatedListing.seller_name == name,
+                       AggregatedListing.country.isnot(None),
+                       AggregatedListing.status == "active")
+               .group_by(AggregatedListing.country)
+               .order_by(_f.count().desc()).first())
+    if exact:
+        return exact[0]
+    # Fuzzy on the most distinctive word — "Wagyu Genetics Jerathe" matches
+    # "Wagyu Genetics Jerathe GmbH" on the seller's own German domain.
+    stop = {"wagyu", "genetics", "cattle", "farms", "farm", "ranch", "beef",
+            "company", "llc", "gmbh", "ltd", "pty", "co", "and", "the"}
+    tokens = sorted((w for w in re.findall(r"[A-Za-z]{4,}", name)
+                     if w.lower() not in stop), key=len, reverse=True)
+    for tok in tokens[:2]:
+        hit = (db.query(AggregatedListing.country, _f.count())
+                 .filter(AggregatedListing.seller_name.ilike(f"%{tok}%"),
+                         AggregatedListing.country.isnot(None),
+                         AggregatedListing.status == "active")
+                 .group_by(AggregatedListing.country)
+                 .order_by(_f.count().desc()).first())
+        if hit:
+            return hit[0]
+    return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=20, help="source pages per run")
@@ -88,6 +128,9 @@ def main() -> None:
     #   VPS:    --from-file pages.json      (has the database)
     ap.add_argument("--fetch-only", default="", help="write {url: text} and exit")
     ap.add_argument("--from-file", default="", help="use pre-fetched page text")
+    ap.add_argument("--read-pages", action="store_true",
+                    help="ALSO read source pages (weaker: directory country headings "
+                         "mean 'available here', not 'seller is here')")
     args = ap.parse_args()
 
     db = SessionLocal()
@@ -103,6 +146,32 @@ def main() -> None:
         pages = list(by_url.items())[: args.limit]
         print(f"  {len(rows)} listings without a country, across {len(by_url)} pages "
               f"— reading {len(pages)}")
+
+        # Pass 1 — deterministic, from sellers we have already located.
+        by_seller = 0
+        for r in rows:
+            code = _by_seller(db, r)
+            if code and code in _ISO_A2:
+                r.country = code
+                r.region = _REGION_BY_COUNTRY.get(code)
+                by_seller += 1
+        print(f"  resolved from the seller's other listings: {by_seller}")
+        rows = [r for r in rows if not r.country]
+        by_url = defaultdict(list)
+        for r in rows:
+            if r.source_url:
+                by_url[r.source_url].append(r)
+        pages = list(by_url.items())[: args.limit]
+
+        if not args.read_pages:
+            if args.dry:
+                db.rollback()
+                print(f"  DRY — would set {by_seller}, leave {len(rows)} blank")
+            else:
+                db.commit()
+                print(f"  set {by_seller}; {len(rows)} left honestly blank "
+                      f"(pass --read-pages to also try reading the source page)")
+            return
 
         if args.fetch_only:
             got = {}
