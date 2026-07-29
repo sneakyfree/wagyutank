@@ -75,7 +75,11 @@ def _translate_window(cues, lo, hi, target, model):
             # producing nothing.
             if T._is_rate_limited(e):
                 raise T.RateLimited(str(e)[:200]) from e
-            raise
+            # Anything else (a read timeout on a long window is routine with a
+            # big model) is retryable — fall through to the retry, and let the
+            # window be skipped if it fails twice. Killing the whole run over one
+            # slow request threw away every transcript already done.
+            raw = None
         if not raw:
             continue
         raw = re.sub(r"^```(?:json)?|```$", "", raw.strip(), flags=re.M).strip()
