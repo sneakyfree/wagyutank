@@ -741,9 +741,36 @@ def _norm_site(host: str) -> str:
     return h[4:] if h.startswith("www.") else h
 
 
+#: Every ISO 3166-1 alpha-2 code that is actually a country. Anything else the
+#: extractor emits is treated as "not stated".
+#:
+#: This exists because the LLM answers "UN" when it means UNKNOWN, and "UN" is not
+#: a country — it is an exceptionally-reserved code for the United Nations, which
+#: is exactly why the flag renders as 🇺🇳. Worse, being a non-empty string it
+#: sailed past the `if not country` guard and SHADOWED the .com→US fallback below,
+#: so 33 listings from plainly American farms (Prime Valley, Miku, Synergy,
+#: Branson, Artesian…) were filed on the live site under "United Nations".
+#: Validating the code rather than merely checking it is non-empty also catches
+#: whatever the model invents next.
+_ISO_A2 = frozenset("""
+AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM
+BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX
+CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG
+GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR
+IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV
+LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE
+NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO
+RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF
+TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF
+WS YE YT ZA ZM ZW
+""".split())
+
+
 def _country_region(li: dict, source_site: str) -> tuple[str | None, str | None]:
     country = (li.get("country") or "").strip().upper()[:2] or None
     country = _COUNTRY_ALIAS.get(country, country)
+    if country and country not in _ISO_A2:
+        country = None      # "UN", "XX", or anything else invented — not stated
     if not country:
         tld = source_site.rsplit(".", 1)[-1].lower()
         country = _TLD_COUNTRY.get(tld)
