@@ -113,8 +113,18 @@ _COUNTRY_WORDS = {
 
 # Simplified-Chinese-only characters that must never appear in Japanese output.
 # llama/qwen both bleed zh into ja; this catches it deterministically.
-_ZH_ONLY_IN_JA = re.compile(r"[们东车马鸟单产爱国样这个书长间问题现实业务开关变门风飞马龙鱼]|"
-                            r"克隆|在库|胚胎|联合国|土耳其|犀牛|谱系|如何制作")
+# NOTE 国 IS NOT IN THIS SET, deliberately. Japan adopted the same simplified form
+# post-war (shinjitai), so 国 is ordinary Japanese — 全国, 国際, 韓国, 中国, 外国,
+# 国内. Including it silently rejected 127 perfectly good Japanese translations,
+# roughly 17% of the corpus, and on a site about INTERNATIONAL cattle genetics
+# those are exactly the words that recur. Every character below is
+# Simplified-Chinese-only; the Japanese equivalent is noted.
+_ZH_ONLY_IN_JA = re.compile(
+    r"[们"          # (no JA equivalent)
+    r"东车马鸟单产爱样这个书长间问题现实业务开关变门风飞龙鱼"
+    #  東車馬鳥単産愛様  個書長間問題現実業務開関変門風飛龍魚
+    r"]|"
+    r"克隆|在库|胚胎|联合国|土耳其|犀牛|谱系|如何制作")
 
 
 def _is_dnt(text: str) -> bool:
