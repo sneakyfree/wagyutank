@@ -82,6 +82,12 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=20, help="source pages per run")
     ap.add_argument("--all", action="store_true", help="also re-check listings that HAVE a country")
     ap.add_argument("--dry", action="store_true")
+    # The VPS is a datacenter IP and plenty of seller sites refuse it — the same
+    # reason the Roundup crawl lives on Veron. So the fetch can be split out:
+    #   Veron:  --fetch-only pages.json     (residential IP, reaches the site)
+    #   VPS:    --from-file pages.json      (has the database)
+    ap.add_argument("--fetch-only", default="", help="write {url: text} and exit")
+    ap.add_argument("--from-file", default="", help="use pre-fetched page text")
     args = ap.parse_args()
 
     db = SessionLocal()
@@ -98,10 +104,30 @@ def main() -> None:
         print(f"  {len(rows)} listings without a country, across {len(by_url)} pages "
               f"— reading {len(pages)}")
 
+        if args.fetch_only:
+            got = {}
+            for url, _ in pages:
+                t = _page_text(url)
+                if t:
+                    got[url] = t
+                print(f"    {url[:64]} — {'ok' if t else 'unreachable'}", flush=True)
+            json.dump(got, open(args.fetch_only, "w"))
+            print(f"  wrote {len(got)} page(s) -> {args.fetch_only}")
+            return
+
+        prefetched = {}
+        if args.from_file:
+            try:
+                prefetched = json.load(open(args.from_file))
+                print(f"  using {len(prefetched)} pre-fetched page(s)")
+            except Exception as e:
+                print(f"  cannot read {args.from_file}: {e}")
+                return
+
         model, provider = T._model(T.BULK), T._provider_for(T.BULK)
         fixed = blank = 0
         for url, listings in pages:
-            text = _page_text(url)
+            text = prefetched.get(url) or _page_text(url)
             if not text:
                 print(f"    {url[:64]} — unreachable, skipped")
                 continue
