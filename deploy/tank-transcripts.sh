@@ -9,8 +9,12 @@
 # NEEDS A JS RUNTIME on PATH. Without one every caption download fails with
 # HTTP 429 — that was the original blocker, and deno fixes it outright.
 set -e
-KEY="${1:?usage: tank-transcripts.sh <tank_key> [limit] [--captions]}"
+KEY="${1:?usage: tank-transcripts.sh <tank_key> [limit] [--captions] [--lang xx]}"
 LIMIT="${2:-40}"
+# Target one spoken language — the Japan hub is the whole point of this pipeline,
+# and view-ordering alone puts English videos first.
+ONLY_LANG=""
+for i in "$@"; do case "$PREV" in --lang) ONLY_LANG="$i";; esac; PREV="$i"; done
 # Whisper on the 5090 is the DEFAULT source. Head-to-head on real Japanese farm
 # audio it beat YouTube's ASR outright — 12 complete punctuated sentences against
 # 28 fragments with no punctuation at all, and it got the domain words right where
@@ -42,7 +46,7 @@ command -v deno >/dev/null || echo "WARNING: no JS runtime on PATH — caption f
 Q=/tmp/${KEY}-transcript-queue.json
 OUT=/tmp/${KEY}-transcripts.json
 ssh "$VPS" "cd /root/wagyutank/backend && set -a && . ../tanks/$KEY/tank.env && set +a && \
-  .venv/bin/python -m app.jobs.export_transcript_queue /tmp/${KEY}_tq.json --limit $LIMIT"
+  .venv/bin/python -m app.jobs.export_transcript_queue /tmp/${KEY}_tq.json --limit $LIMIT ${ONLY_LANG:+--lang $ONLY_LANG}"
 scp -q "$VPS:/tmp/${KEY}_tq.json" "$Q"
 [ -s "$Q" ] || { echo "no queue file — skipping"; exit 0; }
 
