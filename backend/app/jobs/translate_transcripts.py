@@ -143,13 +143,13 @@ def main() -> None:
                     if got is None:
                         ok = False
                         break
+                    out.extend({"t": cues[lo + i]["t"], "d": cues[lo + i]["d"], "x": got[i]}
+                               for i in range(hi - lo))
             except T.RateLimited as e:
                 print(f"\n  QUOTA EXHAUSTED on {src.video_id} → {lang} — stopping.")
                 print(f"    {e}")
                 print("    Re-run when the quota resets; completed videos are skipped.")
                 return
-                out.extend({"t": cues[lo + i]["t"], "d": cues[lo + i]["d"], "x": got[i]}
-                           for i in range(hi - lo))
             if not ok:
                 print(f"    {src.video_id} → {lang}: window failed, skipped", flush=True)
                 continue
