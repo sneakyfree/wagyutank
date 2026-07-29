@@ -134,7 +134,16 @@ def main() -> None:
             titles = [l.title for l in listings][:40]
             body = (f"PAGE URL: {url}\n\nPAGE TEXT:\n{text}\n\n"
                     f"LISTING TITLES:\n" + "\n".join(f"- {t}" for t in titles))
-            raw = chat(_SYS, body, max_tokens=1600, model=model, provider=provider)
+            try:
+                raw = chat(_SYS, body, max_tokens=1600, model=model, provider=provider)
+            except Exception as e:
+                # A timeout or a quota refusal must not abort the whole run — the
+                # pages already resolved stay resolved and the rest retry next time.
+                if T._is_rate_limited(e):
+                    print(f"  QUOTA EXHAUSTED — stopping; re-run when it resets.")
+                    break
+                print(f"    {url[:56]} — {type(e).__name__}, skipped")
+                continue
             if not raw:
                 print(f"    {url[:64]} — no answer, skipped")
                 continue
