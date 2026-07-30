@@ -104,7 +104,16 @@ def main() -> None:
 
     langs = [l.strip() for l in args.langs.split(",") if l.strip()]
     if not langs:
-        langs = [l for l in (tank.config().get("langs") or []) if l != "en"]
+        # EVERY site language, English included. English is the source language of
+        # the site's own copy — which is why warm_translations skips it — but a
+        # Japanese video's transcript needs an English translation like any other,
+        # and excluding it here is how English viewers of the Japan shelf ended up
+        # the only ones with no subtitles: 12 languages were translated, the 13th
+        # was silently dropped, and prog.py's denominator still expected 13 so the
+        # run looked stalled at 92%. The real rule is "don't translate a transcript
+        # into the language it is already in", and the todo comprehension below
+        # already enforces that per source with `l != s.lang`.
+        langs = list(tank.config().get("langs") or [])
     langs = [l for l in langs if l in T.LANGS]
 
     model = T._model(T.DURABLE)
