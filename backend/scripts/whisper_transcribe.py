@@ -32,10 +32,30 @@ import tempfile
 # it must read like the audio, not like an instruction.
 GLOSSARY_JA = (
     "和牛の話です。但馬牛、気高、藤良、糸桜、そして褐毛和種（あか牛）の血統について。"
-    "種雄牛、繁殖牛、受精卵、精液ストロー、人工授精、枝肉、霜降り、БМS、A5等級、"
+    # "BMS" was written БМS with a CYRILLIC Б and М. A prompt works by
+    # continuation, so priming the model with a nonsense token teaches it a
+    # nonsense token — the one term in this list most likely to appear next to a
+    # grade number, mis-seeded.
+    "種雄牛、繁殖牛、受精卵、精液ストロー、人工授精、枝肉、霜降り、BMS、A5等級、"
     "全共（全国和牛能力共進会）、松阪牛、神戸ビーフ、宮崎牛、鹿児島黒牛。"
 )
-GLOSSARY = {"ja": GLOSSARY_JA}
+# English had NO glossary, so every English video was transcribed unprimed —
+# and priming is the whole reason Whisper beat YouTube's ASR on Japanese
+# (炭火焼肉 vs "スビ"). Unprimed, English ASR mangles exactly the words that
+# matter here: sire names are Japanese loanwords in an English sentence
+# (Michifuku, Itoshigenami, Shigeshigenami), and the grading vocabulary is
+# initialisms a general model renders phonetically. Same continuation trick —
+# it reads like a rancher talking, not like an instruction.
+GLOSSARY_EN = (
+    "We're talking Wagyu genetics today — fullblood and purebred cattle, Akaushi "
+    "and Japanese Black. Bloodlines like Tajima, Kedaka, Itozakura, Fujiyoshi and "
+    "Shimane, and sires including Michifuku, Itoshigenami, Shigeshigenami, "
+    "Fukutsuru, Kitaguni 7/8, Mt. Fuji, Rueshaw, Yasufuku and Dai 7 Itozakura. "
+    "We'll cover semen straws, embryo transfer, IVF and AI, EPDs and EBVs, "
+    "marbling score, BMS, IMF percentage, ribeye area, carcass and yield grade, "
+    "F1 crosses, dams and progeny, feedlot performance and the CSS export protocol."
+)
+GLOSSARY = {"ja": GLOSSARY_JA, "en": GLOSSARY_EN}
 
 
 def audio_for(video_id: str, dest: str) -> str | None:
