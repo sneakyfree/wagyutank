@@ -305,11 +305,6 @@
 "country": "MX"
 },
 {
-"url": "http://ganaderia-guadalupe.com/",
-"site": "ganaderia-guadalupe.com",
-"country": "GT"
-},
-{
 "url": "https://www.sembrion.com/",
 "site": "sembrion.com",
 "country": "GT"
@@ -553,5 +548,35 @@
 "url": "https://www.exportersindia.com/indian-suppliers/frozen-animal-semen.htm",
 "site": "exportersindia.com",
 "country": "IN"
+},
+{
+"url": "https://baldebranco.com.br/",
+"site": "baldebranco.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.embrapa.br/gado-de-leite",
+"site": "embrapa.br",
+"country": "BR"
+},
+{
+"url": "https://genex.erural.net/search?categories%5B%5D=Gir+Leiteiro",
+"site": "genex.erural.net",
+"country": "BR"
+},
+{
+"url": "https://www.mfrural.com.br/busca/touro-gir",
+"site": "mfrural.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.mfrural.com.br/busca/embrioes",
+"site": "mfrural.com.br",
+"country": "BR"
+},
+{
+"url": "https://www.mfrural.com.br/busca/girolando",
+"site": "mfrural.com.br",
+"country": "BR"
 }
 ]

@@ -70,11 +70,6 @@
 "country": "GB"
 },
 {
-"url": "https://www.dextercattle.org.uk/",
-"site": "dextercattle.org.uk",
-"country": "GB"
-},
-{
 "url": "https://dextercattlesociety.ie/animals-for-sale/",
 "site": "dextercattlesociety.ie",
 "country": "IE"
@@ -230,11 +225,6 @@
 "country": "GB"
 },
 {
-"url": "https://dextercattleforsale.co.uk/",
-"site": "dextercattleforsale.co.uk",
-"country": "GB"
-},
-{
 "url": "https://www.dextersea.uk/",
 "site": "dextersea.uk",
 "country": "GB"
@@ -272,11 +262,6 @@
 {
 "url": "https://www.haye-farm.co.uk/livestock",
 "site": "haye-farm.co.uk",
-"country": "GB"
-},
-{
-"url": "https://www.honeycombedextercattle.co.uk/",
-"site": "honeycombedextercattle.co.uk",
 "country": "GB"
 },
 {
@@ -718,5 +703,40 @@
 "url": "https://dextercattle.nz/",
 "site": "dextercattle.nz",
 "country": "NZ"
+},
+{
+"url": "https://adca.pedigree-db.com/",
+"site": "adca.pedigree-db.com",
+"country": "US"
+},
+{
+"url": "https://www.dextercattle.co.uk/the-breed/ai-bulls/",
+"site": "dextercattle.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.dextercattle.co.uk/the-society/overseas-societies/",
+"site": "dextercattle.co.uk",
+"country": "GB"
+},
+{
+"url": "https://dextercattle.org/adca-awards-2-9/",
+"site": "dextercattle.org",
+"country": "US"
+},
+{
+"url": "https://dextercattle.org/adca-awards-2-8/",
+"site": "dextercattle.org",
+"country": "US"
+},
+{
+"url": "https://www.dextermarketplace.com/horse/purebred-dexter-cattle-browse-14.aspx",
+"site": "dextermarketplace.com",
+"country": "US"
+},
+{
+"url": "https://www.dexter-cattle.de/",
+"site": "dexter-cattle.de",
+"country": "DE"
 }
 ]
