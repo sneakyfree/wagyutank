@@ -37,7 +37,21 @@ const MAX_PAGES = parseInt(arg("max-pages", "600"), 10);
 // followed ONLY when they also carry a genetics HINT — otherwise a shop's
 // heat-detection stickers and merch get crawled and burn LLM budget. SKIP
 // hard-filters non-genetics commerce (dairy-breed catalogs, beef/meat, merch).
-let STRONG = /semen|embryo|straw|\bdose|sperma|genetik|genetic|for.?sale|nettbutikk/i;
+// Iberian genetics vocabulary is NOT optional decoration. Measured on
+// mfrural.com.br — the Gir tank's #2 source — one page carries 158 same-domain
+// links, of which the English-only pattern followed 13 and MISSED 56, including
+// literal inventory: "Embriões Girolando 1/2 e 3/4 em Uberaba", "Venda de
+// Touros, Matrizes e Embriões". `embriões` does not match /embryo/ and `venda`
+// does not match /for.?sale/, so on Brazilian and Latin American sites the
+// crawler rendered homepages and walked away. That is why Gir turned 304
+// rendered pages into 19 listings (6%) where Murray Grey turns 122 into 96
+// (79%). Also helps the Spanish/Portuguese sellers already seeded on wagyu and
+// wagyusale. Purely additive — every English pattern still matches as before.
+const IBERIAN = "s[eê]men|embri[oõaã]|embrion|palhet|pajill|pajuel|" +
+  "\\btouros?\\b|\\btoros?\\b|matriz|novilh|reprodut|prenhe|" +
+  "\\bvend[ae]\\b|\\bvent[ae]\\b|\\bdoses?\\b|s[eê]mem";
+let STRONG = new RegExp(
+  "semen|embryo|straw|\\bdose|sperma|genetik|genetic|for.?sale|nettbutikk|" + IBERIAN, "i");
 const COMMERCE = /product|collection|shop|store|katalog|catalog/i;
 // Per-tank breed terms: TANK_TERMS env = pipe-joined lowercase terms (set by
 // deploy/tank-crawl.sh from the tank's tank.json). Without it, defaults to the
@@ -47,7 +61,7 @@ const COMMERCE = /product|collection|shop|store|katalog|catalog/i;
 const BREED_TERMS = (process.env.TANK_TERMS || "wagyu|akaushi|michifuku|itoshigenami|tajima|fukutsuru|shigeshigenami")
   .toLowerCase().split("|").map(s => s.trim()).filter(Boolean);
 let HINT = new RegExp(BREED_TERMS.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") +
-  "|semen|embryo|straw|sperma|genetik|genetic|\\bsire\\b|\\bbull\\b|\\bdam\\b", "i");
+  "|semen|embryo|straw|sperma|genetik|genetic|\\bsire\\b|\\bbull\\b|\\bdam\\b|" + IBERIAN, "i");
 const SKIP_BREEDS = ["holstein", "jersey", "angus", "hereford", "charolais", "simmental", "brahman"]
   .filter(b => !BREED_TERMS.some(t => t.includes(b)));
 let SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|about|blog|news|faq|policy|cookie|newsletter|wishlist|compare)\\b" +
