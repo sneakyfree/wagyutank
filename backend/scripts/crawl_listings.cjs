@@ -77,10 +77,19 @@ let SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|abo
 // but are no longer STRONG on their own.
 const CRAWL_MODE = (process.env.TANK_CRAWL_MODE || "genetics").trim().toLowerCase();
 if (CRAWL_MODE === "live_beef") {
+  // Spanish/Portuguese LIVE-CATTLE words, the live_beef counterpart of IBERIAN.
+  // WagyuSale carries 61 Iberian-country seeds and still extracted only 51
+  // listings from 779 rendered pages (6.5%) — the same starved ratio Gir had —
+  // because this mode REPLACES STRONG and so dropped the Iberian genetics terms
+  // added above. A Brazilian seller writes "novilhas à venda" and "gado de
+  // corte", never "heifers for sale".
+  const LIVE_BEEF_ES_PT = "\\b(novilh[ao]s?|vacas?|vaquilla?s?|bezerr[ao]s?|terneir[ao]s?" +
+    "|becerr[ao]s?|garrot(?:e|es)|gado|ganado|rebanho|reba[nñ]o|matriz(?:es)?" +
+    "|touros?|toros?|boi|bois|novilh[ao]|engorda|corte)\\b";
   const LIVE_BEEF = "\\b(bulls?|heifers?|cows?|calf|calves|pairs?|bred|open|feeders?|steers?" +
     "|cattle.?for.?sale|breeding.?stock|beef.?box|quarter.?beef|half.?beef|whole.?beef|freezer.?beef)\\b";
-  STRONG = new RegExp("for.?sale|nettbutikk|" + LIVE_BEEF, "i");
-  HINT = new RegExp(HINT.source + "|" + LIVE_BEEF, "i");
+  STRONG = new RegExp("for.?sale|nettbutikk|" + IBERIAN + "|" + LIVE_BEEF + "|" + LIVE_BEEF_ES_PT, "i");
+  HINT = new RegExp(HINT.source + "|" + LIVE_BEEF + "|" + LIVE_BEEF_ES_PT, "i");
   // Same boilerplate/off-breed skips as genetics, MINUS the beef/meat/butcher
   // block (that's this tank's inventory).
   SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|about|blog|news|faq|policy|cookie|newsletter|wishlist|compare)\\b" +
