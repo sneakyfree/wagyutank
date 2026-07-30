@@ -64,12 +64,23 @@ script = os.path.expanduser("~/wagyutank/backend/scripts/whisper_transcribe.py")
 got = []
 for i, it in enumerate(items, 1):
     tmp = f"/tmp/_wh_{it['video_id']}.json"
-    r = subprocess.run([py, script, it["video_id"], "--lang", it.get("lang") or "ja",
+    # --video-id=<id>, not a positional: about 1 in 64 YouTube ids starts with a
+    # hyphen and argparse reads it as an option. Those videos were being skipped
+    # silently on every sweep.
+    r = subprocess.run([py, script, f"--video-id={it['video_id']}",
+                        "--lang", it.get("lang") or "ja",
                         "--out", tmp], capture_output=True, text=True, timeout=1800)
     if os.path.exists(tmp):
-        got.extend(json.load(open(tmp)))
+        recs = json.load(open(tmp))
+        got.extend(recs)
         os.remove(tmp)
-        print(f"  [{i}/{len(items)}] {it['video_id']} whisper ok", flush=True)
+        # Distinguish "transcribed" from "no speech in the audio". Both are
+        # shipped to the VPS — a no-speech result is recorded there so the queue
+        # stops offering the video — but they are not the same outcome and the
+        # log must not call both of them "ok".
+        n = sum(len(r.get("cues") or []) for r in recs)
+        verdict = f"{n} cues" if n else "NO SPEECH (recorded, won't requeue)"
+        print(f"  [{i}/{len(items)}] {it['video_id']} {verdict}", flush=True)
     else:
         print(f"  [{i}/{len(items)}] {it['video_id']} whisper failed: {r.stderr.strip()[-120:]}", flush=True)
 json.dump(got, open(out, "w"), ensure_ascii=False)

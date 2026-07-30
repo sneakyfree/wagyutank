@@ -12,7 +12,7 @@ import sys
 from datetime import datetime, timezone
 
 from ..db import Base, SessionLocal, engine
-from ..models import VideoTranscript
+from ..models import VideoTranscript, VideoTranscriptAttempt
 
 
 def main() -> None:
@@ -27,11 +27,31 @@ def main() -> None:
 
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-    added = replaced = 0
+    added = replaced = no_speech = malformed = 0
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     try:
         for r in rows:
             vid, lang = r.get("video_id"), r.get("lang")
-            if not vid or not lang or not r.get("cues"):
+            if not vid or not lang:
+                malformed += 1
+                continue
+            # A cue-less result is a real answer, not a failure to report as
+            # silence: Whisper's VAD found no speech (music, ambience, a clip with
+            # no talking). Writing it as a transcript would be the worst outcome —
+            # see VideoTranscriptAttempt — so record the attempt instead so the
+            # queue stops handing this video back every night, and NEVER let it
+            # become a 0-cue transcript row.
+            if not r.get("cues"):
+                no_speech += 1
+                att = (db.query(VideoTranscriptAttempt)
+                         .filter(VideoTranscriptAttempt.video_id == vid,
+                                 VideoTranscriptAttempt.lang == lang).first())
+                if att:
+                    att.tries = (att.tries or 1) + 1
+                    att.updated_at = now
+                else:
+                    db.add(VideoTranscriptAttempt(
+                        video_id=vid, lang=lang, reason="no_speech", tries=1))
                 continue
             existing = (db.query(VideoTranscript)
                           .filter(VideoTranscript.video_id == vid,
@@ -51,7 +71,11 @@ def main() -> None:
         db.commit()
     finally:
         db.close()
-    print(f"Transcripts: +{added} new, {replaced} refreshed (of {len(rows)} fetched)")
+    # Report every bucket. The old line said "+4 new, 0 refreshed (of 18 fetched)"
+    # and left 14 rows unaccounted for, which reads as a silent failure.
+    print(f"Transcripts: +{added} new, {replaced} refreshed, "
+          f"{no_speech} no-speech (recorded, won't requeue), {malformed} malformed "
+          f"— of {len(rows)} fetched")
 
 
 if __name__ == "__main__":

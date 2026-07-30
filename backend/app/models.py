@@ -1075,6 +1075,39 @@ class VideoTranscript(Base):
     updated_at: Mapped[datetime | None] = mapped_column(DateTime)
 
 
+class VideoTranscriptAttempt(Base):
+    """We tried to transcribe this video and got nothing usable. Remember that.
+
+    The transcript queue is "every approved video with no source transcript row",
+    so a video that CANNOT produce one is offered again on every single sweep. On
+    2026-07-29 a 21-video harvest found 14 of them: travel and food clips whose
+    audio is music or ambient, where Whisper's VAD correctly reports no speech.
+    Without this table the nightly job would re-download ~200MB of audio per
+    video per night, forever, to reach the same answer — and burn the residential
+    IP's YouTube budget doing it, which is exactly what produced the HTTP 429s
+    that stalled this pipeline in the first place.
+
+    DELIBERATELY NOT a 0-cue VideoTranscript row. That would stop
+    `GET /api/videos/{id}/transcript` from 404ing, which makes the player switch
+    YouTube's caption layer off and draw an empty overlay — the viewer gets
+    silence, strictly worse than never having tried. Keeping the memory in its own
+    table means nothing the player reads can ever see it.
+
+    Not permanent: a better model, or a creator uploading real captions, should
+    get another go. Clear a row (or the table) to requeue."""
+    __tablename__ = "video_transcript_attempts"
+    __table_args__ = (UniqueConstraint("video_id", "lang", name="uq_tattempt_video_lang"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    video_id: Mapped[str] = mapped_column(String(24), index=True)
+    lang: Mapped[str] = mapped_column(String(8), index=True)
+    #: no_speech | fetch_failed
+    reason: Mapped[str] = mapped_column(String(24), default="no_speech")
+    tries: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+
 class ChannelClaim(Base):
     """Claim-your-channel — a member asserts a harvested YouTube channel is
     theirs. Admin-approved (small community, manual verification); once

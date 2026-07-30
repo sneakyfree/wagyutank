@@ -81,26 +81,43 @@ def transcribe(path: str, lang: str, model_name: str) -> list[dict]:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("video_id")
+    # YouTube ids are base64url, so about one in 64 STARTS WITH A HYPHEN and
+    # argparse reads it as an option: "-_7vZYqZvYM" died with "the following
+    # arguments are required: video_id". It had been silently skipping those
+    # videos forever — not one transcript in the database had a hyphen-leading
+    # id. Callers should use the --video-id=<id> form, which argparse parses
+    # unambiguously even when the value looks like a flag; the positional stays
+    # for hand use with ordinary ids.
+    ap.add_argument("video_id", nargs="?")
+    ap.add_argument("--video-id", dest="video_id_opt", default="")
     ap.add_argument("--lang", default="ja")
     ap.add_argument("--model", default="large-v3-turbo")
     ap.add_argument("--out", default="")
     args = ap.parse_args()
+    video_id = args.video_id_opt or args.video_id
+    if not video_id:
+        ap.error("a video id is required (prefer --video-id=<id>)")
 
     with tempfile.TemporaryDirectory() as td:
-        wav = audio_for(args.video_id, os.path.join(td, "a"))
+        wav = audio_for(video_id, os.path.join(td, "a"))
         if not wav:
             print("could not fetch audio")
             return
         print(f"  audio {os.path.getsize(wav)//1024}KB → whisper {args.model} ({args.lang})", flush=True)
         cues = transcribe(wav, args.lang, args.model)
 
-    rec = {"video_id": args.video_id, "lang": args.lang, "source": "whisper",
+    rec = {"video_id": video_id, "lang": args.lang, "source": "whisper",
            "is_source": True, "cues": cues,
            "word_count": sum(len(c["x"]) for c in cues)}
     if args.out:
         json.dump([rec], open(args.out, "w"), ensure_ascii=False)
-        print(f"  wrote {len(cues)} cues → {args.out}")
+        # Say which of the two things happened. "wrote 0 cues" read as success and
+        # hid 14 no-speech videos behind a cheerful log line; the VAD returning
+        # nothing is a verdict about the audio, not a fault to gloss over.
+        if cues:
+            print(f"  wrote {len(cues)} cues → {args.out}")
+        else:
+            print(f"  NO SPEECH detected (VAD found none) → {args.out}")
     else:
         for c in cues[:12]:
             print(f"    {c['t']:7.1f}s  {c['x']}")
