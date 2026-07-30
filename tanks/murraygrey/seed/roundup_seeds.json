@@ -1,25 +1,292 @@
 [
-{"url":"https://www.wallawong.com.au/product-category/semen/","site":"wallawong.com.au","country":"AU"},
-{"url":"https://www.bottlesford.com.au/murray-grey/semen/","site":"bottlesford.com.au","country":"AU"},
-{"url":"https://www.eylwarrasands.com/eylwarra-sands-semen","site":"eylwarrasands.com","country":"AU"},
-{"url":"https://www.mountmajormurraygreys.com.au/bulls/semen-for-sale","site":"mountmajormurraygreys.com.au","country":"AU"},
-{"url":"https://www.glanmiremurraygreys.com.au/aistraws","site":"glanmiremurraygreys.com.au","country":"AU"},
-{"url":"https://cadfor.com.au/bulls/","site":"cadfor.com.au","country":"AU"},
-{"url":"https://mungatta.com/","site":"mungatta.com","country":"AU"},
-{"url":"https://woodbournstud.com.au/murray-greys/","site":"woodbournstud.com.au","country":"AU"},
-{"url":"https://ronsardmurraygreys.com/for-sale-2/","site":"ronsardmurraygreys.com","country":"AU"},
-{"url":"https://www.karawihill.com.au/","site":"karawihill.com.au","country":"AU"},
-{"url":"https://mgaba.com.au/mystical-murray-greys/","site":"mgaba.com.au","country":"AU"},
-{"url":"https://mgaba.com.au/braeside-park-murray-greys/","site":"mgaba.com.au","country":"AU"},
-{"url":"https://mgaba.com.au/moorabinda-murray-grey-stud/","site":"mgaba.com.au","country":"AU"},
-{"url":"https://mgaba.com.au/greybelle-murray-greys/","site":"mgaba.com.au","country":"AU"},
-{"url":"https://mgaba.com.au/kimolong-murray-greys/","site":"mgaba.com.au","country":"AU"},
-{"url":"https://torrisdalemurraygrey.co.nz/","site":"torrisdalemurraygrey.co.nz","country":"NZ"},
-{"url":"https://www.premiercattleco.co.nz/","site":"premiercattleco.co.nz","country":"NZ"},
-{"url":"https://murraygreycows.com/for-sale/semen-and-embryos/","site":"murraygreycows.com","country":"US"},
-{"url":"https://www.stillwatermurraygreys.com/","site":"stillwatermurraygreys.com","country":"US"},
-{"url":"https://origenbeef.org/semen_murray_grey.php","site":"origenbeef.org","country":"US"},
-{"url":"https://steepleviewranch.com/herd-sires/","site":"steepleviewranch.com","country":"US"},
-{"url":"https://www.4bmurraygrey.com/sires","site":"4bmurraygrey.com","country":"US"},
-{"url":"https://www.murray-grey.co.uk/","site":"murray-grey.co.uk","country":"GB"}
+{
+"url": "https://www.wallawong.com.au/product-category/semen/",
+"site": "wallawong.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.bottlesford.com.au/murray-grey/semen/",
+"site": "bottlesford.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.eylwarrasands.com/eylwarra-sands-semen",
+"site": "eylwarrasands.com",
+"country": "AU"
+},
+{
+"url": "https://www.mountmajormurraygreys.com.au/bulls/semen-for-sale",
+"site": "mountmajormurraygreys.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.glanmiremurraygreys.com.au/aistraws",
+"site": "glanmiremurraygreys.com.au",
+"country": "AU"
+},
+{
+"url": "https://cadfor.com.au/bulls/",
+"site": "cadfor.com.au",
+"country": "AU"
+},
+{
+"url": "https://mungatta.com/",
+"site": "mungatta.com",
+"country": "AU"
+},
+{
+"url": "https://woodbournstud.com.au/murray-greys/",
+"site": "woodbournstud.com.au",
+"country": "AU"
+},
+{
+"url": "https://ronsardmurraygreys.com/for-sale-2/",
+"site": "ronsardmurraygreys.com",
+"country": "AU"
+},
+{
+"url": "https://www.karawihill.com.au/",
+"site": "karawihill.com.au",
+"country": "AU"
+},
+{
+"url": "https://mgaba.com.au/mystical-murray-greys/",
+"site": "mgaba.com.au",
+"country": "AU"
+},
+{
+"url": "https://mgaba.com.au/braeside-park-murray-greys/",
+"site": "mgaba.com.au",
+"country": "AU"
+},
+{
+"url": "https://mgaba.com.au/moorabinda-murray-grey-stud/",
+"site": "mgaba.com.au",
+"country": "AU"
+},
+{
+"url": "https://mgaba.com.au/greybelle-murray-greys/",
+"site": "mgaba.com.au",
+"country": "AU"
+},
+{
+"url": "https://mgaba.com.au/kimolong-murray-greys/",
+"site": "mgaba.com.au",
+"country": "AU"
+},
+{
+"url": "https://torrisdalemurraygrey.co.nz/",
+"site": "torrisdalemurraygrey.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://www.premiercattleco.co.nz/",
+"site": "premiercattleco.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://murraygreycows.com/for-sale/semen-and-embryos/",
+"site": "murraygreycows.com",
+"country": "US"
+},
+{
+"url": "https://www.stillwatermurraygreys.com/",
+"site": "stillwatermurraygreys.com",
+"country": "US"
+},
+{
+"url": "https://origenbeef.org/semen_murray_grey.php",
+"site": "origenbeef.org",
+"country": "US"
+},
+{
+"url": "https://steepleviewranch.com/herd-sires/",
+"site": "steepleviewranch.com",
+"country": "US"
+},
+{
+"url": "https://www.4bmurraygrey.com/sires",
+"site": "4bmurraygrey.com",
+"country": "US"
+},
+{
+"url": "https://www.murray-grey.co.uk/",
+"site": "murray-grey.co.uk",
+"country": "GB"
+},
+{
+"url": "https://americanmurraygreyassociation.com/",
+"site": "americanmurraygreyassociation.com",
+"country": "US"
+},
+{
+"url": "https://cadfor.com.au/for-sale/",
+"site": "cadfor.com.au",
+"country": "AU"
+},
+{
+"url": "http://www.cdnmurraygrey.ca/Breeders_Directory.html",
+"site": "cdnmurraygrey.ca",
+"country": "CA"
+},
+{
+"url": "http://www.eaglesrun.com/sale/salesemen.html",
+"site": "eaglesrun.com",
+"country": "US"
+},
+{
+"url": "https://www.farmtender.com.au/categories/livestock/sub_categories/beef-cattle-bulls/breed/murray-grey/listings",
+"site": "farmtender.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.ganadogreys.com.au",
+"site": "ganadogreys.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.mljranch.com/",
+"site": "mljranch.com",
+"country": "US"
+},
+{
+"url": "http://www.montereyonline.com.au/",
+"site": "montereyonline.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.murraygrey.com.au/sales-and-results/cattle-for-sale-and-cattle-wanted",
+"site": "murraygrey.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.murraygrey.com.au/sales-and-results/genetics-for-sale",
+"site": "murraygrey.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.murraygrey.com.au/members/members-websites",
+"site": "murraygrey.com.au",
+"country": "AU"
+},
+{
+"url": "https://murraygreybeef.com/Breeders.htm",
+"site": "murraygreybeef.com",
+"country": "US"
+},
+{
+"url": "http://www.murraygreyinternational.com/",
+"site": "murraygreyinternational.com",
+"country": "US"
+},
+{
+"url": "https://www.murraygreys.co.nz/breeders-list/",
+"site": "murraygreys.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://silverangus.com/product-category/semen/",
+"site": "silverangus.com",
+"country": "US"
+},
+{
+"url": "https://www.wallawong.com.au/salebulls/",
+"site": "wallawong.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.4bmurraygrey.com/",
+"site": "4bmurraygrey.com",
+"country": "US"
+},
+{
+"url": "https://www.bottlesford.com.au/",
+"site": "bottlesford.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.eylwarrasands.com/",
+"site": "eylwarrasands.com",
+"country": "AU"
+},
+{
+"url": "https://www.glanmiremurraygreys.com.au/studsales",
+"site": "glanmiremurraygreys.com.au",
+"country": "AU"
+},
+{
+"url": "https://lbcentre.com.au/Murray-Grey-Stud-Breeders-Association.php",
+"site": "lbcentre.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.lic.co.nz/products-and-services/artificial-breeding/beef-bulls-and-packs/beef-breeds/murray-grey/",
+"site": "lic.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://www.mgaba.com.au/",
+"site": "mgaba.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.mountmajormurraygreys.com.au/",
+"site": "mountmajormurraygreys.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.mungatta.com/",
+"site": "mungatta.com",
+"country": "AU"
+},
+{
+"url": "https://www.murraygrey.com.au/sales-and-results",
+"site": "murraygrey.com.au",
+"country": "AU"
+},
+{
+"url": "https://murraygreycows.com/for-sale/bulls/",
+"site": "murraygreycows.com",
+"country": "US"
+},
+{
+"url": "https://murraygreycows.com/reference-sires/",
+"site": "murraygreycows.com",
+"country": "US"
+},
+{
+"url": "http://www.murraygreyinternational.com/home.html",
+"site": "murraygreyinternational.com",
+"country": "US"
+},
+{
+"url": "https://www.origenbeef.org/",
+"site": "origenbeef.org",
+"country": "US"
+},
+{
+"url": "https://ronsardmurraygreys.com/",
+"site": "ronsardmurraygreys.com",
+"country": "AU"
+},
+{
+"url": "https://www.steepleviewranch.com/",
+"site": "steepleviewranch.com",
+"country": "US"
+},
+{
+"url": "https://www.torrisdalemurraygrey.co.nz/",
+"site": "torrisdalemurraygrey.co.nz",
+"country": "NZ"
+},
+{
+"url": "https://www.woodbournstud.com.au/",
+"site": "woodbournstud.com.au",
+"country": "AU"
+},
+{
+"url": "https://www.preloved.co.uk/classifieds/horses-livestock/cattle/all/uk/murray-grey",
+"site": "preloved.co.uk",
+"country": "GB"
+}
 ]

@@ -658,5 +658,65 @@
 "url": "http://www.callistemonpark.com/dexter-cattle/",
 "site": "callistemonpark.com",
 "country": "AU"
+},
+{
+"url": "https://dexter-bddz.de/geschichte/",
+"site": "dexter-bddz.de",
+"country": "DE"
+},
+{
+"url": "https://www.dexter-verband-deutschland.de/zucht.html",
+"site": "dexter-verband-deutschland.de",
+"country": "DE"
+},
+{
+"url": "http://www.dextercattle.co.uk/",
+"site": "dextercattle.co.uk",
+"country": "GB"
+},
+{
+"url": "https://www.dexterstoday.com/",
+"site": "dexterstoday.com",
+"country": "US"
+},
+{
+"url": "http://www.eagleridge-dexters.co.uk/",
+"site": "eagleridge-dexters.co.uk",
+"country": "GB"
+},
+{
+"url": "http://www.hollanddexter.nl/",
+"site": "hollanddexter.nl",
+"country": "NL"
+},
+{
+"url": "https://www.legacybreeders.org/",
+"site": "legacybreeders.org",
+"country": "US"
+},
+{
+"url": "https://www.missouridexter.com/",
+"site": "missouridexter.com",
+"country": "US"
+},
+{
+"url": "https://pdca-pedigree.org/db/index.php",
+"site": "pdca-pedigree.org",
+"country": "US"
+},
+{
+"url": "https://www.rinderzucht.at/rinderrasse/dexter.html",
+"site": "rinderzucht.at",
+"country": "AT"
+},
+{
+"url": "http://www.wagra-dexter.com.au/",
+"site": "wagra-dexter.com.au",
+"country": "AU"
+},
+{
+"url": "https://dextercattle.nz/",
+"site": "dextercattle.nz",
+"country": "NZ"
 }
 ]
