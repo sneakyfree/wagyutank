@@ -1,6 +1,8 @@
 """The Roundup — public, attributed aggregation of Wagyu-genetics listings found
 elsewhere on the web. These are NOT WagyuTank vendor listings; every response
 links back to the original source, and there is no on-site checkout."""
+import re
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
@@ -252,6 +254,33 @@ def takedown_confirm(token: str, db: Session = Depends(get_db)):
         f"WagyuTank Roundup. Thank you."))
 
 
+# Scripts an English reader cannot read at all — CJK, kana, Hangul, Cyrillic,
+# Greek, Thai, Hebrew, Arabic, Devanagari, fullwidth forms. Accented Latin is
+# deliberately NOT here: ä/ö/ß/× are readable-ish and matching them would send
+# most of the German and Austrian corpus to the translator for no gain.
+_FOREIGN_SCRIPT = re.compile(
+    r"[Ͱ-ϿЀ-ӿ֐-׿؀-ۿऀ-ॿ"
+    r"฀-๿　-ヿ㐀-䶿一-鿿가-힯＀-￯]")
+
+
+def _needs_translation(text: str, lang: str) -> bool:
+    """Should this field be sent to the translator for this reader?
+
+    English was treated as a SOURCE language only, never a reader language, so
+    `lang != "en"` skipped translation entirely and an English reader browsing the
+    Japan shelf saw 黒毛和牛 / アニマルジェネティックスジャパン株式会社 verbatim.
+    English is the biggest audience and it was the one getting the rawest page —
+    the same shape as the missing-English video subtitles.
+
+    Translating the whole corpus into English would be absurd (2,700 listings that
+    are already English), so for an English reader we translate only what is in a
+    script they cannot read. Costs follow real foreign content: 96 of 2,751 rows.
+    """
+    if lang != "en":
+        return True                       # unchanged behaviour for every other reader
+    return bool(_FOREIGN_SCRIPT.search(text))
+
+
 @router.get("/{listing_id}/detail")
 def detail(listing_id: int, lang: str = "en", db: Session = Depends(get_db)):
     """A Roundup listing in full, in the reader's language.
@@ -278,15 +307,20 @@ def detail(listing_id: int, lang: str = "en", db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No such listing")
     out = {c.name: getattr(row, c.name) for c in AggregatedListing.__table__.columns}
     out["product_type"] = row.product_type.value if row.product_type else None
-    if lang and lang != "en":
+    if lang:
         from ..services import translate as tr
         # BULK tier, deliberately. Listing text is churn — 2,000+ rows replaced
         # nightly as sellers add and pull ads — not the durable knowledge base the
         # top tier exists for. Putting it on the durable lane also starved it:
         # batch warming and interactive page loads were queueing behind each
         # other and on-demand requests 429'd, falling back to English.
-        for f in ("summary", "details"):
-            if out.get(f):
+        #
+        # TITLE and the two NAME fields are translated as well, not just the prose.
+        # The Roundup card renders `animal_name || title`, so leaving those alone
+        # meant a Japanese listing stayed Japanese on the card no matter what the
+        # reader picked — which is exactly what a reader hit on the Japan shelf.
+        for f in ("title", "summary", "details", "animal_name", "seller_name"):
+            if out.get(f) and _needs_translation(out[f], lang):
                 out[f] = tr.translate(db, out[f], lang, tier=tr.BULK)
         out["translated_to"] = lang
     return out
