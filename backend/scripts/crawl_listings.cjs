@@ -77,18 +77,27 @@ let SKIP = new RegExp("\\b(login|cart|account|checkout|privacy|terms|contact|abo
 // but are no longer STRONG on their own.
 const CRAWL_MODE = (process.env.TANK_CRAWL_MODE || "genetics").trim().toLowerCase();
 if (CRAWL_MODE === "live_beef") {
-  // Spanish/Portuguese LIVE-CATTLE words, the live_beef counterpart of IBERIAN.
-  // WagyuSale carries 61 Iberian-country seeds and still extracted only 51
-  // listings from 779 rendered pages (6.5%) — the same starved ratio Gir had —
-  // because this mode REPLACES STRONG and so dropped the Iberian genetics terms
-  // added above. A Brazilian seller writes "novilhas à venda" and "gado de
-  // corte", never "heifers for sale".
+  // Spanish/Portuguese LIVE-CATTLE words — the live_beef counterpart of IBERIAN,
+  // and deliberately NOT IBERIAN itself.
+  //
+  // First attempt put the whole IBERIAN block in this mode's STRONG and made
+  // things WORSE: 876 pages yielded 37 listings where 779 had yielded 51. IBERIAN
+  // is GENETICS vocabulary and its `s[eê]men|embri` alternatives match the ENGLISH
+  // words too, so 230 of 876 rendered pages went to /wagyu-semen and /semen-sales/
+  // — pages this tank does not sell from. live_beef excludes genetics from STRONG
+  // ON PURPOSE (they stay reachable via HINT on commerce paths); adding them back
+  // spent the 5-page per-site budget on the wrong inventory and starved the live
+  // cattle pages the mode exists to find.
+  //
+  // So: live-cattle nouns plus the Iberian equivalents of "for sale", nothing
+  // from the genetics lane. A Brazilian seller writes "novilhas à venda" and
+  // "gado de corte", never "heifers for sale".
   const LIVE_BEEF_ES_PT = "\\b(novilh[ao]s?|vacas?|vaquilla?s?|bezerr[ao]s?|terneir[ao]s?" +
     "|becerr[ao]s?|garrot(?:e|es)|gado|ganado|rebanho|reba[nñ]o|matriz(?:es)?" +
-    "|touros?|toros?|boi|bois|novilh[ao]|engorda|corte)\\b";
+    "|touros?|toros?|boi|bois|engorda|corte|vend[ae]|vent[ae])\\b";
   const LIVE_BEEF = "\\b(bulls?|heifers?|cows?|calf|calves|pairs?|bred|open|feeders?|steers?" +
     "|cattle.?for.?sale|breeding.?stock|beef.?box|quarter.?beef|half.?beef|whole.?beef|freezer.?beef)\\b";
-  STRONG = new RegExp("for.?sale|nettbutikk|" + IBERIAN + "|" + LIVE_BEEF + "|" + LIVE_BEEF_ES_PT, "i");
+  STRONG = new RegExp("for.?sale|nettbutikk|" + LIVE_BEEF + "|" + LIVE_BEEF_ES_PT, "i");
   HINT = new RegExp(HINT.source + "|" + LIVE_BEEF + "|" + LIVE_BEEF_ES_PT, "i");
   // Same boilerplate/off-breed skips as genetics, MINUS the beef/meat/butcher
   // block (that's this tank's inventory).
