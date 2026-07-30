@@ -1,8 +1,6 @@
 """The Roundup — public, attributed aggregation of Wagyu-genetics listings found
 elsewhere on the web. These are NOT WagyuTank vendor listings; every response
 links back to the original source, and there is no on-site checkout."""
-import re
-
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
@@ -254,13 +252,8 @@ def takedown_confirm(token: str, db: Session = Depends(get_db)):
         f"WagyuTank Roundup. Thank you."))
 
 
-# Scripts an English reader cannot read at all — CJK, kana, Hangul, Cyrillic,
-# Greek, Thai, Hebrew, Arabic, Devanagari, fullwidth forms. Accented Latin is
-# deliberately NOT here: ä/ö/ß/× are readable-ish and matching them would send
-# most of the German and Austrian corpus to the translator for no gain.
-_FOREIGN_SCRIPT = re.compile(
-    r"[Ͱ-ϿЀ-ӿ֐-׿؀-ۿऀ-ॿ"
-    r"฀-๿　-ヿ㐀-䶿一-鿿가-힯＀-￯]")
+# Single definition lives in services/translate.py — do not fork it.
+from ..services.translate import FOREIGN_SCRIPT as _FOREIGN_SCRIPT  # noqa: E402
 
 
 def _needs_translation(text: str, lang: str) -> bool:

@@ -111,6 +111,15 @@ _COUNTRY_WORDS = {
     "guatemala", "panama", "costa rica", "nicaragua",
 }
 
+# Scripts an English reader cannot read: CJK, kana, Hangul, Cyrillic, Greek,
+# Thai, Hebrew, Arabic, Devanagari, fullwidth. Accented Latin is deliberately
+# excluded — a/o/ss/x do not need a round trip through the translator, and
+# matching them would drag most of the German and Austrian corpus in for nothing.
+# The frontend keeps byte-identical copies in AutoTranslate.tsx and RoundupCard.tsx.
+FOREIGN_SCRIPT = re.compile(
+    "[\u0370-\u03ff\u0400-\u04ff\u0590-\u05ff\u0600-\u06ff\u0900-\u097f"
+    "\u0e00-\u0e7f\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af\uff00-\uffef]")
+
 # Simplified-Chinese-only characters that must never appear in Japanese output.
 # llama/qwen both bleed zh into ja; this catches it deterministically.
 # NOTE 国 IS NOT IN THIS SET, deliberately. Japan adopted the same simplified form
@@ -245,7 +254,16 @@ def translate(db, text: str, lang: str, *, is_markdown: bool = False,
     encyclopedia, the breed history, the digest. High-volume churn goes through
     translate_batch() instead, which defaults to BULK."""
     lang = (lang or "en").lower()
-    if lang == "en" or lang not in LANGS or not text.strip():
+    # "English → unchanged" was shorthand for "no-op", and it was right for every
+    # original caller: they all pass the site's own English prose. It is wrong for
+    # seller copy. A Roundup listing reading 黒毛和牛凍結精液 is not English, and an
+    # English reader was handed it verbatim because this line refused the job.
+    # So English is refused only when the text is ALREADY readable to an English
+    # reader; text in a foreign script translates like any other target.
+    # translate_batch() has always allowed an English target for the same reason.
+    if lang not in LANGS or not text.strip():
+        return text
+    if lang == "en" and not FOREIGN_SCRIPT.search(text):
         return text
     if _is_dnt(text):
         return text
