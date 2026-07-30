@@ -27,6 +27,17 @@ LANGS = {"es": "Spanish", "pt": "Portuguese (Brazilian)", "de": "German",
 # which is exactly what happened on 2026-07-24 ("Semen Straws" -> 精液管).
 _PROMPT_VERSION = "v4"
 
+# Prompt version PER TIER, because the two lanes cost wildly different amounts to
+# rebuild. A single global version meant any prompt edit — however narrow — threw
+# away all 12,999 cached rows including the 9,827-cell durable warm, which is
+# hours of opus-5 and about $32. The 2026-07-30 romaji rule only changes how
+# proper nouns in a foreign script are rendered, which matters for seller listings
+# (BULK) and is a no-op for the durable lane, whose proper nouns are already
+# English. So BULK moves and DURABLE stays put.
+# Bump the tier you actually changed. `_PROMPT_VERSION` remains the DURABLE value
+# so existing durable rows keep their keys.
+_PROMPT_VERSIONS = {"durable": _PROMPT_VERSION, "bulk": "v5"}
+
 
 # Translation splits into two tiers with very different economics.
 #
@@ -78,7 +89,8 @@ def _provider_for(tier: str) -> str | None:
 def _cache_salt(tier: str = BULK) -> str:
     # The model is part of the key, so switching models re-translates rather than
     # serving the weaker model's cached output forever.
-    return f"{_PROMPT_VERSION}|{_model(tier) or active_provider_label()}"
+    return (f"{_PROMPT_VERSIONS.get(tier, _PROMPT_VERSION)}"
+            f"|{_model(tier) or active_provider_label()}")
 
 
 def _key(text: str, lang: str, tier: str = BULK) -> str:
@@ -213,6 +225,14 @@ def _system(target: str, is_markdown: bool) -> str:
             f"animal names; registration numbers; breed terms ({breed}); "
             f"carcass grades and standards (A5, BMS, USDA Choice/Prime); and market index names "
             f"(e.g. CME Feeder Cattle Index). Leave all of those exactly as written in English.\n"
+            f"PROPER NOUNS ALREADY IN ANOTHER SCRIPT: if an animal, ranch, farm, company or "
+            f"person name is written in a script the reader cannot read (Japanese kanji or kana, "
+            f"Chinese, Korean, Cyrillic), give the romanised name followed by the original in "
+            f"parentheses — 福之姫 becomes 'Fukunohime (福之姫)', えりもなかの牧場 becomes "
+            f"'Erimo Nakano Ranch (えりもなかの牧場)'. Never drop the original: breeders search on "
+            f"the exact characters, so the parenthesis is what keeps the listing findable while "
+            f"the romanisation is what makes it readable. Do this ONCE per name per text, not on "
+            f"every repeat. Names already in the Latin alphabet stay exactly as they are.\n"
             f"Country and place names ARE translated when they appear inside a sentence — write "
             f"them the way a native speaker would (Japanese: 日本, not 'Japan'). Standalone country "
             f"labels never reach you; they are resolved from a fixed table.\n"
@@ -351,6 +371,11 @@ def translate_batch(db, items: list[dict], lang: str, tier: str = BULK) -> dict:
               f"(breed names, sire names, registration numbers, company/ranch names, place and "
               f"country names, carcass grades like A5/BMS/Choice) unchanged. Translate the FULL "
               f"headline — never return a fragment or a single word."
+              + (" EXCEPTION for proper nouns written in a script the reader cannot read "
+                 "(kanji, kana, Chinese, Korean, Cyrillic): romanise the name and keep the "
+                 "original in parentheses — 福之姫 -> 'Fukunohime (福之姫)'. Never drop the "
+                 "original characters; breeders search on them. Latin-alphabet names are "
+                 "left exactly as they are." if lang == "en" else "")
               + (" Use Japanese script only, never Simplified Chinese characters."
                  if lang == "ja" else "")
               + " Return ONLY the same numbered list, one translation per line, no extra text.")
