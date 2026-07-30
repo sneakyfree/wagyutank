@@ -53,7 +53,24 @@ def _system(target: str) -> str:
     )
 
 
-def _translate_window(cues, lo, hi, target, model):
+def _budget(cues, lo, hi) -> int:
+    """Output token budget for this window, sized to what it actually holds.
+
+    A flat 2400 was the real reason windows "failed": budget was fixed while
+    window CONTENT is not. Whisper sometimes emits a run of 150-char run-on cues
+    among a transcript whose mean cue is 9 chars — one real window in the corpus
+    carried 1,509 characters where its neighbours carried ~120. Translating dense
+    CJK into a European language expands the character count several-fold, the
+    reply hit the ceiling mid-array, the JSON came back truncated, and the count
+    check quite correctly refused it. So the guard was doing its job and the
+    budget was starving it. ~4 tokens per source character covers CJK→Latin
+    expansion plus the JSON scaffolding, with a floor for tiny windows.
+    """
+    chars = sum(len(cues[i]["x"]) for i in range(lo, hi))
+    return max(2400, min(16000, chars * 4 + 400))
+
+
+def _translate_window(cues, lo, hi, target, model, depth: int = 0):
     before = [c["x"] for c in cues[max(0, lo - CONTEXT):lo]]
     after = [c["x"] for c in cues[hi:hi + CONTEXT]]
     body = ""
@@ -67,8 +84,8 @@ def _translate_window(cues, lo, hi, target, model):
     want = hi - lo
     for _ in range(2):
         try:
-            raw = chat(_system(target), body, max_tokens=2400, model=model,
-                       provider=T._provider_for(T.DURABLE))
+            raw = chat(_system(target), body, max_tokens=_budget(cues, lo, hi),
+                       model=model, provider=T._provider_for(T.DURABLE))
         except Exception as e:
             # Quota refusal means every remaining window fails too — surface it
             # so the caller stops instead of grinding through a whole transcript
@@ -89,6 +106,23 @@ def _translate_window(cues, lo, hi, target, model):
             continue
         if isinstance(got, list) and len(got) == want and all(isinstance(x, str) for x in got):
             return got
+
+    # Still wrong after two tries. Halve it and translate each half instead of
+    # throwing the window away: 12 cues = 6 + 6, so the count still round-trips
+    # exactly and the desync invariant is untouched, while each request is half
+    # the size. Context comes from the full cue list, so a split half still sees
+    # its true neighbours and does not lose the mid-sentence continuity the
+    # windowing exists to preserve. Bottoming out at one cue keeps this finite.
+    if want > 1 and depth < 3:
+        mid = lo + want // 2
+        left = _translate_window(cues, lo, mid, target, model, depth + 1)
+        if left is None:
+            return None
+        right = _translate_window(cues, mid, hi, target, model, depth + 1)
+        if right is None:
+            return None
+        return left + right
+
     return None      # count mismatch — skip rather than desync the subtitles
 
 
