@@ -75,6 +75,43 @@ def account_charges_enabled(account_id: str) -> bool:
         return False
 
 
+#: Stripe renders a card statement as "<account prefix>* <suffix>" and caps the
+#: WHOLE string at 22 characters. The live account's prefix is "WINDYPRO" (it is
+#: shared with Windy Word billing), which spends 10 of those on "WINDYPRO* " and
+#: leaves 12. So a tank's suffix must fit in 12 or Stripe rejects the charge.
+_DESCRIPTOR_MAX = 12
+
+
+def _tank_ident() -> tuple[str, str, str]:
+    """(platform_key, brand_name, statement_suffix) for the tank serving this request.
+
+    One Stripe account bills every tank, so without this a WagyuTank ad and a
+    GirTank ad are indistinguishable — the buyer's statement would read only
+    "WINDYPRO", and the dashboard would show five brands as one undifferentiated
+    pile. `brand.statementDescriptor` in tank.json wins when a derived name would
+    be truncated into nonsense (MurrayGreyTank -> "MURRAYGREYTA")."""
+    from .. import tank
+    try:
+        key = tank.key() or "wagyu"
+        b = tank.brand() or {}
+        name = (b.get("name") or "WagyuTank").strip()
+        explicit = (b.get("statementDescriptor") or "").strip()
+    except Exception:
+        return "wagyu", "WagyuTank", "WAGYUTANK"
+    raw = explicit or name
+    # Stripe forbids < > \ ' " * in descriptors; keep it to plain A-Z0-9.
+    suffix = "".join(ch for ch in raw.upper() if ch.isalnum())[:_DESCRIPTOR_MAX]
+    return key, name, (suffix or "WAGYUTANK")
+
+
+def _charge_context(**extra) -> dict:
+    """Metadata + statement descriptor every charge should carry."""
+    key, name, suffix = _tank_ident()
+    meta = {"platform": key, "brand": name}
+    meta.update({k: v for k, v in extra.items() if v is not None})
+    return {"metadata": meta, "statement_descriptor_suffix": suffix}
+
+
 def create_buy_intent(
     *, price_cents: int, currency: str, seller_account: str, listing_id: int, buyer_id: int
 ) -> dict:
@@ -86,7 +123,7 @@ def create_buy_intent(
         application_fee_amount=amounts["application_fee_cents"],
         transfer_data={"destination": seller_account},
         automatic_payment_methods={"enabled": True},
-        metadata={"listing_id": str(listing_id), "buyer_id": str(buyer_id), "kind": "purchase"},
+        **_charge_context(listing_id=str(listing_id), buyer_id=str(buyer_id), kind="purchase"),
     )
     return {"client_secret": intent.client_secret, "payment_intent": intent.id, **amounts}
 
@@ -97,7 +134,7 @@ def create_feature_intent(*, amount_cents: int, listing_id: int, days: int) -> d
         amount=amount_cents,
         currency="usd",
         automatic_payment_methods={"enabled": True},
-        metadata={"listing_id": str(listing_id), "days": str(days), "kind": "feature"},
+        **_charge_context(listing_id=str(listing_id), days=str(days), kind="feature"),
     )
     return {"client_secret": intent.client_secret, "payment_intent": intent.id, "amount_cents": amount_cents}
 
@@ -108,6 +145,6 @@ def create_ad_intent(*, amount_cents: int, ad_id: int, tier: str) -> dict:
         amount=amount_cents,
         currency="usd",
         automatic_payment_methods={"enabled": True},
-        metadata={"ad_id": str(ad_id), "tier": tier, "kind": "ad"},
+        **_charge_context(ad_id=str(ad_id), tier=tier, kind="ad"),
     )
     return {"client_secret": intent.client_secret, "payment_intent": intent.id, "amount_cents": amount_cents}
