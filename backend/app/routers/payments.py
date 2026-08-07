@@ -123,9 +123,16 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
             event = stripe.Webhook.construct_event(payload, sig, settings.stripe_webhook_secret)
         except Exception:
             raise HTTPException(400, "Invalid signature")
+    elif pay.stripe_enabled():
+        # Stripe is configured but no signing secret is. Falling through to the
+        # unsigned branch here would let ANYONE POST a payment_intent.succeeded
+        # and flip an order to paid and a listing to SOLD without paying a cent.
+        # Refuse instead: a missing webhook secret is a deployment error, and in
+        # live mode it is a free-money hole.
+        raise HTTPException(503, "Webhook signing secret is not configured.")
     else:
         import json
-        event = json.loads(payload or b"{}")  # dev: accept unsigned
+        event = json.loads(payload or b"{}")  # dev only: Stripe entirely off
 
     etype = event.get("type") if isinstance(event, dict) else event["type"]
     obj = (event.get("data", {}) or {}).get("object", {}) if isinstance(event, dict) else event["data"]["object"]
