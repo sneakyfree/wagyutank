@@ -201,3 +201,27 @@ def send_outbid(to: str, title: str, amount: float, currency: str, url: str) -> 
         f"<p><a href='{url}' style='background:{gold};color:#1a1a1a;padding:11px 20px;"
         f"border-radius:8px;text-decoration:none;font-weight:700;display:inline-block'>Place a new bid</a></p>")
     return send(to, f"Outbid on {title}", html)
+
+
+def send_ad_live(to: str, advertiser: str, headline: str) -> bool:
+    """The submission receipt promises "we'll email you when it goes live" — this
+    is the half that kept it. Approval was silent, so an advertiser had no way to
+    know their spot had started except by checking the site."""
+    name, gold, _, _ = _brand_bits()
+    html = _shell(
+        f"<p>Good news, {advertiser} — your ad is live on {name}.</p>"
+        f"<p style='border-left:3px solid {gold};padding-left:12px;color:#444'>{headline}</p>"
+        f"<p><a href='{tank.base_url()}' style='color:{gold};font-weight:700'>See it on the site →</a></p>")
+    return send(to, f"Your {name} ad is live", html)
+
+
+def send_ad_rejected(to: str, advertiser: str, headline: str) -> bool:
+    name, gold, _, _ = _brand_bits()
+    contact = _mail_from().split("<")[-1].rstrip(">").strip() or "us"
+    html = _shell(
+        f"<p>Thanks for submitting to {name}, {advertiser}.</p>"
+        f"<p style='border-left:3px solid #bbb;padding-left:12px;color:#444'>{headline}</p>"
+        f"<p>We aren't able to run this one as written. Reply to this email and we'll "
+        f"tell you what would need to change — most ads only need a small edit.</p>"
+        f"<p style='color:#666;font-size:13px'>Questions? Just reply, or write to {contact}.</p>")
+    return send(to, f"About your {name} ad", html)

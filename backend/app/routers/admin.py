@@ -575,6 +575,18 @@ def ad_action(ad_id: int, action: str = Body(..., embed=True),
     else:
         raise HTTPException(400, "Unknown action")
     db.commit()
+    # Tell the advertiser. The submission receipt promised this; without it,
+    # approval and rejection were both silent. Never let a mail failure undo a
+    # moderation decision the admin already made.
+    try:
+        from ..services import email as mail
+        if a.contact_email and not a.is_house:
+            if action == "approve":
+                mail.send_ad_live(a.contact_email, a.advertiser_name, a.headline)
+            elif action == "reject":
+                mail.send_ad_rejected(a.contact_email, a.advertiser_name, a.headline)
+    except Exception:
+        pass
     _audit(db, admin, f"ad.{action}", "ad", ad_id, {"advertiser": a.advertiser_name})
     return {"ok": True, "status": a.status}
 

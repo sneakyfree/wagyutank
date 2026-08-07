@@ -303,7 +303,12 @@ def place_bid(listing_id: int, payload: BidCreate, user: User = Depends(require_
         raise HTTPException(400, "This auction has ended.")
     if li.seller_id == user.id:
         raise HTTPException(400, "You can't bid on your own listing.")
-    # NOTE: MVP requires a payment method on file to bid; enforced at Stripe wiring time.
+    # ⚠️ Bids are NOT financially backed. This once read as though a payment
+    # method were required; nothing checks one, and nothing can until Stripe
+    # Live is activated (blocked on business verification — the account is on
+    # sk_test_*). Enforcing it now would block every bid with no way to
+    # comply. A confirmed email is the only barrier today, so a winning
+    # bidder may still be unable to pay; the seller's remedy is /cancel.
     floor = li.current_bid or li.start_price or 0
     min_next = floor if li.current_bid is None else floor + max(1.0, round(floor * 0.02, 2))
     if payload.amount < min_next:
