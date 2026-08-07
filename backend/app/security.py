@@ -194,6 +194,22 @@ def get_optional_user(
     return _user_from_token(token, db)
 
 
+def require_verified_user(user: User = Depends(get_current_user)) -> User:
+    """A confirmed email address, for the actions that commit someone publicly or
+    financially — posting a listing, bidding, entering the print catalog.
+
+    Verification was cosmetic before this: `is_email_verified` was set and then
+    read by nothing, so an address nobody owns could list genetics and bid on
+    live auctions. Reading is deliberately left open; only writes are gated."""
+    if not user.is_email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please confirm your email address first — check your inbox, "
+                   "or request a new link from Dashboard → Account.",
+        )
+    return user
+
+
 def _enforce_2fa(user: User) -> None:
     """When an admin has enforced platform-wide 2FA, staff without it are locked out."""
     try:

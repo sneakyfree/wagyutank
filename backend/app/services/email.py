@@ -146,3 +146,58 @@ def send_welcome(to: str, name: str) -> bool:
         f"and dig into the deepest {breed} breed history anywhere.</p>"
         f"<p><a href='{tank.base_url()}/sell' style='color:{gold};font-weight:700'>List your first genetics →</a></p>")
     return send(to, f"Welcome to {brand_name}", html)
+
+
+def send_newsletter_confirm(to: str, confirm_url: str) -> bool:
+    """Confirmed opt-in. Signup used to mark a subscriber active immediately, so
+    anyone could enter an address they don't own — and the resulting complaints
+    land on the one Resend account every tank's transactional mail shares."""
+    name, gold, _, breed = _brand_bits()
+    html = _shell(
+        f"<p>Please confirm you'd like the weekly {breed} newsletter from {name}.</p>"
+        f"<p><a href='{confirm_url}' style='background:{gold};color:#1a1a1a;padding:11px 20px;"
+        f"border-radius:8px;text-decoration:none;font-weight:700;display:inline-block'>Confirm my subscription</a></p>"
+        f"<p style='color:#666;font-size:13px'>If you didn't sign up, ignore this — "
+        f"you won't hear from us again.</p>")
+    return send(to, f"Confirm your {name} newsletter subscription", html,
+                text=f"Confirm your subscription: {confirm_url}")
+
+
+def send_catalog_received(to: str, animal: str, edition_label: str) -> bool:
+    name, gold, _, _ = _brand_bits()
+    html = _shell(
+        f"<p>We've got your catalog entry for <strong>{animal}</strong>.</p>"
+        f"<p>It's queued for the <strong>{edition_label}</strong>. We review every entry "
+        f"before print and will be in touch if anything needs confirming.</p>"
+        f"<p><a href='{tank.base_url()}/catalog' style='color:{gold};font-weight:700'>View the catalog program →</a></p>")
+    return send(to, f"Your {name} catalog entry — {animal}", html)
+
+
+def send_ad_received(to: str, advertiser: str, headline: str) -> bool:
+    name, gold, _, _ = _brand_bits()
+    html = _shell(
+        f"<p>Thanks, {advertiser} — we've received your ad.</p>"
+        f"<p style='border-left:3px solid {gold};padding-left:12px;color:#444'>{headline}</p>"
+        f"<p>It's in review now. We'll email you the moment it goes live.</p>")
+    return send(to, f"Your {name} ad is in review", html)
+
+
+def send_bid_received(to: str, title: str, amount: float, currency: str, url: str) -> bool:
+    """The seller had no idea a bid had landed — auctions are time-boxed, so
+    silence here is the difference between a sale and a missed one."""
+    name, gold, _, _ = _brand_bits()
+    html = _shell(
+        f"<p>New bid on <strong>{title}</strong>.</p>"
+        f"<p style='font-size:1.5rem;font-weight:800;color:{gold}'>{amount:,.2f} {currency}</p>"
+        f"<p><a href='{url}' style='color:{gold};font-weight:700'>View the auction →</a></p>")
+    return send(to, f"New bid — {title}", html)
+
+
+def send_outbid(to: str, title: str, amount: float, currency: str, url: str) -> bool:
+    name, gold, _, _ = _brand_bits()
+    html = _shell(
+        f"<p>You've been outbid on <strong>{title}</strong>.</p>"
+        f"<p>The bid to beat is now <strong>{amount:,.2f} {currency}</strong>.</p>"
+        f"<p><a href='{url}' style='background:{gold};color:#1a1a1a;padding:11px 20px;"
+        f"border-radius:8px;text-decoration:none;font-weight:700;display:inline-block'>Place a new bid</a></p>")
+    return send(to, f"Outbid on {title}", html)

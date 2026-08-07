@@ -95,6 +95,11 @@ def submit(payload: AdSubmit, db: Session = Depends(get_db)):
     )
     db.add(ad)
     db.commit()
+    try:
+        from ..services import email as mail
+        mail.send_ad_received(ad.contact_email, ad.advertiser_name, ad.headline)
+    except Exception:
+        pass
     if _free_launch():
         return {"ad_id": ad.id, "free": True, "status": "pending",
                 "message": "Thanks! Advertising is free during our launch — your ad is in review "

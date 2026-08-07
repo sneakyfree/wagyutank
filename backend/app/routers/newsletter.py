@@ -6,9 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
+from .. import tank
 from ..db import get_db
 from ..models import Subscriber, User
-from ..services import ratelimit
+from ..services import email as mail, ratelimit
 from fastapi import Request
 
 
@@ -46,14 +47,45 @@ def subscribe(body: SubscribeIn, request: Request, db: Session = Depends(get_db)
 
     sub = db.query(Subscriber).filter(Subscriber.email == email).first()
     if sub:
-        sub.status, sub.lang = "active", lang
+        sub.lang = lang
+        if sub.status == "active":
+            db.commit()
+            return {"ok": True, "status": "updated"}
+        # pending or previously unsubscribed — re-confirm rather than silently
+        # reactivating an address whose owner may never have agreed.
+        sub.status = "pending"
         db.commit()
-        return {"ok": True, "status": "updated"}
+        mail.send_newsletter_confirm(email, f"{tank.api_base_url()}/api/newsletter/confirm?token={sub.token}")
+        return {"ok": True, "status": "pending"}
 
+    # Confirmed opt-in: land as "pending" and prove the address before we ever
+    # send to it. Single opt-in let anyone subscribe an address they don't own,
+    # and the spam complaints from that fall on the one Resend account every
+    # tank's transactional mail depends on. The digest only ever selects
+    # status=="active", so a pending row is inert until the link is clicked.
+    token = secrets.token_urlsafe(24)
     db.add(Subscriber(email=email, lang=lang, source=(body.source or "")[:40],
-                      status="active", token=secrets.token_urlsafe(24)))
+                      status="pending", token=token))
     db.commit()
-    return {"ok": True, "status": "subscribed"}
+    mail.send_newsletter_confirm(email, f"{tank.api_base_url()}/api/newsletter/confirm?token={token}")
+    return {"ok": True, "status": "pending"}
+
+
+@router.get("/confirm")
+def confirm(token: str = Query(...), db: Session = Depends(get_db)):
+    from fastapi.responses import HTMLResponse
+    sub = db.query(Subscriber).filter(Subscriber.token == token).first()
+    if sub and sub.status != "unsubscribed":
+        sub.status = "active"
+        db.commit()
+        msg = "<h2>You're subscribed</h2><p style='color:#666'>You'll get the weekly newsletter from now on.</p>"
+    elif sub:
+        msg = "<h2>You're subscribed</h2><p style='color:#666'>Welcome back — you'll get the weekly newsletter again.</p>"
+        sub.status = "active"; db.commit()
+    else:
+        msg = "<h2>Link not recognised</h2><p style='color:#666'>That confirmation link isn't valid. Try subscribing again.</p>"
+    return HTMLResponse(
+        f"<div style='font-family:system-ui;max-width:520px;margin:80px auto;text-align:center'>{msg}</div>")
 
 
 @router.get("/unsubscribe")

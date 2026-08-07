@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import CatalogSubmission, User
-from ..security import get_current_user
+from ..security import get_current_user, require_verified_user
 from ..services import settings_store
 
 router = APIRouter(prefix="/api/catalog", tags=["catalog"])
@@ -78,7 +78,7 @@ def info(db: Session = Depends(get_db)):
 
 
 @router.post("/submit")
-def submit(payload: dict = Body(...), user: User = Depends(get_current_user),
+def submit(payload: dict = Body(...), user: User = Depends(require_verified_user),
            db: Session = Depends(get_db)):
     ed = _edition()
     if not ed.get("catalog_submit_open"):
@@ -106,6 +106,14 @@ def submit(payload: dict = Body(...), user: User = Depends(get_current_user),
     db.add(sub)
     db.commit()
     db.refresh(sub)
+    # A catalog entry is a commitment to a print deadline — the seller gets it in
+    # writing. Never let a mail failure lose an accepted submission.
+    try:
+        from ..services import email as mail
+        mail.send_catalog_received(sub.contact_email, sub.animal_name or ranch,
+                                   ed["catalog_edition_label"])
+    except Exception:
+        pass
     return {"ok": True, "id": sub.id, "edition": sub.edition,
             "message": f"You're in for the {ed['catalog_edition_label']}! We'll be in touch before print."}
 

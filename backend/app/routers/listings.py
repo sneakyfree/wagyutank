@@ -20,7 +20,7 @@ from ..schemas import (
     ListingCreate,
     ListingOut,
 )
-from ..security import get_current_user, get_optional_user
+from ..security import get_current_user, get_optional_user, require_verified_user
 from ..services.ai import generate_ad_copy
 
 router = APIRouter(prefix="/api/listings", tags=["listings"])
@@ -135,7 +135,7 @@ def _geocode_into(payload: ListingCreate, kwargs: dict, db: Session) -> None:
 
 
 @router.post("", response_model=ListingOut)
-def create_listing(payload: ListingCreate, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def create_listing(payload: ListingCreate, user: User = Depends(require_verified_user), db: Session = Depends(get_db)):
     if not user.is_seller:
         # Soft gate for MVP dev: allow, but flag. In prod require Stripe Connect onboarding.
         pass
@@ -291,7 +291,7 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{listing_id}/bid", response_model=ListingOut)
-def place_bid(listing_id: int, payload: BidCreate, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def place_bid(listing_id: int, payload: BidCreate, user: User = Depends(require_verified_user), db: Session = Depends(get_db)):
     li = db.get(Listing, listing_id)
     if not li:
         raise HTTPException(404, "Listing not found")
@@ -308,6 +308,7 @@ def place_bid(listing_id: int, payload: BidCreate, user: User = Depends(get_curr
     min_next = floor if li.current_bid is None else floor + max(1.0, round(floor * 0.02, 2))
     if payload.amount < min_next:
         raise HTTPException(400, f"Bid must be at least {min_next} {li.currency}.")
+    prev_bidder_id = li.current_bidder_id
     db.add(Bid(listing_id=li.id, bidder_id=user.id, amount=payload.amount))
     li.current_bid = payload.amount
     li.current_bidder_id = user.id
@@ -318,6 +319,24 @@ def place_bid(listing_id: int, payload: BidCreate, user: User = Depends(get_curr
             li.ends_at = now + timedelta(minutes=5)
     db.commit()
     db.refresh(li)
+    # An auction is time-boxed, so silence is expensive: the seller never learned
+    # a bid had landed, and the previous leader never learned they'd lost it.
+    # Notifications must never be able to roll back an accepted bid.
+    try:
+        from .. import tank
+        from ..services import email as mail
+        url = f"{tank.base_url()}/listing/{li.id}"
+        seller = db.get(User, li.seller_id)
+        if seller and seller.email:
+            mail.send_bid_received(seller.email, li.title or f"Lot {li.id}",
+                                   li.current_bid, li.currency, url)
+        if prev_bidder_id and prev_bidder_id != user.id:
+            prev = db.get(User, prev_bidder_id)
+            if prev and prev.email:
+                mail.send_outbid(prev.email, li.title or f"Lot {li.id}",
+                                 li.current_bid, li.currency, url)
+    except Exception:
+        pass
     return to_listing_out(li)
 
 
