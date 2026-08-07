@@ -25,9 +25,17 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain[:72], hashed)
 
 
+#: The only scopes that may authenticate a full session. Everything else this
+#: module mints (2fa, verify_email, unsub, sso, roundup_takedown) is a
+#: single-purpose token and must be redeemed by its own helper, never presented
+#: as a Bearer credential. `None` is accepted so access tokens issued before
+#: scopes were stamped keep working — nobody gets logged out by this fix.
+_SESSION_SCOPES = frozenset({None, "access"})
+
+
 def create_access_token(user_id: int) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
-    payload = {"sub": str(user_id), "exp": expire}
+    payload = {"sub": str(user_id), "scope": "access", "exp": expire}
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
@@ -139,10 +147,28 @@ def user_id_from_unsubscribe(token: str) -> int | None:
 
 
 def _user_from_token(token: str | None, db: Session) -> User | None:
+    """Resolve a Bearer credential to a user — session tokens ONLY.
+
+    This used to trust any token this server had ever signed, because it read
+    `sub` and never looked at `scope`. Every single-purpose token therefore
+    doubled as a full session:
+
+      * the 2FA pre-auth challenge — so a password ALONE granted full read and
+        write access and 2FA protected nothing;
+      * the email-verification token, mailed on every signup;
+      * the unsubscribe token, which ships in the footer of every newsletter,
+        travels as a plaintext URL, and carries NO expiry — a permanent
+        account takeover sitting in the user's mailbox forever.
+
+    Verified by exploit against production on 2026-08-07: a listing was created
+    on another account using only its unsubscribe link. Allow-list the scopes
+    that may authenticate; a new scope is inert until it is added here."""
     if not token:
         return None
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        if payload.get("scope") not in _SESSION_SCOPES:
+            return None
         user_id = int(payload.get("sub"))
     except (JWTError, TypeError, ValueError):
         return None
