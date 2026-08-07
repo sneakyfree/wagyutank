@@ -104,7 +104,39 @@
       "ExpoZebu Gir leiteiro Uberaba",
       "touro Gir PO à venda"
     ],
-    "help_nuance": "Gir (Gyr) is an ancient Bos indicus DAIRY zebu from the Gir forest of Gujarat, India — domed forehead, long pendulous ears, and exceptional heat, humidity, and tick tolerance. In Brazil it was transformed into a high-yielding tropical dairy breed and is the foundation of Girolando (Gir × Holstein). This marketplace is scoped to the EXPORT window — Brazilian and Indian dairy genetics flowing to Africa, Southeast Asia, and Latin America — and does not try to replace Brazil's domestic platforms. Export always depends on the importing country's health protocol (FMD status, bluetongue, TB/brucellosis testing), so eligibility is disclosed per listing, not assumed."
+    "help_nuance": "Gir (Gyr) is an ancient Bos indicus DAIRY zebu from the Gir forest of Gujarat, India — domed forehead, long pendulous ears, and exceptional heat, humidity, and tick tolerance. In Brazil it was transformed into a high-yielding tropical dairy breed and is the foundation of Girolando (Gir × Holstein). This marketplace is scoped to the EXPORT window — Brazilian and Indian dairy genetics flowing to Africa, Southeast Asia, and Latin America — and does not try to replace Brazil's domestic platforms. Export always depends on the importing country's health protocol (FMD status, bluetongue, TB/brucellosis testing), so eligibility is disclosed per listing, not assumed.",
+    "news_regions": [
+      [
+        "SA",
+        "pt-BR",
+        "BR",
+        "pt"
+      ],
+      [
+        "SA",
+        "es-419",
+        "CO",
+        "es"
+      ],
+      [
+        "SA",
+        "es-419",
+        "MX",
+        "es"
+      ],
+      [
+        "AS",
+        "en-IN",
+        "IN",
+        "en"
+      ],
+      [
+        "US",
+        "en-US",
+        "US",
+        "en"
+      ]
+    ]
   },
   "langs": [
     "en",

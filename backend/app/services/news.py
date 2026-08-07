@@ -17,6 +17,35 @@ UA = "WagyuTankBot/1.0 (+https://www.wagyutank.com/news; news aggregator)"
 # region, query, hl (ui lang), gl (country), lang (original content language).
 # English geo-feeds cost nothing (no translation); non-English are throttle-translated.
 # Regions: US=N.America SA=S.America EU=Europe AS=Asia JP=Japan AU=Oceania ME=MiddleEast AF=Africa
+#: Anglophone default. Correct for breeds whose trade press is English (Murray
+#: Grey, Dexter); WRONG for any breed whose heartland is not — and the failure is
+#: silent, because a query in the wrong language just returns nothing. Gir is a
+#: Brazilian/Indian breed with Portuguese search terms: it returned `seen=0` on
+#: every run for weeks while looking perfectly healthy in the logs. Override with
+#: `vocab.news_regions` in tank.json: [[region, hl, gl, lang], …].
+_DEFAULT_NEWS_REGIONS = [("AU", "en-AU", "AU", "en"), ("US", "en-US", "US", "en"),
+                         ("AU", "en-NZ", "NZ", "en"), ("EU", "en-GB", "GB", "en"),
+                         ("US", "en-CA", "CA", "en")]
+
+
+def _news_regions() -> list[tuple]:
+    """The tank's news geographies, from tank.json when it declares them.
+
+    A breed's news lives where the breed lives, so this has to follow the breed,
+    not the source tank's Anglophone assumptions."""
+    from .. import tank
+    raw = tank.vocab().get("news_regions")
+    if not raw:
+        return _DEFAULT_NEWS_REGIONS
+    out = []
+    for r in raw:
+        # [region, hl, gl, lang] — skip anything malformed rather than crash the
+        # nightly job over a config typo.
+        if isinstance(r, (list, tuple)) and len(r) == 4 and all(r):
+            out.append(tuple(str(x) for x in r))
+    return out or _DEFAULT_NEWS_REGIONS
+
+
 def _feeds() -> list[dict]:
     """WagyuTank uses its curated 38-feed set. Any other tank builds Google-News
     feeds from its config's news_search_terms across the key cattle regions — so a
@@ -27,9 +56,7 @@ def _feeds() -> list[dict]:
         return FEEDS
     terms = tank.vocab().get("news_search_terms") or [tank.brand().get("breed", "cattle")]
     q = " OR ".join(f'"{t}"' for t in terms)
-    regions = [("AU", "en-AU", "AU", "en"), ("US", "en-US", "US", "en"),
-               ("AU", "en-NZ", "NZ", "en"), ("EU", "en-GB", "GB", "en"),
-               ("US", "en-CA", "CA", "en")]
+    regions = _news_regions()
     feeds, seen = [], set()
     for region, hl, gl, lang in regions:
         if gl in seen:
